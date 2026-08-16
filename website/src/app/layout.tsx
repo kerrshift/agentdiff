@@ -22,6 +22,10 @@ export const metadata: Metadata = {
     "AgentDiff compares agent execution traces as DAGs in CI/CD — automatically detecting trajectory drift, redundant tool loops, and cost regressions.",
   keywords: ["AI agents", "LLM testing", "trajectory diff", "CI/CD", "regression testing", "agentdiff"],
   authors: [{ name: "AgentDiff" }],
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
   openGraph: {
     title: "AgentDiff — Trajectory Regression Testing for AI Agents",
     description: "Compare agent execution traces as DAGs. Detect drift, loops, and cost regressions in CI/CD.",
