@@ -1,0 +1,145 @@
+from datetime import datetime
+from typing import Any
+
+from agentdiff.adapters.base import BaseAdapter
+from agentdiff.models.step import StepStatus, StepType, TokenUsage, TraceStep
+from agentdiff.models.trace import AgentTrace
+
+
+class LangfuseAdapter(BaseAdapter):
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> AgentTrace:
+        """Parses exported Langfuse trace JSON into a canonical AgentTrace."""
+        trace_id = data.get("id") or "langfuse_trace"
+        agent_name = data.get("name") or "langfuse_agent"
+
+        task_input = data.get("input")
+        if not isinstance(task_input, dict):
+            task_input = {"input": task_input}
+
+        final_output = data.get("output")
+        if not isinstance(final_output, dict):
+            final_output = {"output": final_output}
+
+        observations = data.get("observations") or []
+        steps: list[TraceStep] = []
+
+        for idx, obs in enumerate(observations):
+            obs_id = obs.get("id") or f"obs_{idx}"
+            parent_id = obs.get("parentObservationId")
+
+            # Map Langfuse type to StepType
+            obs_type = str(obs.get("type", "")).upper()
+            if obs_type == "GENERATION":
+                step_type = StepType.LLM_CALL
+            elif obs_type == "SPAN":
+                name_lower = str(obs.get("name", "")).lower()
+                if "tool" in name_lower or "call" in name_lower:
+                    step_type = StepType.TOOL_CALL
+                else:
+                    step_type = StepType.ROUTING
+            else:
+                step_type = StepType.THOUGHT
+
+            input_payload = obs.get("input")
+            if not isinstance(input_payload, dict):
+                input_payload = {"input": input_payload}
+
+            output_payload = obs.get("output")
+            if not isinstance(output_payload, dict):
+                output_payload = {"output": output_payload}
+
+            # Parse Usage
+            usage = obs.get("usage") or {}
+            prompt_tokens = usage.get("promptTokens") or usage.get("input_tokens") or 0
+            completion_tokens = (
+                usage.get("completionTokens") or usage.get("output_tokens") or 0
+            )
+            total_tokens = (
+                usage.get("totalTokens")
+                or usage.get("total_tokens")
+                or (prompt_tokens + completion_tokens)
+            )
+            cost = usage.get("cost") or obs.get("cost") or 0.0
+
+            tokens = TokenUsage(
+                prompt_tokens=prompt_tokens,
+                completion_tokens=completion_tokens,
+                total_tokens=total_tokens,
+                estimated_cost_usd=cost,
+            )
+
+            # Latency
+            latency_ms = 0.0
+            start_str = obs.get("startTime")
+            end_str = obs.get("endTime")
+            if start_str and end_str:
+                try:
+                    t1 = datetime.fromisoformat(str(start_str).replace("Z", "+00:00"))
+                    t2 = datetime.fromisoformat(str(end_str).replace("Z", "+00:00"))
+                    latency_ms = (t2 - t1).total_seconds() * 1000.0
+                except Exception:
+                    pass
+            if latency_ms == 0.0:
+                latency_ms = obs.get("latency_ms") or (
+                    obs.get("duration", 0.0) * 1000.0
+                )
+
+            # Error Levels
+            level = str(obs.get("level", "")).upper()
+            status = StepStatus.SUCCESS
+            error_message = None
+            if "ERROR" in level or obs.get("statusMessage"):
+                status = StepStatus.ERROR
+                error_message = obs.get("statusMessage")
+
+            step = TraceStep(
+                step_id=obs_id,
+                parent_id=parent_id,
+                step_index=idx,
+                step_type=step_type,
+                name=obs.get("name") or f"obs_{obs_type.lower()}",
+                input_payload=input_payload,
+                output_payload=output_payload,
+                status=status,
+                error_message=error_message,
+                latency_ms=latency_ms,
+                tokens=tokens,
+                metadata=obs.get("metadata") or {},
+            )
+            steps.append(step)
+
+        steps.sort(key=lambda s: s.step_index)
+
+        # Total latency of trace (in seconds, convert to ms)
+        total_latency_ms = data.get("duration", 0.0) * 1000.0
+        if total_latency_ms == 0.0:
+            root_spans = [s for s in steps if not s.parent_id]
+            total_latency_ms = (
+                sum(s.latency_ms for s in root_spans)
+                if root_spans
+                else sum(s.latency_ms for s in steps)
+            )
+
+        prompt_tokens = sum(s.tokens.prompt_tokens for s in steps)
+        completion_tokens = sum(s.tokens.completion_tokens for s in steps)
+        total_tokens = sum(s.tokens.total_tokens for s in steps)
+        cost = sum(s.tokens.estimated_cost_usd for s in steps)
+
+        total_tokens_obj = TokenUsage(
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            total_tokens=total_tokens,
+            estimated_cost_usd=cost,
+        )
+
+        return AgentTrace(
+            trace_id=trace_id,
+            agent_name=agent_name,
+            task_input=task_input,
+            final_output=final_output,
+            steps=steps,
+            total_latency_ms=total_latency_ms,
+            total_tokens=total_tokens_obj,
+            metadata=data.get("metadata") or {},
+        )

@@ -1,0 +1,213 @@
+@import "tailwindcss";
+
+:root {
+  --background: #060608; /* Premium deep pitch black */
+  --foreground: #e4e4e7; /* Warm low-contrast zinc-200 */
+  --accent: #27272a;     /* Neutral Zinc */
+  --border-color: rgba(39, 39, 42, 0.25); /* Fainter zinc border */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Faint, neutral top ambient glow for depth */
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 1400px;
+  height: 500px;
+  background: radial-gradient(circle at top, rgba(99, 102, 241, 0.04) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #1c1c1f;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #27272a;
+}
+
+/* Borderless Translucent SaaS panels */
+.saas-card {
+  background: rgba(22, 22, 25, 0.4);
+  backdrop-filter: blur(12px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.saas-card:hover {
+  background-color: rgba(26, 26, 30, 0.5);
+  box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes text-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-text-gradient {
+  background-size: 200% auto !important;
+  animation: text-gradient-shift 5s ease infinite;
+}
+
+@keyframes line-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.95; }
+}
+
+.animate-border-pulse {
+  animation: line-pulse 3s ease-in-out infinite;
+}
+
+/* ==========================================
+   MARKDOWN RENDERING CONTENT STYLES
+   ========================================== */
+.markdown-content h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  font-family: var(--font-mono);
+  border: 1px dashed rgba(30, 32, 40, 0.6);
+  padding: 0.75rem 1rem;
+  background-color: rgba(9, 10, 13, 0.3);
+  display: inline-block;
+}
+
+.markdown-content h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #f4f4f5;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  border-left: 2px solid #6366f1;
+  padding-left: 0.75rem;
+}
+
+.markdown-content h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #e4e4e7;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.markdown-content p {
+  margin-bottom: 1.25rem;
+  line-height: 1.75;
+  color: #a1a1aa;
+  font-size: 0.95rem;
+}
+
+.markdown-content ul, .markdown-content ol {
+  margin-top: 1rem;
+  margin-bottom: 1.25rem;
+  padding-left: 0.25rem;
+}
+
+.markdown-content ul li {
+  position: relative;
+  padding-left: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: #a1a1aa;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.markdown-content ul li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background-color: #6366f1;
+  border: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+.markdown-content ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+}
+
+.markdown-content ol li {
+  margin-bottom: 0.5rem;
+  color: #a1a1aa;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Only style inline code — not code inside syntax highlighter blocks */
+.markdown-content :not(.relative) > code:not([class*="language-"]) {
+  font-family: var(--font-mono);
+  background-color: rgba(30, 32, 40, 0.35);
+  border: 1px solid rgba(30, 32, 40, 0.6);
+  padding: 0.125rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.82em;
+  color: #a5b4fc;
+  white-space: nowrap;
+}
+
+/* Kill any stray borders or backgrounds bleeding into syntax highlighter token spans */
+.markdown-content .relative span,
+.markdown-content .relative code,
+.markdown-content .relative code span {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.markdown-content th {
+  background-color: rgba(30, 32, 40, 0.4);
+  color: #ffffff;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 2px solid #1e2028;
+  font-size: 0.9rem;
+}
+
+.markdown-content td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid #1e2028;
+  color: #a1a1aa;
+  font-size: 0.9rem;
+}
+

@@ -1,0 +1,74 @@
+# ==========================================
+#              AGENTDIFF GITIGNORE
+# ==========================================
+
+# 1. Project Context (User Request)
+/context/
+
+# 2. OS / System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 3. Python Artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# 4. Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+pyvenv.cfg
+.python-version
+
+# 5. Testing & Linting
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+
+# 6. Next.js / Website (Node.js & pnpm)
+website/node_modules/
+website/.next/
+website/out/
+website/build/
+website/npm-debug.log*
+website/yarn-debug.log*
+website/yarn-error.log*
+website/pnpm-debug.log*
+website/.env*.local
+website/.env.local
+website/.env.development.local
+website/.env.test.local
+website/.env.production.local
