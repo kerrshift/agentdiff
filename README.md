@@ -1,19 +1,15 @@
 # AgentDiff
 
-[![License: Apache 2.0 / MIT](https://img.shields.io/badge/License-Apache_2.0_/_MIT-blue.svg)](LICENSE)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 
 **AgentDiff** is a developer-first Python library and CLI designed to solve the hardest problem in agent engineering: **regression testing multi-turn, tool-using AI agents by comparing execution paths (trajectories) head-to-head.**
-
----
 
 ## What AgentDiff Is
 
 * **A Trajectory Diff Engine:** Compares Run A (Baseline) against Run B (Candidate) across their execution Directed Acyclic Graphs (DAGs).
 * **A Local-First CI/CD Gate:** Runs locally in your terminal or inside `pytest` and GitHub Actions, raising errors or exit codes on regression violations.
 * **A Universal Comparator:** Ingests telemetry run files from **DeepEval**, OpenInference/OTel, Langfuse, or raw/custom JSON.
-
----
 
 ## Installation
 
@@ -26,8 +22,6 @@ Or using `uv`:
 ```bash
 uv add agentdiff
 ```
-
----
 
 ## Quickstart
 
@@ -73,8 +67,6 @@ def test_agent_refactor_efficiency():
     )
 ```
 
----
-
 ## Core Metrics
 
 | Metric | Target / Range | Algorithmic Definition |
@@ -83,8 +75,6 @@ def test_agent_refactor_efficiency():
 | **Wasted Effort Index (WEI)** | `0.0` (Optimal) to `1.0` (Total Waste) | $$\frac{\text{Count}(\text{Steps with status} \in \{\text{ERROR, RETRY, ABANDONED}\})}{\text{Total Execution Steps}}$$ |
 | **Loop Buster Index (LBI)** | Integer ($\ge 0$) | Detects consecutive repeating sequences of tools with stagnant state changes. |
 | **Resource Deltas ($\Delta\text{Res}$)** | Percentage ($\pm\%$) | Standard deltas for $\Delta\text{Tokens}$, $\Delta\text{Cost}$, and $\Delta\text{Latency}$. |
-
----
 
 ## Development & Operations
 
