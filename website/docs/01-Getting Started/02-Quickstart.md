@@ -7,9 +7,9 @@ Get AgentDiff running in your Python environment or test suite in under 5 minute
 Install AgentDiff from PyPI using your favorite package manager:
 
 ```bash
-pip install agentdiff
+pip install agent-trajectory-diff
 # or using uv
-uv add agentdiff
+uv add agent-trajectory-diff
 ```
 
 ## 2. Compare Traces via CLI

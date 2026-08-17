@@ -35,8 +35,8 @@ def test_agent_refactor_efficiency():
     )`;
 
   const cliCode = `# Install via pip or uv
-$ pip install agentdiff
-$ uv add agentdiff
+$ pip install agent-trajectory-diff
+$ uv add agent-trajectory-diff
 
 # Compare two traces in the terminal
 $ agentdiff diff baseline.json candidate.json

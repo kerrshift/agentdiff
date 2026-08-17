@@ -1,7 +1,7 @@
 [project]
-name = "agentdiff"
+name = "agent-trajectory-diff"
 version = "0.1.0"
-description = "Deterministic agent trajectory diffing & evaluation tool"
+description = "A developer-first package to evaluate and find regressions in agent trajectories"
 readme = "README.md"
 authors = [
     { name = "Sahil Gangurde", email = "sahilgangurde08@gmail.com" }

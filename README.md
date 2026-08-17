@@ -13,14 +13,14 @@
 
 ## Installation
 
-Install via pip:
+Install the PyPI package:
 ```bash
-pip install agentdiff
+pip install agent-trajectory-diff
 ```
 
 Or using `uv`:
 ```bash
-uv add agentdiff
+uv add agent-trajectory-diff
 ```
 
 ## Quickstart
