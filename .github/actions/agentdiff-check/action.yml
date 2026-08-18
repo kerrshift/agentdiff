@@ -1,0 +1,63 @@
+name: "AgentDiff Check"
+description: "Compare an agent trajectory against a stored baseline and gate the job on regressions."
+branding:
+  icon: "git-compare"
+  color: "gray-dark"
+
+inputs:
+  baseline:
+    description: "Path to the stored baseline trace JSON. First run establishes it when update-baseline is true."
+    required: true
+  candidate:
+    description: "Path to the candidate trace JSON for this run."
+    required: true
+  package:
+    description: "Python package spec to install (e.g. 'agent-trajectory-diff' or a git/local path)."
+    required: false
+    default: "agent-trajectory-diff"
+  adapter:
+    description: "Telemetry adapter: auto, generic, openinference, langfuse, langsmith."
+    required: false
+    default: "auto"
+  max-divergence:
+    description: "Maximum Trajectory Divergence Index (TDI) before regression."
+    required: false
+    default: "0.3"
+  max-loops:
+    description: "Maximum loop count before regression."
+    required: false
+    default: "0"
+  max-cost-delta:
+    description: "Maximum cost increase percentage before regression."
+    required: false
+    default: "10.0"
+  update-baseline:
+    description: "Overwrite the stored baseline with the candidate when the run is clean."
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install AgentDiff
+      shell: bash
+      run: pip install "${{ inputs.package }}"
+
+    - name: Run AgentDiff
+      shell: bash
+      run: |
+        args=(--adapter "${{ inputs.adapter }}" \
+              --max-divergence "${{ inputs.max-divergence }}" \
+              --max-loops "${{ inputs.max-loops }}" \
+              --max-cost-delta "${{ inputs.max-cost-delta }}")
+        if [[ "${{ inputs.update-baseline }}" == "true" ]]; then
+          args+=(--update-baseline)
+        fi
+        agentdiff "${{ inputs.baseline }}" "${{ inputs.candidate }}" \
+          --baseline "${{ inputs.baseline }}" \
+          --fail-on-regression --format markdown "${args[@]}"

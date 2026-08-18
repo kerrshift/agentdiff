@@ -35,10 +35,29 @@ def dict_diff(dict_a: dict[str, Any], dict_b: dict[str, Any]) -> dict[str, Any] 
     return diff if diff else None
 
 
+def _validate_unique_step_ids(trace: AgentTrace, label: str) -> None:
+    """Raises if the trace contains duplicate step_ids.
+
+    Duplicate ids silently corrupt the dependency graph and the alignment,
+    so we fail loudly rather than produce a misleading diff.
+    """
+    seen: set[str] = set()
+    for step in trace.steps:
+        if step.step_id in seen:
+            raise ValueError(
+                f"Duplicate step_id '{step.step_id}' in {label} trace; "
+                "step ids must be unique"
+            )
+        seen.add(step.step_id)
+
+
 def align_traces(
     baseline: AgentTrace, candidate: AgentTrace, strict_tool_signatures: bool = False
 ) -> list[StepDiff]:
     """Aligns two AgentTrace runs using modified topological LCS alignment."""
+    _validate_unique_step_ids(baseline, "baseline")
+    _validate_unique_step_ids(candidate, "candidate")
+
     # Convert to networkx to get topological ordering
     g_a = baseline.to_networkx()
     g_b = candidate.to_networkx()

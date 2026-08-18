@@ -1,0 +1,38 @@
+{
+  "id": "lf-trace-1",
+  "name": "orders_agent",
+  "input": {"user_query": "how many orders are pending?"},
+  "output": {"answer": "3 pending orders"},
+  "duration": 0.4,
+  "observations": [
+    {
+      "id": "o1",
+      "type": "generation",
+      "name": "planner",
+      "input": {"query": "pending orders"},
+      "output": {"plan": "search then synthesize"},
+      "usage": {"promptTokens": 200, "completionTokens": 50, "totalTokens": 250, "cost": 0.001},
+      "startTime": "2024-01-01T00:00:00Z",
+      "endTime": "2024-01-01T00:00:00.12Z"
+    },
+    {
+      "id": "o2",
+      "type": "span",
+      "name": "search_database",
+      "input": {"table": "orders", "status": "pending"},
+      "output": {"rows": 3},
+      "parentObservationId": "o1",
+      "duration": 0.04
+    },
+    {
+      "id": "o3",
+      "type": "generation",
+      "name": "synthesize",
+      "input": {"result": "3 rows"},
+      "output": {"answer": "3 pending orders"},
+      "usage": {"promptTokens": 100, "completionTokens": 20, "totalTokens": 120, "cost": 0.0005},
+      "parentObservationId": "o1",
+      "duration": 0.08
+    }
+  ]
+}

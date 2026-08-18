@@ -1,20 +1,36 @@
-# Introduction to AgentDiff
+# Introduction
 
-**AgentDiff** is a developer-first Python library and CLI designed to solve the hardest problem in agent engineering: **regression testing multi-turn, tool-using AI agents by comparing execution paths (trajectories) head-to-head.**
+**AgentDiff** is a developer-first Python library and CLI for **regression-testing multi-turn, tool-using AI agents** by comparing execution paths (trajectories) head-to-head.
 
-Traditional software testing relies on static assertions or string matching. However, autonomous agents are non-deterministic, generating complex, multi-step execution traces (Directed Acyclic Graphs) rather than flat outputs. Evaluating agents with flat string metrics fails because it ignores the path taken.
+AI agents are non-deterministic. They plan, call tools, retry, and loop — producing a **path** (a trace of steps) rather than a flat output. Traditional tests compare strings or use an LLM as a judge; neither can tell you *how* the agent got to an answer, or whether it got there wastefully. AgentDiff instead:
 
-AgentDiff solves this by parsing agent runs into directed acyclic graphs (DAGs) and comparing them directly in local terminals, python test suites, or CI/CD pipelines.
+1. **Parses** each run into a directed acyclic graph (DAG) of steps — from your own JSON, OpenInference/OTel, Langfuse, or LangSmith.
+2. **Compares** a baseline run and a candidate run, computing how structurally different the two paths are.
+3. **Explains** *why* they diverged and points at the **culprit step**.
+4. **Gates** the change in CI/CD so regressions can't merge.
 
-## Key Capabilities
+You feed AgentDiff two runs of the same task — say, one from your `main` branch and one from a pull request — and it tells you what changed, why it matters, and whether to block the merge.
 
-- **Trajectory Comparisons (DAG-LCS):** Computes sequence alignment based on Longest Common Subsequence (LCS) applied over topological node sequences to detect path divergence.
-- **Wasted Loop Detection:** Automatically identifies redundant tool-calling loops, infinite recursion, and inefficient tool selections with stagnant state changes.
-- **Resource Regressions:** Quantifies LLM API cost, token usage, and execution duration differences compared to your baseline.
-- **Universal telemetries Support:** Integrates natively with files exported from **DeepEval**, OpenInference/OTel, Langfuse, and custom JSON formats.
-- **CI/CD Native Gates:** Runs in GitHub Actions, throwing exit codes if your prompt refactor introduces infinite tool loops or spikes token waste.
+## What it does
 
-## What AgentDiff is NOT
+- **Trajectory comparison (TDI).** A deterministic measure of how far the candidate's path diverged from the baseline's — independent of the exact words the model produced.
+- **Loop detection.** Flags redundant, repeating tool-calling sequences and wasteful retries.
+- **Resource deltas.** Quantifies changes in cost, token usage, and latency.
+- **Explanations & culprit location.** Human-readable "why" plus the specific step responsible.
+- **Bring-your-own-telemetry.** Native adapters for the Generic format, OpenInference/OTel, Langfuse, and LangSmith.
+- **CI/CD native gates.** A CLI gate, a **pytest plugin**, baseline rotation, and one-command **PR comments**.
 
-- **Not an Observability Dashboard:** AgentDiff does not store your logs or act as a real-time APM. It is purely a test-time comparison and regression engine.
-- **Not an LLM-as-a-Judge Framework:** It doesn't replace frameworks like DeepEval or Ragas for semantic scoring; instead, it mathematically analyzes *how* the agent got there (structural steps, loops, and efficiency).
+## What it is not
+
+- **Not an observability dashboard.** AgentDiff doesn't store logs or act as a real-time APM. It's a test-time comparison and regression engine.
+- **Not an LLM-as-a-judge framework.** It doesn't score semantic quality. It mathematically analyzes *how* the agent reached its answer — the structure, loops, and efficiency.
+
+## Where it fits
+
+```text
+baseline run  ──┐
+                ├──> AgentDiff compare ──> report (TDI, loops, cost) ──> gate / PR comment
+candidate run ──┘
+```
+
+Give it two runs, get an answer you can act on in CI.

@@ -1,10 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, ArrowUpRight } from "lucide-react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import Reveal from "./Reveal";
+
+const FORMATS = ["Generic JSON", "OpenInference", "Langfuse", "LangSmith"];
 
 export default function IntegrationShowcase() {
-  const [activeCodeTab, setActiveCodeTab] = useState<"pytest" | "cli">("pytest");
+  const [activeCodeTab, setActiveCodeTab] = useState<"pytest" | "cli" | "report">("pytest");
   const [copiedCode, setCopiedCode] = useState(false);
 
   const copyToClipboard = (text: string) => {
@@ -18,7 +23,7 @@ from agentdiff import load_trace, compare
 from agentdiff.testing import assert_no_regressions
 
 def test_agent_refactor_efficiency():
-    # load_trace() auto-detects format: generic, deepeval, openinference, langfuse
+    # load_trace() auto-detects format: generic, openinference, langfuse, langsmith
     baseline  = load_trace("tests/traces/baseline.json")
     candidate = load_trace("tests/traces/candidate.json")
 
@@ -39,101 +44,147 @@ $ pip install agent-trajectory-diff
 $ uv add agent-trajectory-diff
 
 # Compare two traces in the terminal
-$ agentdiff diff baseline.json candidate.json
+$ agentdiff baseline.json candidate.json
 
 # CI/CD gate: exit code 1 if thresholds are breached
-$ agentdiff diff baseline.json candidate.json \\
+$ agentdiff baseline.json candidate.json \\
     --fail-on-regression \\
     --max-divergence 0.25 \\
     --max-cost-delta 10.0 \\
     --format markdown \\
     --output-file pr_comment.md`;
 
+  const reportCode = `# AgentDiff · Regression Report
+> baseline: sql_agent_v1.json · candidate: sql_agent_v2.json
+
+## Status: FAIL
+
+| Metric           | Value    | Threshold |
+|------------------|----------|-----------|
+| Divergence (TDI) | 0.15     | <= 0.25   |
+| Wasted Effort    | 0.57     | <= 0.15   |
+| Cost Delta       | +148.2%  | <= 10.0%  |
+
+## Loops detected
+- execute_sql -> sql_error (iterations: 3, args identical)
+
+## Recommendation
+Block this change: candidate introduces a
+tool loop and a 148% cost increase over baseline.`;
+
+  const TABS = [
+    { id: "pytest", name: "pytest_test.py" },
+    { id: "cli", name: "agentdiff_cli.sh" },
+    { id: "report", name: "pr_comment.md" },
+  ] as const;
+
+  const activeCode = activeCodeTab === "pytest" ? pytestCode : activeCodeTab === "cli" ? cliCode : reportCode;
+  const activeLanguage = activeCodeTab === "report" ? "markdown" : activeCodeTab === "cli" ? "bash" : "python";
+
   return (
-    <section id="integration-section" className="py-24 bg-transparent font-sans">
+<section id="integration-section" className="py-24 border-t border-[#E4E4E7] bg-transparent font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Spacious 2-Column Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-          
-          {/* Left explanation */}
-          <div className="lg:col-span-4 flex flex-col justify-between py-2">
-            <div>
-              <span className="text-xs text-zinc-500 font-semibold uppercase tracking-wider block mb-4">Developer integration</span>
-              
-              {/* Drafting Box */}
-              <div className="relative p-4 my-2 inline-block mb-6">
-                <div className="absolute top-0 left-[-12px] right-[-12px] h-[1px] bg-[#1E2028]/85"></div>
-                <div className="absolute bottom-0 left-[-12px] right-[-12px] h-[1px] bg-[#1E2028]/85"></div>
-                <div className="absolute left-0 top-[-12px] bottom-[-12px] w-[1px] bg-[#1E2028]/85"></div>
-                <div className="absolute right-0 top-[-12px] bottom-[-12px] w-[1px] bg-[#1E2028]/85"></div>
 
-                <h2 className="text-2xl font-bold tracking-tight text-zinc-150">
-                  Zero boilerplate DX
-                </h2>
-              </div>
+        <Reveal>
+        {/* Section Header — left rail */}
+        <div className="max-w-3xl mb-12">
+          <span className="text-xs font-mono uppercase tracking-[0.16em] text-[#A1A1AA] font-medium block mb-4">Developer integration</span>
+          <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
+            Zero boilerplate DX.
+          </h2>
+          <p className="mt-4 text-base text-[#52525B] leading-relaxed font-normal">
+            A thin Python SDK for pytest, plus a strict CLI runner that drops straight into any pipeline.
+          </p>
+        </div>
+        </Reveal>
 
-              <p className="text-sm text-zinc-400 leading-relaxed mb-8 font-light">
-                AgentDiff exposes a programmatic Python SDK tailored for testing frameworks like `pytest`, alongside a strict CLI runner for automated pipeline integration.
-              </p>
+        <Reveal delay={140}>
+        {/* Formats — mono readout, left rail */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-mono text-[#52525B] mb-10">
+          <span className="text-[10px] uppercase tracking-[0.14em] text-[#A1A1AA] font-semibold mr-3">Formats</span>
+          {FORMATS.map((fmt, i) => (
+            <React.Fragment key={fmt}>
+              {i > 0 && <span className="text-[#E4E4E7]">·</span>}
+              <span>{fmt}</span>
+            </React.Fragment>
+          ))}
+        </div>
+
+        {/* Code panel — clean light surface */}
+        <div className="bg-white border border-[#E4E4E7] rounded-xl overflow-hidden">
+
+          {/* Panel header */}
+          <div className="border-b border-[#E4E4E7] px-5 py-0 flex items-center justify-between">
+            <div className="flex items-center gap-7 -mb-px">
+              {TABS.map((tab) => {
+                const active = activeCodeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveCodeTab(tab.id)}
+                    className={`relative text-xs font-semibold py-3.5 transition-colors duration-150 ${
+                      active ? "text-[#18181B]" : "text-[#A1A1AA] hover:text-[#18181B]"
+                    }`}
+                  >
+                    {tab.name}
+                    <span
+                      className={`absolute left-0 bottom-0 h-0.5 bg-[#18181B] transition-all duration-200 ${
+                        active ? "w-full" : "w-0"
+                      }`}
+                    />
+                  </button>
+                );
+              })}
             </div>
 
-            {/* Code Snippet Info */}
-            <div className="pt-6 border-t border-[#1E2028]/80">
-              <div className="text-xs text-zinc-400 font-semibold mb-3 uppercase tracking-wider font-mono">Supported formats</div>
-              <div className="flex flex-wrap gap-2">
-                <span className="border border-indigo-400/30 bg-indigo-500/10 text-indigo-300 text-xs px-3 py-1.5 rounded-lg font-mono font-medium">Generic JSON</span>
-                <span className="border border-indigo-400/30 bg-indigo-500/10 text-indigo-300 text-xs px-3 py-1.5 rounded-lg font-mono font-medium">DeepEval</span>
-                <span className="border border-indigo-400/30 bg-indigo-500/10 text-indigo-300 text-xs px-3 py-1.5 rounded-lg font-mono font-medium">OpenInference</span>
-                <span className="border border-indigo-400/30 bg-indigo-500/10 text-indigo-300 text-xs px-3 py-1.5 rounded-lg font-mono font-medium">Langfuse</span>
-              </div>
-            </div>
+            <button
+              onClick={() => copyToClipboard(activeCode)}
+              className="flex items-center gap-1.5 text-xs font-semibold text-[#A1A1AA] hover:text-[#18181B] transition-colors duration-150 py-3.5"
+            >
+              {copiedCode ? <Check className="w-3.5 h-3.5 text-[#0FA47F]" /> : <Copy className="w-3.5 h-3.5" />}
+              {copiedCode ? "Copied" : "Copy"}
+            </button>
           </div>
 
-          {/* Right code panel */}
-          <div className="lg:col-span-8 flex flex-col bg-zinc-950/20 rounded-xl overflow-hidden shadow-md border border-zinc-900">
-            
-            {/* Tab Selector */}
-            <div className="border-b border-zinc-900/60 px-5 py-3 flex items-center justify-between text-xs bg-zinc-950/80">
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => setActiveCodeTab("pytest")}
-                  className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-150 ${
-                    activeCodeTab === "pytest" ? "bg-zinc-800 text-zinc-200 shadow-sm border border-zinc-700" : "text-zinc-500 hover:text-zinc-300"
-                  }`}
-                >
-                  pytest_test.py
-                </button>
-                <button 
-                  onClick={() => setActiveCodeTab("cli")}
-                  className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-150 ${
-                    activeCodeTab === "cli" ? "bg-zinc-800 text-zinc-200 shadow-sm border border-zinc-700" : "text-zinc-500 hover:text-zinc-300"
-                  }`}
-                >
-                  agentdiff_cli.sh
-                </button>
-              </div>
-
-              {/* Copy Button */}
-              <button 
-                onClick={() => copyToClipboard(activeCodeTab === "pytest" ? pytestCode : cliCode)}
-                className="p-1.5 text-zinc-500 hover:text-white transition-colors duration-150 flex items-center gap-1.5"
+          {/* Code field */}
+          <div className="bg-[#FBFBFC] font-mono leading-relaxed">
+            <div className="h-[340px] overflow-auto no-scrollbar">
+              <SyntaxHighlighter
+                style={oneLight}
+                language={activeLanguage}
+                PreTag="div"
+                customStyle={{
+                  margin: 0,
+                  borderRadius: 0,
+                  border: "none",
+                  background: "transparent",
+                  padding: "1.5rem",
+                  fontSize: "0.8rem",
+                  lineHeight: "1.7",
+                }}
+                codeTagProps={{ style: { background: "transparent", fontFamily: "inherit" } }}
               >
-                {copiedCode ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
-                <span className="text-xs font-semibold">{copiedCode ? "Copied" : "Copy"}</span>
-              </button>
+                {activeCode}
+              </SyntaxHighlighter>
             </div>
-
-            {/* Code Field */}
-            <div className="p-6 overflow-x-auto text-xs text-zinc-400 font-mono bg-black/40 leading-relaxed h-[340px]">
-              <pre>
-                <code>{activeCodeTab === "pytest" ? pytestCode : cliCode}</code>
-              </pre>
-            </div>
-
           </div>
 
         </div>
+
+        {/* Cookbook + models — left rail, hairline top */}
+        <div className="mt-10 max-w-2xl flex flex-wrap items-center justify-between gap-4">
+          <a
+            href="https://github.com/lostmartian/agentdiff/tree/main/cookbooks"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-[#18181B] hover:text-[#52525B] transition-colors duration-150"
+          >
+            Try the live cookbooks
+            <ArrowUpRight className="w-4 h-4" />
+          </a>
+          <span className="text-[11px] text-[#A1A1AA] font-mono">Gemini · OpenAI · OTel · Langfuse · LangSmith</span>
+        </div>
+        </Reveal>
 
       </div>
     </section>

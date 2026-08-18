@@ -17,7 +17,27 @@ def compare(
     detect_loops: bool = True,
     strict_tool_signatures: bool = False,
 ) -> DiffReport:
-    """Compares baseline and candidate AgentTrace runs, returning a DiffReport."""
+    """Aligns two agent runs and scores their divergence.
+
+    Produces a :class:`DiffReport` with step-level alignment, trajectory
+    divergence (TDI), wasted-effort (WEI), cost/latency/token deltas, and
+    (optionally) loop detection on the candidate run.
+
+    Args:
+        baseline: The known-good trace to compare against.
+        candidate: The new trace under test.
+        detect_loops: Detect repeating sub-sequences and graph cycles in the
+            candidate run.
+        strict_tool_signatures: When True, steps only match if both their
+            type/name/input-keys AND their full input payloads are equal.
+
+    Returns:
+        A DiffReport describing the comparison. ``passed`` defaults to True and
+        is only set False by the CLI/assertion gates.
+
+    Raises:
+        ValueError: If either trace contains duplicate ``step_id`` values.
+    """
     # 1. Align execution traces
     step_diffs = align_traces(baseline, candidate, strict_tool_signatures)
 

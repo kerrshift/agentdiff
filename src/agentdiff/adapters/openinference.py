@@ -13,7 +13,11 @@ class OpenInferenceAdapter(BaseAdapter):
         """Parses an OpenInference span or collection of spans into an AgentTrace."""
         spans = []
         if isinstance(data, dict):
-            spans = data.get("spans") or data.get("spans_list") or [data]
+            raw_spans = data.get("spans") or data.get("spans_list")
+            if isinstance(raw_spans, list):
+                spans = raw_spans
+            else:
+                spans = [data]
         elif isinstance(data, list):
             spans = data
 
@@ -22,11 +26,17 @@ class OpenInferenceAdapter(BaseAdapter):
 
         steps: list[TraceStep] = []
         for idx, span in enumerate(spans):
-            context = span.get("context") or {}
+            if not isinstance(span, dict):
+                raise ValueError(f"OpenInference span at index {idx} is not an object")
+            context = span.get("context")
+            if not isinstance(context, dict):
+                context = {}
             span_id = context.get("span_id") or span.get("span_id") or f"span_{idx}"
             parent_id = span.get("parent_span_id") or span.get("parent_id")
 
-            attrs = span.get("attributes") or {}
+            attrs = span.get("attributes")
+            if not isinstance(attrs, dict):
+                attrs = {}
 
             # Map OpenInference span kind to StepType
             span_kind = attrs.get("openinference.span.kind") or span.get("kind") or ""
@@ -60,20 +70,19 @@ class OpenInferenceAdapter(BaseAdapter):
             output_payload = cls._to_payload_dict(output_val, "output")
 
             # Tokens
-            prompt_tokens = (
-                attrs.get("llm.token_count.prompt") or attrs.get("prompt_tokens") or 0
+            prompt_tokens = cls._as_int(
+                attrs.get("llm.token_count.prompt") or attrs.get("prompt_tokens")
             )
-            completion_tokens = (
+            completion_tokens = cls._as_int(
                 attrs.get("llm.token_count.completion")
                 or attrs.get("completion_tokens")
-                or 0
             )
-            total_tokens = (
-                attrs.get("llm.token_count.total")
-                or attrs.get("total_tokens")
-                or (prompt_tokens + completion_tokens)
+            total_tokens = cls._as_int(
+                attrs.get("llm.token_count.total") or attrs.get("total_tokens")
             )
-            cost = attrs.get("llm.cost") or attrs.get("cost") or 0.0
+            if total_tokens == 0:
+                total_tokens = prompt_tokens + completion_tokens
+            cost = cls._as_float(attrs.get("llm.cost") or attrs.get("cost"))
 
             tokens = TokenUsage(
                 prompt_tokens=prompt_tokens,
@@ -106,7 +115,9 @@ class OpenInferenceAdapter(BaseAdapter):
                 latency_ms = span.get("latency_ms") or 0.0
 
             # Status and error messages
-            status_val = span.get("status") or {}
+            status_val = span.get("status")
+            if not isinstance(status_val, dict):
+                status_val = {}
             status_code = (
                 status_val.get("status_code") or span.get("status_code") or "OK"
             )

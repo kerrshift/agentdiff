@@ -1,42 +1,150 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { Menu, X } from "lucide-react";
 
-export default function Header() {
+const NAV = [
+  { id: "workspace-section", label: "Workspace" },
+  { id: "features-section", label: "Features" },
+  { id: "action-section", label: "Action" },
+  { id: "integration-section", label: "Integration" },
+];
+
+// All tracked sections, including the Hero and Problem (which aren't in the nav).
+// Tracking them lets the active highlight clear when the user is at the top.
+const TRACKED_SECTIONS = [
+  "hero-section",
+  "problem-section",
+  ...NAV.map((n) => n.id),
+];
+
+export default function Header({ version = "0.1.0" }: { version?: string }) {
+  const [scrolled, setScrolled] = useState(false);
+  const [active, setActive] = useState<string>("");
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        });
+      },
+      { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
+    );
+    TRACKED_SECTIONS.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  const linkClass = (id: string) =>
+    `text-xs font-medium transition-colors duration-150 relative after:absolute after:left-0 after:-bottom-1.5 after:h-px after:bg-[#18181B] after:origin-left after:transition-transform after:duration-200 ${
+      active === id
+        ? "text-[#18181B] after:scale-x-100 after:w-full"
+        : "text-[#52525B] hover:text-[#18181B] after:scale-x-0 after:w-full hover:after:scale-x-100"
+    }`;
+
   return (
-    <header className="border-b border-[#1E2028]/60 bg-[#060608]/60 backdrop-blur-md sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between text-sm font-sans">
-        
+    <header
+      className={`sticky top-0 z-40 transition-shadow duration-300 border-b border-[#E4E4E7] bg-[#FBFBFC]/80 backdrop-blur-md ${
+        scrolled ? "shadow-[0_1px_0_0_rgba(0,0,0,0.02),0_8px_24px_-16px_rgba(0,0,0,0.18)]" : ""
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between font-sans">
+
         {/* Left branding */}
         <div className="flex items-center gap-3">
-          <span className="font-semibold text-white tracking-tight text-base">
-            agent<span className="text-indigo-400">diff</span>
-          </span>
-          <span className="text-xs font-mono text-zinc-600 bg-[#1E2028]/40 px-2 py-0.5 rounded border border-[#1E2028]/80">v0.1.0</span>
+          <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="flex items-center gap-2.5 group cursor-pointer"
+            aria-label="Back to top"
+          >
+            <span className="flex items-center justify-center w-6 h-6 rounded-md bg-[#18181B] text-white">
+              <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                <path d="M3 4.5h4.5M3 8h6.5M3 11.5h3.5" />
+              </svg>
+            </span>
+            <span className="font-semibold text-[#18181B] tracking-tight text-base group-hover:opacity-80 transition-opacity duration-150">
+              agentdiff
+            </span>
+            <span className="text-[10px] font-mono text-[#A1A1AA] border border-[#E4E4E7] rounded px-1.5 py-0.5">
+              v{version}
+            </span>
+          </button>
         </div>
 
-        {/* Right nav */}
-        <div className="flex items-center gap-5">
-          <a
-            href="/docs"
-            className="text-xs text-zinc-400 hover:text-indigo-400 transition-colors duration-150 font-medium"
-          >
+        {/* Right nav (desktop) */}
+        <div className="hidden md:flex items-center gap-8">
+          {NAV.map((n) => (
+            <a key={n.id} href={`#${n.id}`} className={linkClass(n.id)}>
+              {n.label}
+            </a>
+          ))}
+          <Link href="/docs" className="text-xs font-medium text-[#52525B] hover:text-[#18181B] transition-colors duration-150">
             Docs
-          </a>
+          </Link>
           <a
             href="https://github.com/lostmartian/agentdiff"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-zinc-400 hover:text-white transition-colors duration-150 font-medium flex items-center gap-1.5"
+            className="text-xs font-medium text-white bg-[#18181B] hover:bg-black px-3.5 py-1.5 rounded-lg transition-colors duration-150"
           >
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-            </svg>
             GitHub
           </a>
         </div>
 
+        {/* Mobile toggle */}
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className="md:hidden p-1.5 text-[#18181B] hover:bg-[#F4F4F5] rounded-lg transition-colors duration-150"
+          aria-label="Toggle menu"
+        >
+          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
       </div>
+
+      {/* Mobile menu */}
+      {open && (
+        <div className="md:hidden border-t border-[#E4E4E7] bg-[#FBFBFC] px-4 py-3 flex flex-col gap-1">
+          {NAV.map((n) => (
+            <a
+              key={n.id}
+              href={`#${n.id}`}
+              onClick={() => setOpen(false)}
+              className="text-sm font-medium text-[#18181B] py-2.5 px-2 rounded-lg hover:bg-[#F4F4F5] transition-colors duration-150"
+            >
+              {n.label}
+            </a>
+          ))}
+          <Link
+            href="/docs"
+            onClick={() => setOpen(false)}
+            className="text-sm font-medium text-[#18181B] py-2.5 px-2 rounded-lg hover:bg-[#F4F4F5] transition-colors duration-150"
+          >
+            Docs
+          </Link>
+          <a
+            href="https://github.com/lostmartian/agentdiff"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setOpen(false)}
+            className="text-sm font-semibold text-white bg-[#18181B] hover:bg-black py-2.5 px-2 rounded-lg text-center mt-1 transition-colors duration-150"
+          >
+            GitHub
+          </a>
+        </div>
+      )}
     </header>
   );
 }

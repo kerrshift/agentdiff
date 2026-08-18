@@ -10,6 +10,11 @@ def detect_graph_cycles(trace: AgentTrace) -> list[list[str]]:
     graph = trace.to_networkx()
     try:
         cycles = list(nx.simple_cycles(graph))
+        # nx.simple_cycles does not report self-loops (length-1 cycles);
+        # detect them explicitly so a step that depends on itself is flagged.
+        for node in graph.nodes:
+            if graph.has_edge(node, node):
+                cycles.append([node])
         return cycles
     except Exception:
         return []

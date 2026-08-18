@@ -8,9 +8,17 @@ def assert_no_regressions(
     allow_loops: bool = False,
     max_wasted_effort: float = 0.10,
 ):
-    """Expressive regression assertion helper for pytest suites.
+    """Regression assertion helper for pytest suites.
 
-    Raises an AssertionError with descriptive failure outputs if any threshold is violated.
+    Raises an :class:`AssertionError` (with a descriptive message) if any gate
+    is violated.
+
+    Args:
+        report: The :class:`DiffReport` produced by :func:`compare`.
+        max_divergence: Maximum allowed Trajectory Divergence Index (TDI).
+        max_cost_increase_pct: Maximum allowed cost increase, in percent.
+        allow_loops: If True, detected loops do not fail the assertion.
+        max_wasted_effort: Maximum allowed candidate Wasted Effort Index (WEI).
     """
     errors = []
 

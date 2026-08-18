@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0.0",
+  "trace_id": "generic-candidate",
+  "agent_name": "orders_agent",
+  "task_input": {"user_query": "how many orders are pending?"},
+  "final_output": {"answer": "3 pending orders"},
+  "total_latency_ms": 360,
+  "steps": [
+    {
+      "step_id": "c0",
+      "step_index": 0,
+      "step_type": "llm_call",
+      "name": "planner",
+      "input_payload": {"query": "pending orders"},
+      "output_payload": {"plan": "search then synthesize"},
+      "status": "success",
+      "latency_ms": 120,
+      "tokens": {"prompt_tokens": 200, "completion_tokens": 50, "total_tokens": 250, "estimated_cost_usd": 0.001}
+    },
+    {
+      "step_id": "c1",
+      "step_index": 1,
+      "step_type": "tool_call",
+      "name": "search_database",
+      "input_payload": {"table": "orders", "status": "pending"},
+      "output_payload": {"rows": 3},
+      "status": "success",
+      "latency_ms": 40,
+      "tokens": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0, "estimated_cost_usd": 0.0}
+    },
+    {
+      "step_id": "c2",
+      "step_index": 2,
+      "step_type": "tool_call",
+      "name": "search_database",
+      "input_payload": {"table": "orders", "status": "pending"},
+      "output_payload": {"rows": 3},
+      "status": "success",
+      "latency_ms": 40,
+      "tokens": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0, "estimated_cost_usd": 0.0}
+    },
+    {
+      "step_id": "c3",
+      "step_index": 3,
+      "step_type": "tool_call",
+      "name": "search_database",
+      "input_payload": {"table": "orders", "status": "pending"},
+      "output_payload": {"rows": 3},
+      "status": "success",
+      "latency_ms": 40,
+      "tokens": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0, "estimated_cost_usd": 0.0}
+    },
+    {
+      "step_id": "c4",
+      "step_index": 4,
+      "step_type": "llm_call",
+      "name": "synthesize",
+      "input_payload": {"result": "3 rows"},
+      "output_payload": {"answer": "3 pending orders"},
+      "status": "success",
+      "latency_ms": 80,
+      "tokens": {"prompt_tokens": 100, "completion_tokens": 20, "total_tokens": 120, "estimated_cost_usd": 0.0005}
+    }
+  ]
+}

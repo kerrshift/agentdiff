@@ -4,10 +4,16 @@ from agentdiff.models.step import StepStatus, TraceStep
 def calculate_tdi(steps_a_len: int, steps_b_len: int, lcs_len: int) -> float:
     """Calculates Trajectory Divergence Index (TDI).
     TDI = 1.0 - (2 * |LCS(A, B)|) / (|Steps_A| + |Steps_B|)
+
+    The LCS length is clamped to the valid range ``[0, min(a, b)]`` so the
+    result is always in ``[0, 1]`` regardless of the caller's input.
     """
+    if steps_a_len < 0 or steps_b_len < 0 or lcs_len < 0:
+        raise ValueError("Step and LCS counts must be non-negative")
     total_steps = steps_a_len + steps_b_len
     if total_steps == 0:
         return 0.0
+    lcs_len = min(lcs_len, steps_a_len, steps_b_len)
     return 1.0 - (2.0 * lcs_len) / total_steps
 
 

@@ -7,6 +7,10 @@ from agentdiff.models.step import TokenUsage, TraceStep
 
 
 class AgentTrace(BaseModel):
+    schema_version: str = Field(
+        default="1.0.0",
+        description="Semver of the canonical AgentTrace JSON schema.",
+    )
     trace_id: str
     agent_name: str
     agent_version: str | None = None

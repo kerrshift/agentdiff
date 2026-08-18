@@ -1,58 +1,56 @@
-# Understanding Trajectory DAGs
+# Trajectory DAGs
 
-AgentDiff translates multi-turn execution step sequences into Directed Acyclic Graphs (DAGs) using **NetworkX**. 
+AgentDiff translates a multi-turn execution sequence into a **directed acyclic graph (DAG)** of steps. Each node is a step (a tool call, an LLM call, a routing decision, or a thought); edges follow the parent-child flow of execution.
 
-Each node in the DAG represents a specific step (such as a tool execution, LLM call, or thought block), and the edges reflect the parent-child flow of execution (either defined sequentially or by parent span identifiers).
+## Canonical data model
 
-## Canonical Data Models
+AgentDiff uses Pydantic (v2+) for strongly-typed trace schemas.
 
-AgentDiff uses Pydantic (v2+) to define trace schemas strongly:
+### `AgentTrace` — one run
 
-### 1. Step Node Schema (`TraceStep`)
-Captures step details, parameters, outputs, errors, latency, and token usages:
-* `step_id` (str): Unique identifier.
-* `parent_id` (str, optional): ID of the calling/parent step.
-* `step_index` (int): Sequential index.
-* `step_type` (StepType): One of `tool_call`, `llm_call`, `routing`, or `thought`.
-* `name` (str): Action name (e.g. `web_search`, `sql_query`).
-* `input_payload` (dict): Argument parameters.
-* `output_payload` (dict, optional): Return values.
-* `status` (StepStatus): `success`, `error`, `retry`, `abandoned`.
-* `latency_ms` (float): Duration in milliseconds.
-* `tokens` (TokenUsage): prompt, completion, total counts, and estimated cost.
+| Field | Type | Notes |
+| --- | --- | --- |
+| `schema_version` | `str` | Format version (`"1.0.0"`). |
+| `trace_id` | `str` | Unique ID for the run. |
+| `agent_name` | `str` | Name of the agent. |
+| `agent_version` | `str?` | Optional agent version. |
+| `task_input` | `dict` | The task given to the agent. |
+| `final_output` | `dict?` | The agent's final answer. |
+| `steps` | `list[TraceStep]` | Ordered execution steps. |
+| `total_latency_ms` | `float?` | Total duration in ms. |
+| `total_tokens` | `TokenUsage?` | Aggregated token/cost metadata. |
+| `metadata` | `dict?` | Free-form extra data. |
 
-### 2. Execution Graph (`AgentTrace`)
-The container for a full trajectory run:
-* `trace_id` (str): Unique trace ID.
-* `agent_name` (str): Name of the agent.
-* `steps` (List[TraceStep]): Linear list of steps.
-* `total_latency_ms` (float): Full trace duration.
-* `total_tokens` (TokenUsage): Aggregated token and cost metadata.
+### `TraceStep` — one node
 
-## Converting to NetworkX
+| Field | Type | Notes |
+| --- | --- | --- |
+| `step_id` | `str` | Unique identifier. |
+| `parent_id` | `str?` | Parent step id (defines hierarchy). |
+| `step_index` | `int` | Sequential position in the run. |
+| `step_type` | `StepType` | `tool_call`, `llm_call`, `routing`, or `thought`. |
+| `name` | `str` | Action name, e.g. `web_search`. |
+| `input_payload` | `dict` | Arguments to the step. |
+| `output_payload` | `dict?` | Return values. |
+| `status` | `StepStatus` | `success`, `error`, `retry`, or `abandoned`. |
+| `error_message` | `str?` | Set when the step errored. |
+| `latency_ms` | `float?` | Duration in ms. |
+| `tokens` | `TokenUsage?` | Token counts and cost. |
+| `metadata` | `dict?` | Free-form extra data. |
 
-You can convert any `AgentTrace` into a NetworkX directed graph by calling `.to_networkx()`:
+### `TokenUsage`
 
-```python
-import networkx as nx
-from agentdiff import load_trace
+`prompt_tokens`, `completion_tokens`, `total_tokens`, `estimated_cost_usd`.
 
-trace = load_trace("run.json")
-digraph: nx.DiGraph = trace.to_networkx()
-
-# You can now analyze topology, paths, or visual layouts using NetworkX:
-print(list(nx.topological_sort(digraph)))
-```
-
-## Canonical JSON Schema Example
-If you are not using telemetry adapters, you can output your agent runs matching this canonical schema directly:
+## Example (Generic format)
 
 ```json
 {
+  "schema_version": "1.0.0",
   "trace_id": "run-101",
   "agent_name": "WeatherAgent",
   "task_input": { "query": "weather in NYC" },
-  "final_output": { "answer": "It is sunny and 75°F in NYC." },
+  "final_output": { "answer": "It is sunny and 75F in NYC." },
   "steps": [
     {
       "step_id": "step-1",
@@ -60,9 +58,10 @@ If you are not using telemetry adapters, you can output your agent runs matching
       "step_type": "tool_call",
       "name": "geocode_city",
       "input_payload": { "city": "NYC" },
-      "output_payload": { "lat": 40.71, "lng": -74.00 },
+      "output_payload": { "lat": 40.71, "lng": -74.0 },
       "status": "success",
-      "latency_ms": 120.0
+      "latency_ms": 120.0,
+      "tokens": { "prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0, "estimated_cost_usd": 0.0 }
     },
     {
       "step_id": "step-2",
@@ -70,24 +69,38 @@ If you are not using telemetry adapters, you can output your agent runs matching
       "step_index": 1,
       "step_type": "llm_call",
       "name": "generate_report",
-      "input_payload": { "lat": 40.71, "lng": -74.00 },
+      "input_payload": { "lat": 40.71, "lng": -74.0 },
       "output_payload": { "report": "sunny, 75 degrees" },
       "status": "success",
       "latency_ms": 1100.0,
-      "tokens": {
-        "prompt_tokens": 150,
-        "completion_tokens": 80,
-        "total_tokens": 230,
-        "estimated_cost_usd": 0.0035
-      }
+      "tokens": { "prompt_tokens": 150, "completion_tokens": 80, "total_tokens": 230, "estimated_cost_usd": 0.0035 }
     }
   ],
   "total_latency_ms": 1220.0,
-  "total_tokens": {
-    "prompt_tokens": 150,
-    "completion_tokens": 80,
-    "total_tokens": 230,
-    "estimated_cost_usd": 0.0035
-  }
+  "total_tokens": { "prompt_tokens": 150, "completion_tokens": 80, "total_tokens": 230, "estimated_cost_usd": 0.0035 }
 }
 ```
+
+## Working with the graph in Python
+
+Load a trace and inspect it as a NetworkX graph:
+
+```python
+import networkx as nx
+from agentdiff import load_trace
+
+trace = load_trace("run.json")           # auto-detects the format
+digraph: nx.DiGraph = trace.to_networkx()
+
+print(list(nx.topological_sort(digraph)))
+```
+
+You can also parse raw dict data without a file:
+
+```python
+from agentdiff.loader import parse_trace_data
+
+trace = parse_trace_data(raw_dict, adapter_name="generic")
+```
+
+See [Ingestion Adapters](03-Ingestion-Adapters.md) for the supported formats.

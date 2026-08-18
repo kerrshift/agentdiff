@@ -10,6 +10,8 @@ class LangfuseAdapter(BaseAdapter):
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> AgentTrace:
         """Parses exported Langfuse trace JSON into a canonical AgentTrace."""
+        if not isinstance(data, dict):
+            raise ValueError("Langfuse trace data must be an object")
         trace_id = data.get("id") or "langfuse_trace"
         agent_name = data.get("name") or "langfuse_agent"
 
@@ -21,10 +23,16 @@ class LangfuseAdapter(BaseAdapter):
         if not isinstance(final_output, dict):
             final_output = {"output": final_output}
 
-        observations = data.get("observations") or []
+        observations = data.get("observations")
+        if not isinstance(observations, list):
+            observations = []
         steps: list[TraceStep] = []
 
         for idx, obs in enumerate(observations):
+            if not isinstance(obs, dict):
+                raise ValueError(
+                    f"Langfuse observation at index {idx} is not an object"
+                )
             obs_id = obs.get("id") or f"obs_{idx}"
             parent_id = obs.get("parentObservationId")
 
@@ -51,16 +59,20 @@ class LangfuseAdapter(BaseAdapter):
 
             # Parse Usage
             usage = obs.get("usage") or {}
-            prompt_tokens = usage.get("promptTokens") or usage.get("input_tokens") or 0
-            completion_tokens = (
-                usage.get("completionTokens") or usage.get("output_tokens") or 0
+            if not isinstance(usage, dict):
+                usage = {}
+            prompt_tokens = cls._as_int(
+                usage.get("promptTokens") or usage.get("input_tokens")
             )
-            total_tokens = (
-                usage.get("totalTokens")
-                or usage.get("total_tokens")
-                or (prompt_tokens + completion_tokens)
+            completion_tokens = cls._as_int(
+                usage.get("completionTokens") or usage.get("output_tokens")
             )
-            cost = usage.get("cost") or obs.get("cost") or 0.0
+            total_tokens = cls._as_int(
+                usage.get("totalTokens") or usage.get("total_tokens")
+            )
+            if total_tokens == 0:
+                total_tokens = prompt_tokens + completion_tokens
+            cost = cls._as_float(usage.get("cost") or obs.get("cost"))
 
             tokens = TokenUsage(
                 prompt_tokens=prompt_tokens,
@@ -81,8 +93,9 @@ class LangfuseAdapter(BaseAdapter):
                 except Exception:
                     pass
             if latency_ms == 0.0:
-                latency_ms = obs.get("latency_ms") or (
-                    obs.get("duration", 0.0) * 1000.0
+                latency_ms = (
+                    cls._as_float(obs.get("latency_ms"))
+                    or cls._as_float(obs.get("duration") or 0.0) * 1000.0
                 )
 
             # Error Levels
@@ -112,7 +125,7 @@ class LangfuseAdapter(BaseAdapter):
         steps.sort(key=lambda s: s.step_index)
 
         # Total latency of trace (in seconds, convert to ms)
-        total_latency_ms = data.get("duration", 0.0) * 1000.0
+        total_latency_ms = cls._as_float(data.get("duration") or 0.0) * 1000.0
         if total_latency_ms == 0.0:
             root_spans = [s for s in steps if not s.parent_id]
             total_latency_ms = (

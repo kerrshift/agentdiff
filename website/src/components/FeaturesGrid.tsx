@@ -1,67 +1,146 @@
 import React from "react";
+import Reveal from "./Reveal";
+
+const FEATURES = [
+  {
+    num: "01",
+    label: "Divergence",
+    title: "Trajectory divergence",
+    body: "Structural execution difference via graph alignment. Catches model upgrades that silently fork the agent onto a divergent tool path.",
+    example: (
+      <div className="font-mono text-[12.5px]">
+        <div className="flex items-center gap-2.5 py-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#0FA47F]" />
+          <span className="text-[#A1A1AA] w-16">baseline</span>
+          <span className="text-[#18181B]">0.05</span>
+          <span className="ml-auto text-[#A1A1AA] text-[11px]">identical</span>
+        </div>
+        <div className="flex items-center gap-2.5 py-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#E5484D]" />
+          <span className="text-[#A1A1AA] w-16">candidate</span>
+          <span className="text-[#C2262B]">0.42</span>
+          <span className="ml-auto text-[#C2262B] text-[11px]">divergent</span>
+        </div>
+      </div>
+    ),
+    formula: "TDI = 1 − 2·|LCS(A,B)| / (|A|+|B|)",
+  },
+  {
+    num: "02",
+    label: "Wasted effort",
+    title: "Wasted effort index",
+    body: "The share of steps spent on failures, retries, and abandoned work — the tokens you pay for and get nothing back from.",
+    example: (
+      <div className="w-full">
+        <div className="h-1.5 w-full rounded-full bg-[#E4E4E7] overflow-hidden flex">
+          <span className="bg-[#0FA47F]" style={{ width: "78%" }} />
+          <span className="bg-[#E5484D]" style={{ width: "22%" }} />
+        </div>
+        <div className="mt-2.5 font-mono text-[12.5px] flex items-center justify-between">
+          <span className="text-[#A1A1AA]">6 of 7 steps wasted</span>
+          <span className="text-[#C2262B]">0.22</span>
+        </div>
+      </div>
+    ),
+    formula: "WEI = failed·retry·abandoned / total",
+  },
+  {
+    num: "03",
+    label: "Loops",
+    title: "Loop detection",
+    body: "Flags cyclical tool calling — the same endpoint, same params, no state progress. The classic agent failure that burns through your budget.",
+    example: (
+      <div className="font-mono text-[12.5px] text-[#C2262B] leading-relaxed">
+        <div>execute_sql</div>
+        <div className="text-[#A1A1AA]">↓</div>
+        <div>sql_error</div>
+        <div className="text-[#A1A1AA]">↓</div>
+        <div>
+          execute_sql <span className="font-semibold">×3</span>
+        </div>
+      </div>
+    ),
+    formula: "loops = repeating (tool → result) sequences",
+  },
+  {
+    num: "04",
+    label: "Resource deltas",
+    title: "Cost, tokens & latency",
+    body: "The candidate's cost, token, and latency deltas against baseline — the price of a refactor that quietly calls more tools or burns more tokens.",
+    example: (
+      <div className="font-mono text-[12.5px]">
+        <div className="flex items-center gap-2.5 py-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#0FA47F]" />
+          <span className="text-[#A1A1AA] w-16">baseline</span>
+          <span className="text-[#18181B]">$0.012</span>
+          <span className="ml-auto text-[#A1A1AA] text-[11px]">1,204 tok</span>
+        </div>
+        <div className="flex items-center gap-2.5 py-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#E5484D]" />
+          <span className="text-[#A1A1AA] w-16">candidate</span>
+          <span className="text-[#C2262B]">$0.030</span>
+          <span className="ml-auto text-[#C2262B] text-[11px]">+148%</span>
+        </div>
+      </div>
+    ),
+    formula: "Δcost = (candidate − baseline) / baseline × 100",
+  },
+];
 
 export default function FeaturesGrid() {
   return (
-    <section id="features-section" className="py-24 bg-transparent font-sans">
+    <section id="features-section" className="py-24 border-t border-[#E4E4E7] bg-transparent font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {/* Section Header */}
-        <div className="max-w-2xl mb-16 pb-6 border-b border-[#1E2028]/60">
-          <span className="text-xs text-zinc-550 font-semibold uppercase tracking-wider block mb-4">Capabilities</span>
-          
-          {/* Drafting Box */}
-          <div className="relative p-4 my-2 inline-block">
-            <div className="absolute top-0 left-[-12px] right-[-12px] h-[1px] bg-[#1E2028]/85"></div>
-            <div className="absolute bottom-0 left-[-12px] right-[-12px] h-[1px] bg-[#1E2028]/85"></div>
-            <div className="absolute left-0 top-[-12px] bottom-[-12px] w-[1px] bg-[#1E2028]/85"></div>
-            <div className="absolute right-0 top-[-12px] bottom-[-12px] w-[1px] bg-[#1E2028]/85"></div>
-
-            <h2 className="text-2xl font-bold tracking-tight text-zinc-150">
-              Engine specifications
-            </h2>
-          </div>
+        <Reveal>
+        {/* Section Header — centered */}
+        <div className="max-w-3xl mx-auto text-center mb-16">
+          <span className="text-xs font-mono uppercase tracking-[0.16em] text-[#A1A1AA] font-medium block mb-4">Capabilities</span>
+          <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
+            Four metrics that explain how the agent really ran.
+          </h2>
+          <p className="mt-4 text-base text-[#52525B] leading-relaxed font-normal max-w-2xl mx-auto">
+            Every trace reduces to a few computed indices. Exposed as a JSON report, they become hard gates in CI — no more guessing whether a run drifted.
+          </p>
         </div>
+        </Reveal>
 
-        {/* Spacious 4-Column Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16">
+        <Reveal delay={140}>
+        {/* Engine spec grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-14 items-stretch">
+          {FEATURES.map((f) => (
+            <div key={f.num} className="flex flex-col">
+              {/* Index header */}
+              <div className="flex items-baseline justify-between mb-6">
+                <span className="font-mono text-sm text-[#A1A1AA] tracking-tight">
+                  {f.num}
+                </span>
+                <span className="text-[10px] uppercase tracking-[0.12em] text-[#A1A1AA] font-mono">
+                  {f.label}
+                </span>
+              </div>
 
-          {/* Feature 1 */}
-          <div className="flex flex-col hover:translate-y-[-2px] transition-transform duration-200">
-            <span className="text-xs font-semibold text-indigo-400 tracking-wider mb-4 uppercase font-mono">01. Divergence index</span>
-            <h3 className="text-xl font-semibold text-zinc-200 mb-3">Trajectory divergence</h3>
-            <p className="text-sm text-zinc-400 leading-relaxed font-light">
-              Quantifies structural execution difference using graph alignment algorithms. Detects when model upgrades lead to fully divergent tool paths.
-            </p>
-          </div>
+              {/* Title */}
+              <h3 className="text-lg font-semibold text-[#18181B] mb-3 leading-snug tracking-[-0.01em]">
+                {f.title}
+              </h3>
 
-          {/* Feature 2 */}
-          <div className="flex flex-col hover:translate-y-[-2px] transition-transform duration-200">
-            <span className="text-xs font-semibold text-indigo-400 tracking-wider mb-4 uppercase font-mono">02. Wasted effort</span>
-            <h3 className="text-xl font-semibold text-zinc-200 mb-3">Wasted effort index</h3>
-            <p className="text-sm text-zinc-400 leading-relaxed font-light">
-              Calculates ratios of redundant or abandoned tool execution steps, flagging prompt modifications that cause unproductive token consumption.
-            </p>
-          </div>
+              {/* Body — flexes; absorbs differing prose length */}
+              <p className="text-sm text-[#52525B] leading-relaxed font-normal flex-1 mb-6">
+                {f.body}
+              </p>
 
-          {/* Feature 3 */}
-          <div className="flex flex-col hover:translate-y-[-2px] transition-transform duration-200">
-            <span className="text-xs font-semibold text-indigo-400 tracking-wider mb-4 uppercase font-mono">03. Loop buster</span>
-            <h3 className="text-xl font-semibold text-zinc-200 mb-3">Loop buster analysis</h3>
-            <p className="text-sm text-zinc-400 leading-relaxed font-light">
-              Exposes cyclical tool calling patterns where an agent repeatedly queries the same endpoint with identical parameters without state progress.
-            </p>
-          </div>
-
-          {/* Feature 4 */}
-          <div className="flex flex-col hover:translate-y-[-2px] transition-transform duration-200">
-            <span className="text-xs font-semibold text-indigo-400 tracking-wider mb-4 uppercase font-mono">04. Automation</span>
-            <h3 className="text-xl font-semibold text-zinc-200 mb-3">CI/CD regression block</h3>
-            <p className="text-sm text-zinc-400 leading-relaxed font-light">
-              Standardized JSON export format integrates natively into GitHub Actions and GitLab pipelines. Fail builds when cost drift or loops cross limits.
-            </p>
-          </div>
-
+              {/* Example + formula — pinned to bottom */}
+              <div className="mt-auto pt-4">
+                <div className="mb-3">{f.example}</div>
+                <div className="font-mono text-xs text-[#18181B] leading-relaxed pt-3">
+                  {f.formula}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
+        </Reveal>
 
       </div>
     </section>

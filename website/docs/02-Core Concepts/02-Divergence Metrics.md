@@ -1,37 +1,47 @@
 # Divergence & Regression Metrics
 
-AgentDiff computes deterministic mathematical metrics to evaluate how an agent's execution path and resource consumption change between a baseline and candidate version.
+AgentDiff computes deterministic metrics that compare how an agent's execution
+path and resource use change between a baseline and a candidate run.
 
 ## 1. Trajectory Divergence Index (TDI)
 
-TDI measures the topological structural differences between two execution paths. It is computed by finding the Longest Common Subsequence (LCS) of steps over their topological sorts:
+TDI measures the structural difference between two execution paths, computed
+from the Longest Common Subsequence (LCS) of their steps:
 
 $$TDI = 1.0 - \frac{2 \times \vert{}\text{LCS}(\text{Steps}_A, \text{Steps}_B)\vert{}}{\vert{}\text{Steps}_A\vert{} + \vert{}\text{Steps}_B\vert{}}$$
 
-* **Range:** `0.0` (Identical signatures and paths) to `1.0` (Completely divergent).
-* **Equivalence Signature:** Two nodes $N_a$ and $N_b$ are equivalent in the LCS if their step types, action names, and input payload keys match.
+- **Range:** `0.0` (identical path) to `1.0` (completely different path).
+- **Equivalence:** two steps match in the LCS when their step type, action
+  name, and input-payload keys are equal. This ignores exact wording and only
+  cares about *how* the agent navigated.
 
 ## 2. Wasted Effort Index (WEI)
 
-WEI measures the proportion of inefficient steps (errors, retries, and abandoned calls) inside a single trace run:
+WEI is the share of a run spent on error, retry, or abandoned steps:
 
-$$\text{WEI} = \frac{\text{Count}(\text{Steps with status} \in \{\text{ERROR, RETRY, ABANDONED}\})}{\text{Total Execution Steps}}$$
+$$\text{WEI} = \frac{\text{Count}(\text{steps with status} \in \{\text{error, retry, abandoned}\})}{\text{Total steps}}$$
 
-* **Range:** `0.0` (Optimal, zero failures) to `1.0` (Total waste).
-* Comparing WEI changes (Baseline vs. Candidate) helps identify if a code refactor causes the agent to fail more frequently or perform unnecessary retries.
+- **Range:** `0.0` (no waste) to `1.0` (fully wasted).
+- AgentDiff reports WEI for **both** the baseline and the candidate so you can
+  see whether a refactor made the agent fail or retry more often.
 
-## 3. Loop Buster Index (LBI)
+## 3. Loop detection
 
-LBI detects circular repeating execution sequences. It checks if:
-1. A subsequence of steps $(v_1 \dots v_k)$ repeats consecutively $\ge 2$ times.
-2. The state changes are stagnant (meaning the inputs and outputs do not change across iterations).
+A loop is a subsequence of steps that repeats consecutively (often with
+stagnant inputs/outputs) — a sign of redundant tool calls or near-infinite
+retries. The report lists each detected loop; the pytest plugin and CLI gate
+fail when the loop count exceeds your threshold.
 
-LBI alerts developers to infinite tool invocation loops or redundant database query cycles.
+## 4. Resource deltas
 
-## 4. Resource Deltas ($\Delta\text{Res}$)
-
-Calculates the percentage increase or decrease in resources used:
+Percentage change in cost, tokens, and latency between candidate and baseline:
 
 $$\Delta\text{Cost} = \frac{\text{Cost}_{\text{Candidate}} - \text{Cost}_{\text{Baseline}}}{\text{Cost}_{\text{Baseline}}} \times 100$$
 
-Analogous percentage deltas are calculated for **Total Tokens** and **Wall-Clock Latency**.
+Analogous deltas are reported for **total tokens** and **latency**.
+
+## Seeing it all together
+
+The **Reading the Report** guide shows the
+full report, plus the `--explain` and `--tree` views that make these numbers
+actionable.

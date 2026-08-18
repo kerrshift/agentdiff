@@ -1,0 +1,41 @@
+{
+  "trace_id": "ls-trace-1",
+  "id": "root",
+  "name": "orders_agent",
+  "run_type": "chain",
+  "inputs": {"user_query": "how many orders are pending?"},
+  "outputs": {"answer": "3 pending orders"},
+  "start_time": "2024-01-01T00:00:00Z",
+  "end_time": "2024-01-01T00:00:00.36Z",
+  "child_runs": [
+    {
+      "id": "llm1",
+      "name": "planner",
+      "run_type": "llm",
+      "inputs": {"query": "pending orders"},
+      "outputs": {"plan": "search then synthesize"},
+      "usage_metadata": {"input_tokens": 200, "output_tokens": 50, "total_tokens": 250, "total_cost": 0.001},
+      "start_time": "2024-01-01T00:00:00Z",
+      "end_time": "2024-01-01T00:00:00.12Z"
+    },
+    {
+      "id": "tool1",
+      "name": "search_database",
+      "run_type": "tool",
+      "inputs": {"table": "orders", "status": "pending"},
+      "outputs": {"rows": 3},
+      "start_time": "2024-01-01T00:00:00.12Z",
+      "end_time": "2024-01-01T00:00:00.16Z"
+    },
+    {
+      "id": "llm2",
+      "name": "synthesize",
+      "run_type": "llm",
+      "inputs": {"result": "3 rows"},
+      "outputs": {"answer": "3 pending orders"},
+      "usage_metadata": {"input_tokens": 100, "output_tokens": 20, "total_tokens": 120, "total_cost": 0.0005},
+      "start_time": "2024-01-01T00:00:00.28Z",
+      "end_time": "2024-01-01T00:00:00.36Z"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "spans": [
+    {
+      "context": {"span_id": "sp0", "trace_id": "oi-trace-1"},
+      "name": "orders_agent",
+      "kind": "AGENT",
+      "attributes": {
+        "openinference.span.kind": "AGENT",
+        "input.value": {"user_query": "how many orders are pending?"},
+        "output.value": {"answer": "3 pending orders"}
+      },
+      "start_time": 1000,
+      "end_time": 1400
+    },
+    {
+      "context": {"span_id": "sp1"},
+      "parent_span_id": "sp0",
+      "name": "planner",
+      "kind": "LLM",
+      "attributes": {
+        "openinference.span.kind": "LLM",
+        "input.value": {"query": "pending orders"},
+        "output.value": {"plan": "search then synthesize"},
+        "llm.token_count.prompt": 200,
+        "llm.token_count.completion": 50
+      },
+      "start_time": "2024-01-01T00:00:00Z",
+      "end_time": "2024-01-01T00:00:00.12Z"
+    },
+    {
+      "context": {"span_id": "sp2"},
+      "parent_span_id": "sp1",
+      "name": "search_database",
+      "kind": "TOOL",
+      "attributes": {
+        "openinference.span.kind": "TOOL",
+        "input.value": {"table": "orders", "status": "pending"},
+        "output.value": {"rows": 3}
+      },
+      "start_time": "2024-01-01T00:00:00.12Z",
+      "end_time": "2024-01-01T00:00:00.16Z"
+    }
+  ]
+}

@@ -24,13 +24,18 @@ classifiers = [
 [project.scripts]
 agentdiff = "agentdiff.cli:main"
 
+[project.entry-points.pytest11]
+agentdiff = "agentdiff.pytest_plugin"
+
 [project.urls]
 Homepage = "https://github.com/lostmartian/agentdiff"
 Repository = "https://github.com/lostmartian/agentdiff"
 
 [dependency-groups]
 dev = [
+    "hypothesis>=6.165.10",
     "pytest>=8.0",
+    "pytest-cov>=7.1.0",
     "ruff>=0.16.3",
 ]
 
@@ -66,3 +71,7 @@ ignore = ["E501"]
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[tool.pytest.ini_options]
+addopts = "-p pytester"
+testpaths = ["tests"]

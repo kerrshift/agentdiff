@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0.0",
+  "trace_id": "candidate_error_recovery",
+  "agent_name": "mock_agent",
+  "agent_version": null,
+  "task_input": {
+    "input": "test"
+  },
+  "final_output": {
+    "output": "done"
+  },
+  "steps": [
+    {
+      "step_id": "step_0",
+      "parent_id": null,
+      "step_index": 0,
+      "step_type": "llm_call",
+      "name": "planner",
+      "input_payload": {},
+      "output_payload": {},
+      "status": "success",
+      "error_message": null,
+      "latency_ms": 100.0,
+      "tokens": {
+        "prompt_tokens": 50,
+        "completion_tokens": 25,
+        "total_tokens": 75,
+        "estimated_cost_usd": 0.001
+      },
+      "metadata": {}
+    },
+    {
+      "step_id": "step_1",
+      "parent_id": null,
+      "step_index": 1,
+      "step_type": "tool_call",
+      "name": "search_database",
+      "input_payload": {
+        "state": "NY"
+      },
+      "output_payload": {},
+      "status": "error",
+      "error_message": "timeout",
+      "latency_ms": 100.0,
+      "tokens": {
+        "prompt_tokens": 50,
+        "completion_tokens": 25,
+        "total_tokens": 75,
+        "estimated_cost_usd": 0.001
+      },
+      "metadata": {}
+    },
+    {
+      "step_id": "step_2",
+      "parent_id": null,
+      "step_index": 2,
+      "step_type": "tool_call",
+      "name": "search_database",
+      "input_payload": {
+        "state": "NY"
+      },
+      "output_payload": {},
+      "status": "success",
+      "error_message": null,
+      "latency_ms": 100.0,
+      "tokens": {
+        "prompt_tokens": 50,
+        "completion_tokens": 25,
+        "total_tokens": 75,
+        "estimated_cost_usd": 0.001
+      },
+      "metadata": {}
+    },
+    {
+      "step_id": "step_3",
+      "parent_id": null,
+      "step_index": 3,
+      "step_type": "llm_call",
+      "name": "synthesize",
+      "input_payload": {},
+      "output_payload": {},
+      "status": "success",
+      "error_message": null,
+      "latency_ms": 100.0,
+      "tokens": {
+        "prompt_tokens": 50,
+        "completion_tokens": 25,
+        "total_tokens": 75,
+        "estimated_cost_usd": 0.001
+      },
+      "metadata": {}
+    }
+  ],
+  "total_latency_ms": 400.0,
+  "total_tokens": {
+    "prompt_tokens": 200,
+    "completion_tokens": 100,
+    "total_tokens": 300,
+    "estimated_cost_usd": 0.004
+  },
+  "metadata": {}
+}

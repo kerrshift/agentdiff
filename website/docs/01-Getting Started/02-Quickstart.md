@@ -1,57 +1,75 @@
-# Quickstart Guide
+# Quickstart
 
-Get AgentDiff running in your Python environment or test suite in under 5 minutes.
+Get AgentDiff running in your terminal or test suite in a few minutes.
 
-## 1. Installation
-
-Install AgentDiff from PyPI using your favorite package manager:
+## 1. Install
 
 ```bash
 pip install agent-trajectory-diff
-# or using uv
+# or with uv
 uv add agent-trajectory-diff
 ```
 
-## 2. Compare Traces via CLI
+This installs the `agentdiff` CLI and the `agentdiff` Python package.
 
-You can compare two execution traces (e.g. from a baseline version and your new candidate branch) directly in your terminal. AgentDiff will auto-detect the telemetry formats:
+## 2. Compare two traces
+
+The CLI takes a baseline trace and a candidate trace. Run the same task twice
+(e.g. on `main` and on your branch), export the traces, then:
 
 ```bash
-agentdiff diff baseline_run.json candidate_run.json --fail-on-regression --max-divergence 0.25
+agentdiff baseline.json candidate.json
 ```
 
-### CLI Command Options
-- `--adapter`: Telemetry parser to use (`auto`, `generic`, `deepeval`, `openinference`, `langfuse`). Default is `auto`.
-- `--format`: Output format (`terminal`, `json`, `markdown`). Default is `terminal`.
-- `--output-file`: File path to write the comparison report output.
-- `--fail-on-regression`: Returns exit code `1` if any regression thresholds are violated.
-- `--max-loops`: Maximum loops allowed before regression.
-- `--max-divergence`: Maximum allowed Trajectory Divergence Index (TDI) [0.0 - 1.0].
-- `--max-cost-delta`: Maximum allowed LLM cost increase percentage.
+AgentDiff auto-detects the telemetry format (`generic`, `openinference`,
+`langfuse`, `langsmith`) and prints a terminal report with the divergence
+metrics:
 
-## 3. Python SDK & pytest Integration
-
-Integrate trajectory regression gates directly into your test suites to catch agent bugs before merging:
-
-```python
-import pytest
-from agentdiff import load_trace, compare
-from agentdiff.testing import assert_no_regressions
-
-def test_agent_refactor_efficiency():
-    # Load traces from disk (auto-detects formats like DeepEval)
-    baseline = load_trace("tests/traces/baseline.json")
-    candidate = load_trace("tests/traces/candidate.json")
-
-    # Run the comparison engine
-    report = compare(baseline, candidate)
-
-    # Expressive assertion helper that raises detailed error messages
-    assert_no_regressions(
-        report,
-        max_divergence=0.25,        # Max allowed divergence (TDI)
-        max_cost_increase_pct=5.0,  # Max cost increase allowed
-        allow_loops=False,           # Reject if tool loops are detected
-        max_wasted_effort=0.10      # Max allowed WEI (failed/retry steps ratio)
-    )
+```text
+Trajectory Divergence Index (TDI):  0.33
+Loops Detected:                     1
+Candidate Wasted Effort (WEI):      0.00
+Cost Delta:                         +41.0%
+Status:                             REGRESSION
 ```
+
+**Why did it diverge?** Add `--explain` for a human-readable breakdown and
+`--tree` for a collapsed, visual comparison of the two paths:
+
+```bash
+agentdiff baseline.json candidate.json --explain --tree
+```
+
+**Gate it in CI.** Add `--fail-on-regression` to exit non-zero when thresholds
+are exceeded:
+
+```bash
+agentdiff baseline.json candidate.json --fail-on-regression
+```
+
+The full CLI surface — including baseline rotation and PR comments — is covered
+in the Guides.
+
+## 3. Gate it in pytest
+
+The pytest plugin compares each test's run against a committed baseline and
+fails the test on regression:
+
+```bash
+pytest --agentdiff
+```
+
+Record your current runs as the new baselines with:
+
+```bash
+pytest --agentdiff --agentdiff-update-baselines
+```
+
+See the **pytest Plugin** guide for the full setup, and the `cookbooks/`
+directory for runnable end-to-end examples.
+
+## Next steps
+
+- **Reading the Report** — what the metrics mean.
+- **Regression Gates** — thresholds.
+- **Ingestion Adapters** — formats you can load.

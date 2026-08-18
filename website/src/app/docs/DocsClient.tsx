@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import remarkMath from "remark-math";
+import remarkGfm from "remark-gfm";
 import rehypeKatex from "rehype-katex";
 
 
@@ -56,39 +58,46 @@ export default function DocsClient({ docs, version }: DocsClientProps) {
   };
 
   return (
-    <div className="h-screen bg-[#060608] text-zinc-300 font-sans flex flex-col overflow-hidden selection:bg-zinc-800 selection:text-white">
-      
-      {/* TECHNICAL SCANLINE EFFECT */}
-      <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden">
-        <div className="animate-scanline absolute inset-x-0 top-0 h-[2px] bg-zinc-900/40"></div>
-      </div>
+    <div className="h-screen bg-[#FBFBFC] text-[#18181B] font-sans flex flex-col overflow-hidden selection:bg-[#E4E4E7] selection:text-[#18181B]">
+      <div className="max-w-7xl mx-auto w-full flex-1 flex flex-col bg-[#FBFBFC] relative overflow-hidden">
 
-      <div className="max-w-7xl mx-auto w-full border-l border-r border-[#1E2028]/60 flex-1 flex flex-col bg-[#060608] relative overflow-hidden">
-        
         {/* Docs Header */}
-        <header className="border-b border-[#1E2028]/60 bg-[#060608]/60 backdrop-blur-md sticky top-0 z-40">
+        <header className="border-b border-[#E4E4E7] bg-[#FBFBFC]/80 backdrop-blur-md sticky top-0 z-40">
           <div className="px-6 sm:px-8 h-16 flex items-center justify-between text-sm">
             <div className="flex items-center">
-              <a 
+              <Link 
                 href="/" 
-                className="font-semibold text-white tracking-tight text-base hover:opacity-90 transition-opacity duration-150 flex items-center gap-1.5"
+                className="font-semibold text-[#18181B] tracking-tight text-base hover:opacity-80 transition-opacity duration-150 flex items-center gap-1.5"
               >
-                <span>agent<span className="text-indigo-400">diff</span></span>
-                <span className="text-xs font-mono font-normal text-zinc-500 bg-[#1E2028]/45 px-1.5 py-0.5 rounded border border-[#1E2028]/80 ml-1">Docs</span>
-              </a>
+                <span>agent<span className="text-[#18181B]">diff</span></span>
+                <span className="text-xs font-mono font-normal text-[#A1A1AA] bg-[#F4F4F5] px-1.5 py-0.5 rounded border border-[#E4E4E7] ml-1">Docs</span>
+              </Link>
             </div>
-            <div className="text-xs text-zinc-500 font-mono">v{version}</div>
+            <div className="text-xs text-[#A1A1AA] font-mono">v{version}</div>
           </div>
         </header>
+
+        {/* Docs Intro Strip */}
+        <div className="border-b border-[#E4E4E7] px-6 sm:px-8 py-4 flex items-center justify-between gap-4">
+          <div className="text-xs text-[#52525B] leading-relaxed max-w-2xl">
+            Trajectory regression testing for AI agents — compare execution DAGs in CI/CD and gate on drift, loops, and cost.
+          </div>
+          <Link
+            href="/"
+            className="text-xs text-[#18181B] hover:text-[#52525B] font-medium flex-shrink-0"
+          >
+            ← Back to home
+          </Link>
+        </div>
 
         {/* 2-Column Sidebar Layout — both panes scroll independently */}
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
 
           {/* Left Sidebar — independently scrollable with right border divider */}
-          <aside className="w-full md:w-56 shrink-0 border-r border-[#1E2028]/60 overflow-y-auto p-6 flex flex-col gap-6 bg-[#07070a]/20">
+          <aside className="w-full md:w-56 shrink-0 border-r border-[#E4E4E7] overflow-y-auto p-6 flex flex-col gap-6 bg-white">
             {categories.map((category) => (
               <div key={category} className="flex flex-col gap-1.5">
-                <div className="text-xs font-mono uppercase tracking-wider text-zinc-500 font-semibold mb-1">
+                <div className="text-xs font-mono uppercase tracking-wider text-[#A1A1AA] font-semibold mb-1">
                   {getCleanTitle(category)}
                 </div>
                 <div className="flex flex-col gap-1">
@@ -100,8 +109,8 @@ export default function DocsClient({ docs, version }: DocsClientProps) {
                         onClick={() => handlePageSelect(p.slug)}
                         className={`text-left text-sm py-1 px-2.5 rounded transition-colors duration-150 ${
                           activeSlug === p.slug
-                            ? "text-indigo-400 font-medium bg-indigo-500/5"
-                            : "text-zinc-400 hover:text-zinc-200 hover:bg-[#1E2028]/25"
+                            ? "text-[#18181B] font-medium bg-[#F4F4F5]"
+                            : "text-[#52525B] hover:text-[#18181B] hover:bg-[#F4F4F5]"
                         }`}
                       >
                         {getCleanTitle(p.title)}
@@ -117,7 +126,7 @@ export default function DocsClient({ docs, version }: DocsClientProps) {
             {activePage ? (
               <MarkdownRenderer content={activePage.content} />
             ) : (
-              <div className="text-zinc-500 font-mono">Select a documentation page.</div>
+              <div className="text-[#A1A1AA] font-mono">Select a documentation page.</div>
             )}
           </main>
 
@@ -151,16 +160,16 @@ function CodeComponent({ inline, className, children, ...props }: CodeComponentP
       <div className="relative group my-6 rounded-lg border border-[#1e2028] overflow-hidden">
         {/* Copy button overlay */}
         <div className="absolute right-3 top-3 flex items-center gap-2.5 select-none z-10">
-          <span className="text-[10px] text-zinc-600 uppercase font-mono tracking-wider font-semibold">
+          <span className="text-[10px] text-[#A1A1AA] uppercase font-mono tracking-wider font-semibold">
             {match[1]}
           </span>
           <button
             onClick={handleCopy}
-            className="p-1.5 rounded border border-[#2a2d38] bg-[#0b0c10] hover:bg-[#13151c] hover:border-indigo-500/40 hover:text-indigo-400 text-zinc-500 transition-all duration-150 cursor-pointer"
+            className="p-1.5 rounded border border-[#E4E4E7] bg-white hover:bg-[#F4F4F5] hover:border-[#18181B] hover:text-[#18181B] text-[#A1A1AA] transition-all duration-150 cursor-pointer"
             title="Copy Code"
           >
             {copied ? (
-              <span className="text-emerald-400 text-[10px] font-mono uppercase tracking-wider font-semibold">
+              <span className="text-[#0FA47F] text-[10px] font-mono uppercase tracking-wider font-semibold">
                 Copied!
               </span>
             ) : (
@@ -172,14 +181,14 @@ function CodeComponent({ inline, className, children, ...props }: CodeComponentP
           </button>
         </div>
         <SyntaxHighlighter
-          style={oneDark}
+          style={oneLight}
           language={match[1]}
           PreTag="div"
           customStyle={{
             margin: 0,
             borderRadius: 0,
             border: "none",
-            background: "#0d0e12",
+            background: "#FBFBFC",
             padding: "1.25rem",
             fontSize: "0.84rem",
             lineHeight: "1.7",
@@ -209,7 +218,7 @@ function MarkdownRenderer({ content }: { content: string }) {
   return (
     <div className="markdown-content text-zinc-300 font-sans">
       <ReactMarkdown
-        remarkPlugins={[remarkMath]}
+        remarkPlugins={[remarkMath, remarkGfm]}
         rehypePlugins={[rehypeKatex]}
         components={markdownComponents}
       >
