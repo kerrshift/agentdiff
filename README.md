@@ -9,7 +9,7 @@
 
 * **A Trajectory Diff Engine:** Compares Run A (Baseline) against Run B (Candidate) across their execution Directed Acyclic Graphs (DAGs).
 * **A Local-First CI/CD Gate:** Runs locally in your terminal or inside `pytest` and GitHub Actions, raising errors or exit codes on regression violations.
-* **A Universal Comparator:** Ingests telemetry run files from **OpenInference/OTel**, **Langfuse**, **LangSmith**, or raw/custom JSON.
+* **A Universal Comparator:** Ingests telemetry run files from **OpenInference/OTel**, **Langfuse**, **LangSmith**, **OpenAI Agents SDK**, or raw/custom JSON.
 
 ## Installation
 
@@ -33,7 +33,7 @@ agentdiff baseline_run.json candidate_run.json --fail-on-regression --max-diverg
 ```
 
 Options:
-- `--adapter`: Telemetry parser to use (`auto`, `generic`, `openinference`, `langfuse`, `langsmith`).
+- `--adapter`: Telemetry parser to use (`auto`, `generic`, `openinference`, `langfuse`, `langsmith`, `openai_agents`).
 - `--format`: Format for the output (`terminal`, `json`, `markdown`).
 - `--fail-on-regression`: Return exit code `1` if thresholds are violated.
 - `--max-loops`: Maximum loops allowed.
@@ -41,6 +41,35 @@ Options:
 - `--max-cost-delta`: Maximum cost increase percentage allowed.
 - `--baseline, -b PATH`: Compare against a persistent baseline trace file (see [Baseline workflow](#baseline-workflow)).
 - `--update-baseline`: Overwrite the persistent baseline with the candidate after a clean diff.
+- `--config PATH`: Load defaults from an `agentdiff.toml` (auto-discovered if not given).
+
+#### Config-as-code (`agentdiff.toml`)
+
+Commit your thresholds, adapter, and baseline path next to your traces instead of repeating CLI flags. Explicit flags always win over config.
+
+```toml
+[compare]
+detect_loops = true
+strict_tool_signatures = false
+
+[adapter]
+name = "auto"            # auto, generic, openinference, langfuse, langsmith, openai_agents
+
+[cli]
+format = "terminal"      # terminal, json, markdown, pr
+baseline = "baselines/current.json"
+max_loops = 0
+max_divergence = 0.3
+max_cost_delta = 10.0
+
+[assertions]             # defaults used by assert_no_regressions / pytest plugin
+max_divergence = 0.25
+max_cost_increase_pct = 5.0
+allow_loops = false
+max_wasted_effort = 0.1
+```
+
+AgentDiff auto-discovers `agentdiff.toml` from the current directory upward, or you can point at it explicitly with `--config`.
 
 ## Baseline workflow
 

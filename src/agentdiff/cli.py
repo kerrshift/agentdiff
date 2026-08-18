@@ -7,6 +7,7 @@ import typer
 
 from agentdiff.ci.baseline import decide_rotation
 from agentdiff.ci.github import post_pr_comment
+from agentdiff.config import AgentDiffConfig, load_config
 from agentdiff.engine.comparator import compare
 from agentdiff.engine.explanations import format_explanations, locate_culprit
 from agentdiff.engine.tree import render_tree
@@ -20,19 +21,38 @@ app = typer.Typer(
 )
 
 
+def _resolve_cli(cfg: AgentDiffConfig, **values):
+    """Returns config-provided values for any option left at its sentinel."""
+    resolved = {}
+    for key, val in values.items():
+        if val is not None:
+            resolved[key] = val
+        elif key == "adapter":
+            resolved[key] = cfg.adapter.name or "auto"
+        else:
+            resolved[key] = getattr(cfg.cli, key, None)
+    return resolved
+
+
 @app.command(name="diff")
 def diff(
     baseline_path: str = typer.Argument(..., help="Path to baseline trace JSON file"),
     candidate_path: str = typer.Argument(..., help="Path to candidate trace JSON file"),
-    adapter: str = typer.Option(
-        "auto",
-        help="Telemetry adapter: auto, generic, openinference, langfuse, langsmith",
+    adapter: str | None = typer.Option(
+        None,
+        help="Telemetry adapter: auto, generic, openinference, langfuse, langsmith, openai_agents (default: config or auto)",
     ),
-    format: str = typer.Option(
-        "terminal", help="Output format: terminal, json, markdown, pr"
+    format: str | None = typer.Option(
+        None,
+        help="Output format: terminal, json, markdown, pr (default: config or terminal)",
     ),
     output_file: str | None = typer.Option(
         None, help="Write output to specified file path"
+    ),
+    config: str | None = typer.Option(
+        None,
+        "--config",
+        help="Path to an agentdiff.toml config file (default: auto-discovered agentdiff.toml).",
     ),
     explain: bool = typer.Option(
         False,
@@ -47,14 +67,15 @@ def diff(
     fail_on_regression: bool = typer.Option(
         False, help="Return exit code 1 if regressions are detected"
     ),
-    max_loops: int = typer.Option(
-        0, help="Maximum allowed loop count before regression"
+    max_loops: int | None = typer.Option(
+        None, help="Maximum allowed loop count before regression (default: config or 0)"
     ),
-    max_divergence: float = typer.Option(
-        0.3, help="Maximum allowed Trajectory Divergence Index (TDI) before regression"
+    max_divergence: float | None = typer.Option(
+        None, help="Maximum allowed TDI before regression (default: config or 0.3)"
     ),
-    max_cost_delta: float = typer.Option(
-        10.0, help="Maximum allowed cost increase percentage before regression"
+    max_cost_delta: float | None = typer.Option(
+        None,
+        help="Maximum allowed cost increase %% before regression (default: config or 10.0)",
     ),
     baseline_store: str | None = typer.Option(
         None,
@@ -82,6 +103,29 @@ def diff(
     ),
 ):
     """Compares baseline and candidate agent trajectories."""
+    cfg = load_config(config)
+    values = _resolve_cli(
+        cfg,
+        adapter=adapter,
+        format=format,
+        max_loops=max_loops,
+        max_divergence=max_divergence,
+        max_cost_delta=max_cost_delta,
+        baseline_store=baseline_store,
+    )
+    adapter = values["adapter"]
+    format = values["format"] or "terminal"
+    max_loops = values["max_loops"] or 0
+    max_divergence = values["max_divergence"]
+    if max_divergence is None:
+        max_divergence = 0.3
+    max_cost_delta = values["max_cost_delta"]
+    if max_cost_delta is None:
+        max_cost_delta = 10.0
+    baseline_store = values["baseline_store"]
+    detect_loops = cfg.compare.detect_loops
+    strict_tool_signatures = cfg.compare.strict_tool_signatures
+
     try:
         # Validate the candidate parses before we do anything else
         candidate = load_trace(candidate_path, adapter)
@@ -115,7 +159,12 @@ def diff(
 
     try:
         # Perform comparison
-        report = compare(baseline, candidate, detect_loops=True)
+        report = compare(
+            baseline,
+            candidate,
+            detect_loops=detect_loops,
+            strict_tool_signatures=strict_tool_signatures,
+        )
 
         # Check regressions
         loop_count = len(report.loops_detected)

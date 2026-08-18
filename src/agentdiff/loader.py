@@ -5,6 +5,7 @@ from agentdiff.adapters import (
     GenericAdapter,
     LangfuseAdapter,
     LangSmithAdapter,
+    OpenAIAgentsAdapter,
     OpenInferenceAdapter,
 )
 from agentdiff.models.trace import AgentTrace
@@ -16,8 +17,8 @@ def parse_trace_data(data: Any, adapter_name: str = "auto") -> AgentTrace:
     Args:
         data: Raw trace data (dict or list) in one of the supported formats.
         adapter_name: One of ``"auto"``, ``"generic"``, ``"openinference"``,
-            ``"langfuse"``, ``"langsmith"``. With ``"auto"`` the format is
-            detected from the structure.
+            ``"langfuse"``, ``"langsmith"``, ``"openai_agents"``. With ``"auto"``
+            the format is detected from the structure.
 
     Returns:
         A canonical :class:`AgentTrace`.
@@ -35,6 +36,8 @@ def parse_trace_data(data: Any, adapter_name: str = "auto") -> AgentTrace:
         return LangfuseAdapter.from_dict(data)
     elif name == "langsmith":
         return LangSmithAdapter.from_dict(data)
+    elif name in ("openai_agents", "openai-agents", "openai"):
+        return OpenAIAgentsAdapter.from_dict(data)
     elif name == "auto":
         # Auto-detect format based on structure
         if isinstance(data, list):
@@ -44,6 +47,8 @@ def parse_trace_data(data: Any, adapter_name: str = "auto") -> AgentTrace:
             if isinstance(elem, dict):
                 if "context" in elem or "attributes" in elem:
                     return OpenInferenceAdapter.from_dict(data)
+                if "span_data" in elem:
+                    return OpenAIAgentsAdapter.from_dict(data)
             return GenericAdapter.from_dict(data)
 
         elif isinstance(data, dict):
@@ -54,6 +59,15 @@ def parse_trace_data(data: Any, adapter_name: str = "auto") -> AgentTrace:
             # LangSmith check: a run tree root with child_runs or run_type
             if "run_type" in data or "child_runs" in data or "runs" in data:
                 return LangSmithAdapter.from_dict(data)
+
+            # OpenAI Agents SDK check: spans carry span_data, or trace export.
+            spans = data.get("spans")
+            if isinstance(spans, list) and spans:
+                first_span = spans[0]
+                if isinstance(first_span, dict) and "span_data" in first_span:
+                    return OpenAIAgentsAdapter.from_dict(data)
+            if data.get("object") == "trace" or data.get("workflow_name"):
+                return OpenAIAgentsAdapter.from_dict(data)
 
             # OpenInference check
             if "spans" in data and isinstance(data["spans"], list) and data["spans"]:

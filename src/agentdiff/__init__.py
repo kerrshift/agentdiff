@@ -14,7 +14,10 @@ Public API
 - ``parse_trace_data(data, adapter="auto")`` -> ``AgentTrace``
     Parse an in-memory dict instead of a file.
 - Adapters: ``GenericAdapter``, ``LangfuseAdapter``, ``LangSmithAdapter``,
-    ``OpenInferenceAdapter`` (all expose ``from_dict`` / ``from_file``).
+    ``OpenInferenceAdapter``, ``OpenAIAgentsAdapter`` (all expose
+    ``from_dict`` / ``from_file``).
+- ``load_config(path=None)`` -> ``AgentDiffConfig``
+    Load defaults from ``agentdiff.toml`` (thresholds, adapter, baseline).
 - Models: ``AgentTrace`` (canonical, ``schema_version``-ed), ``DiffReport``,
     ``StepDiff``/``StepDiffStatus``, ``TraceStep``/``StepStatus``/``StepType``.
 
@@ -31,9 +34,11 @@ from agentdiff.adapters import (
     GenericAdapter,
     LangfuseAdapter,
     LangSmithAdapter,
+    OpenAIAgentsAdapter,
     OpenInferenceAdapter,
 )
 from agentdiff.ci.baseline import decide_rotation
+from agentdiff.config import AgentDiffConfig, load_config
 from agentdiff.engine import compare
 from agentdiff.engine.explanations import (
     format_explanations,
@@ -56,12 +61,14 @@ from agentdiff.reporters.pr import generate_pr_markdown
 from agentdiff.testing import assert_no_regressions
 
 __all__ = [
+    "AgentDiffConfig",
     "AgentTrace",
     "BaseAdapter",
     "DiffReport",
     "GenericAdapter",
     "LangSmithAdapter",
     "LangfuseAdapter",
+    "OpenAIAgentsAdapter",
     "OpenInferenceAdapter",
     "StepDiff",
     "StepDiffStatus",
@@ -75,6 +82,7 @@ __all__ = [
     "format_explanations",
     "generate_explanations",
     "generate_pr_markdown",
+    "load_config",
     "load_trace",
     "locate_culprit",
     "parse_trace_data",

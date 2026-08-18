@@ -1,0 +1,68 @@
+{
+  "object": "trace",
+  "id": "trace_customer_support_1",
+  "workflow_name": "customer_support",
+  "group_id": "thread_42",
+  "metadata": { "session": "s-1" },
+  "spans": [
+    {
+      "object": "trace.span",
+      "id": "span_agent_1",
+      "trace_id": "trace_customer_support_1",
+      "parent_id": null,
+      "started_at": "2026-08-01T10:00:00.000Z",
+      "ended_at": "2026-08-01T10:00:04.500Z",
+      "span_data": {
+        "type": "agent",
+        "name": "support_agent",
+        "handoffs": null,
+        "tools": ["search_orders", "search_returns"],
+        "output_type": null
+      }
+    },
+    {
+      "object": "trace.span",
+      "id": "span_gen_1",
+      "trace_id": "trace_customer_support_1",
+      "parent_id": "span_agent_1",
+      "started_at": "2026-08-01T10:00:00.200Z",
+      "ended_at": "2026-08-01T10:00:01.100Z",
+      "span_data": {
+        "type": "generation",
+        "input": [{ "role": "user", "content": "how many orders are pending?" }],
+        "output": [{ "role": "assistant", "content": "I'll look that up." }],
+        "model": "gpt-4o-mini",
+        "usage": { "input_tokens": 320, "output_tokens": 12, "total_tokens": 332 }
+      }
+    },
+    {
+      "object": "trace.span",
+      "id": "span_fn_1",
+      "trace_id": "trace_customer_support_1",
+      "parent_id": "span_agent_1",
+      "started_at": "2026-08-01T10:00:01.300Z",
+      "ended_at": "2026-08-01T10:00:03.000Z",
+      "span_data": {
+        "type": "function",
+        "name": "search_orders",
+        "input": "{\"status\": \"pending\"}",
+        "output": "{\"count\": 14}"
+      }
+    },
+    {
+      "object": "trace.span",
+      "id": "span_gen_2",
+      "trace_id": "trace_customer_support_1",
+      "parent_id": "span_agent_1",
+      "started_at": "2026-08-01T10:00:03.200Z",
+      "ended_at": "2026-08-01T10:00:04.400Z",
+      "span_data": {
+        "type": "generation",
+        "input": [{ "role": "assistant", "content": "I'll look that up." }],
+        "output": [{ "role": "assistant", "content": "There are 14 pending orders." }],
+        "model": "gpt-4o-mini",
+        "usage": { "input_tokens": 600, "output_tokens": 40, "total_tokens": 640 }
+      }
+    }
+  ]
+}
