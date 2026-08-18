@@ -7,7 +7,7 @@ authors = [
     { name = "Sahil Gangurde", email = "sahilgangurde08@gmail.com" }
 ]
 requires-python = ">=3.10"
-license = { text = "Apache-2.0 OR MIT" }
+license = "MIT"
 dependencies = [
     "pydantic>=2.0",
     "networkx>=3.0",
@@ -16,7 +16,6 @@ dependencies = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: Apache Software License",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]

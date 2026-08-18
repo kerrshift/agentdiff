@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { Copy, Check, ArrowUpRight } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import Reveal from "./Reveal";
 
 const FORMATS = ["Generic JSON", "OpenInference", "Langfuse", "LangSmith"];
@@ -149,23 +151,30 @@ tool loop and a 148% cost increase over baseline.`;
           {/* Code field */}
           <div className="bg-[#FBFBFC] font-mono leading-relaxed">
             <div className="h-[340px] overflow-auto no-scrollbar">
-              <SyntaxHighlighter
-                style={oneLight}
-                language={activeLanguage}
-                PreTag="div"
-                customStyle={{
-                  margin: 0,
-                  borderRadius: 0,
-                  border: "none",
-                  background: "transparent",
-                  padding: "1.5rem",
-                  fontSize: "0.8rem",
-                  lineHeight: "1.7",
-                }}
-                codeTagProps={{ style: { background: "transparent", fontFamily: "inherit" } }}
-              >
-                {activeCode}
-              </SyntaxHighlighter>
+              {activeCodeTab === "report" ? (
+                /* Render the PR report as a real preview, not raw markdown */
+                <div className="markdown-content bg-white px-6 py-6">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{reportCode}</ReactMarkdown>
+                </div>
+              ) : (
+                <SyntaxHighlighter
+                  style={oneLight}
+                  language={activeLanguage}
+                  PreTag="div"
+                  customStyle={{
+                    margin: 0,
+                    borderRadius: 0,
+                    border: "none",
+                    background: "transparent",
+                    padding: "1.5rem",
+                    fontSize: "0.8rem",
+                    lineHeight: "1.7",
+                  }}
+                  codeTagProps={{ style: { background: "transparent", fontFamily: "inherit" } }}
+                >
+                  {activeCode}
+                </SyntaxHighlighter>
+              )}
             </div>
           </div>
 
