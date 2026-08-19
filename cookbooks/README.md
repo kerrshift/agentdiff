@@ -47,11 +47,15 @@ python moat_diff_workflow.py
 | --- | --- | --- |
 | [`openai_sdk_generic.py`](openai_sdk_generic.py) | `OPENAI_API_KEY` | A live multi-turn tool loop via `gpt-4o-mini`, captured to the Generic format, then diffed. Run 2 deliberately loops → caught by AgentDiff. |
 | [`gemini_sdk_generic.py`](gemini_sdk_generic.py) | `GEMINI_API_KEY` | Same live workflow with Google Gemini. |
+| [`live_openai_agents.py`](live_openai_agents.py) | `OPENAI_API_KEY` | Runs the **OpenAI Agents SDK** for real and feeds its own trace straight through the `openai_agents` adapter — validates that adapter against genuine SDK output. |
+| [`live_openinference.py`](live_openinference.py) | `OPENAI_API_KEY` | Instruments OpenAI with **OpenInference (OTel)**, exports real spans, normalizes them, and feeds them through the `openinference` adapter. |
 
 ```bash
 export OPENAI_API_KEY="sk-..."    # or GEMINI_API_KEY="AIza..."
 uv run cookbooks/openai_sdk_generic.py
 uv run cookbooks/gemini_sdk_generic.py
+uv run cookbooks/live_openai_agents.py
+uv run cookbooks/live_openinference.py
 ```
 
 ## Notes
