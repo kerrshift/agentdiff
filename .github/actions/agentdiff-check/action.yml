@@ -16,7 +16,7 @@ inputs:
     required: false
     default: "agent-trajectory-diff"
   adapter:
-    description: "Telemetry adapter: auto, generic, openinference, langfuse, langsmith."
+    description: "Telemetry adapter: auto, generic, openinference, langfuse, langsmith, openai_agents."
     required: false
     default: "auto"
   max-divergence:

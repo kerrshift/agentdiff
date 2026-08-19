@@ -1,8 +1,8 @@
 [project]
 name = "agent-trajectory-diff"
-version = "0.1.0"
 description = "A developer-first package to evaluate and find regressions in agent trajectories"
 readme = "README.md"
+dynamic = ["version"]
 authors = [
     { name = "Sahil Gangurde", email = "sahilgangurde08@gmail.com" }
 ]
@@ -42,6 +42,9 @@ dev = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/agentdiff/__init__.py"
 
 [tool.hatch.build.targets.sdist]
 include = [

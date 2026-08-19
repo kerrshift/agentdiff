@@ -29,6 +29,8 @@ Typical flow::
     assert_no_regressions(report)
 """
 
+__version__ = "0.1.0"
+
 from agentdiff.adapters import (
     BaseAdapter,
     GenericAdapter,
@@ -76,6 +78,7 @@ __all__ = [
     "StepType",
     "TokenUsage",
     "TraceStep",
+    "__version__",
     "assert_no_regressions",
     "compare",
     "decide_rotation",
