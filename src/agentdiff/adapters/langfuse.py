@@ -34,6 +34,21 @@ class LangfuseAdapter(BaseAdapter):
         observations = data.get("observations")
         if not isinstance(observations, list):
             observations = []
+
+        # The API may return observations in non-chronological order; sort by
+        # start time so step order reflects the actual execution timeline.
+        def _start_key(obs):
+            raw = _pick(obs, "startTime", "start_time")
+            ts = parse_iso_timestamp(raw)
+            if ts is not None:
+                return ts
+            return None
+
+        keyed = [(obs, _start_key(obs)) for obs in observations]
+        keyed = [(obs, k) for obs, k in keyed if isinstance(obs, dict)]
+        keyed.sort(key=lambda pair: (pair[1] is None, pair[1] or 0))
+        observations = [obs for obs, _ in keyed]
+
         steps: list[TraceStep] = []
 
         for idx, obs in enumerate(observations):
@@ -46,8 +61,12 @@ class LangfuseAdapter(BaseAdapter):
 
             # Map Langfuse type to StepType
             obs_type = str(obs.get("type", "")).upper()
-            if obs_type == "GENERATION":
+            if obs_type in ("GENERATION", "EMBEDDING"):
                 step_type = StepType.LLM_CALL
+            elif obs_type in ("TOOL", "RETRIEVER"):
+                step_type = StepType.TOOL_CALL
+            elif obs_type in ("AGENT", "CHAIN", "GUARDRAIL", "EVALUATOR"):
+                step_type = StepType.ROUTING
             elif obs_type == "SPAN":
                 name_lower = str(obs.get("name", "")).lower()
                 if "tool" in name_lower or "call" in name_lower:

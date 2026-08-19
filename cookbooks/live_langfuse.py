@@ -8,20 +8,22 @@
 """Cookbook: Langfuse (live) -> real trace -> `langfuse` adapter.
 
 Creates a real trace in a Langfuse project (cloud or self-hosted) with the
-Python SDK, fetches the full trace (trace + observations) back from the API,
-and feeds it straight through the ``langfuse`` adapter. Two runs are diffed.
+Python SDK v4 observation-based API, fetches the full trace (trace +
+observations) back from the API, and feeds it straight through the ``langfuse``
+adapter. Two runs are diffed.
 
 The adapter accepts both the dashboard-export camelCase and the SDK's
 snake_case observation keys natively, so no manual normalization is needed.
 
 Requires a Langfuse project (free cloud tier or self-hosted):
-    export LANGFUSE_HOST="http://localhost:3000"   # self-hosted, or Langfuse Cloud
+    export LANGFUSE_HOST="https://cloud.langfuse.com"   # or http://localhost:3000
     export LANGFUSE_PUBLIC_KEY="pk-..."
     export LANGFUSE_SECRET_KEY="sk-..."
 """
 
 import os
 import sys
+import time
 
 from langfuse import Langfuse
 
@@ -29,32 +31,62 @@ from agentdiff import compare, parse_trace_data
 
 
 def run_trace(lf: Langfuse, prompt: str, redundant: bool = False) -> dict:
-    trace = lf.trace(name="orders_agent", input={"task": prompt})
-    trace.generation(
-        name="planner",
-        model="gpt-4o-mini",
-        input={"query": prompt},
-        output={"plan": "lookup then synthesize"},
-        usage={"input": 320, "output": 40, "total": 360},
-    )
-    trace.span(
-        name="search_database",
-        input={"action": "query"},
-        output={"rows": 14},
-    )
-    if redundant:
-        trace.span(
-            name="search_database", input={"action": "query"}, output={"rows": 14}
+    with lf.start_as_current_observation(
+        name="orders_agent", input={"task": prompt}, as_type="agent"
+    ) as trace:
+        gen = trace.start_observation(
+            name="planner",
+            as_type="generation",
+            model="gpt-4o-mini",
+            input={"query": prompt},
         )
-    trace.generation(
-        name="synthesize",
-        model="gpt-4o-mini",
-        input={"plan": "lookup then synthesize"},
-        output={"answer": "14 pending orders"},
-        usage={"input": 400, "output": 60, "total": 460},
-    )
+        gen.update(
+            output={"plan": "lookup then synthesize"},
+            usage={"input": 320, "output": 40, "total": 360},
+        )
+        gen.end()
+
+        span = trace.start_observation(
+            name="search_database", as_type="tool", input={"action": "query"}
+        )
+        span.update(output={"rows": 14})
+        span.end()
+
+        if redundant:
+            span2 = trace.start_observation(
+                name="search_database", as_type="tool", input={"action": "query"}
+            )
+            span2.update(output={"rows": 14})
+            span2.end()
+
+        gen2 = trace.start_observation(
+            name="synthesize",
+            as_type="generation",
+            model="gpt-4o-mini",
+            input={"plan": "lookup then synthesize"},
+        )
+        gen2.update(
+            output={"answer": "14 pending orders"},
+            usage={"input": 400, "output": 60, "total": 460},
+        )
+        gen2.end()
+
+        trace_id = trace.trace_id
+
     lf.flush()
-    return lf.api.trace.get(trace.id).model_dump()
+
+    # Langfuse ingests asynchronously; poll until the trace + its observations
+    # are queryable.
+    for _ in range(15):
+        try:
+            full = lf.api.trace.get(trace_id).model_dump()
+        except Exception:
+            time.sleep(3)
+            continue
+        if full.get("observations"):
+            return full
+        time.sleep(3)
+    raise RuntimeError(f"Trace {trace_id} observations were not ingested in time")
 
 
 def main() -> None:

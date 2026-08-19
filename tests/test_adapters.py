@@ -260,3 +260,48 @@ def test_langfuse_accepts_sdk_snake_case_observations():
     assert trace.steps[1].parent_id == "o1"  # snake parent parsed
     assert trace.steps[2].status == StepStatus.ERROR
     assert trace.steps[2].error_message == "boom"
+
+
+def test_langfuse_maps_sdk_v4_types():
+    # The Langfuse v4 SDK emits AGENT/TOOL observation types; the adapter must
+    # map them (not only the legacy GENERATION/SPAN).
+    data = {
+        "id": "t1",
+        "name": "agent",
+        "input": {"q": 1},
+        "output": {"a": 2},
+        "observations": [
+            {
+                "id": "o1",
+                "type": "AGENT",
+                "name": "orders_agent",
+                "start_time": "2024-01-01T00:00:00Z",
+                "end_time": "2024-01-01T00:00:01Z",
+            },
+            {
+                "id": "o2",
+                "type": "GENERATION",
+                "name": "planner",
+                "start_time": "2024-01-01T00:00:00.1Z",
+                "end_time": "2024-01-01T00:00:00.2Z",
+            },
+            {
+                "id": "o3",
+                "type": "TOOL",
+                "name": "search_database",
+                "start_time": "2024-01-01T00:00:00.3Z",
+                "end_time": "2024-01-01T00:00:00.4Z",
+            },
+        ],
+    }
+    trace = LangfuseAdapter.from_dict(data)
+    assert [s.step_type for s in trace.steps] == [
+        StepType.ROUTING,
+        StepType.LLM_CALL,
+        StepType.TOOL_CALL,
+    ]
+    assert [s.name for s in trace.steps] == [
+        "orders_agent",
+        "planner",
+        "search_database",
+    ]
