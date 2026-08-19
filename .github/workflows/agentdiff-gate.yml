@@ -1,0 +1,42 @@
+name: AgentDiff Gate (live test of agentdiff-check action)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  pass:
+    name: Clean run -> gate passes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Baseline vs itself (no divergence, expect PASS)
+        uses: ./.github/actions/agentdiff-check
+        with:
+          baseline: cookbooks/sample/generic_baseline.json
+          candidate: cookbooks/sample/generic_baseline.json
+          package: ./
+          max-divergence: "0.3"
+          max-loops: "0"
+
+  fail:
+    name: Loop regression -> gate blocks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Baseline vs looping candidate (expect BLOCKED)
+        uses: ./.github/actions/agentdiff-check
+        with:
+          baseline: cookbooks/sample/generic_baseline.json
+          candidate: cookbooks/sample/generic_candidate.json
+          package: ./
+          max-divergence: "0.3"
+          max-loops: "0"
+        continue-on-error: true
