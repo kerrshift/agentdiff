@@ -9,15 +9,13 @@
 
 Creates a real trace in a Langfuse project (cloud or self-hosted) with the
 Python SDK, fetches the full trace (trace + observations) back from the API,
-and feeds it through the ``langfuse`` adapter. Two runs are diffed.
+and feeds it straight through the ``langfuse`` adapter. Two runs are diffed.
 
-Important: the Langfuse SDK returns observations in snake_case
-(``start_time``, ``parent_observation_id``), while the adapter expects the
-dashboard-export camelCase shape (``startTime``, ``parentObservationId``).
-``_snake_to_camel`` is the normalization glue a real integration needs.
+The adapter accepts both the dashboard-export camelCase and the SDK's
+snake_case observation keys natively, so no manual normalization is needed.
 
 Requires a Langfuse project (free cloud tier or self-hosted):
-    export LANGFUSE_HOST="https://cloud.langfuse.com"
+    export LANGFUSE_HOST="http://localhost:3000"   # self-hosted, or Langfuse Cloud
     export LANGFUSE_PUBLIC_KEY="pk-..."
     export LANGFUSE_SECRET_KEY="sk-..."
 """
@@ -28,20 +26,6 @@ import sys
 from langfuse import Langfuse
 
 from agentdiff import compare, parse_trace_data
-
-_KEYS = {"startTime", "endTime", "parentObservationId", "statusMessage"}
-
-
-def _snake_to_camel(obs: dict) -> dict:
-    """Normalize snake_case SDK observation keys to the adapter's camelCase."""
-    out = {}
-    for k, v in obs.items():
-        if k in _KEYS:
-            out[k] = v
-            continue
-        parts = k.split("_")
-        out[parts[0] + "".join(p.title() for p in parts[1:])] = v
-    return out
 
 
 def run_trace(lf: Langfuse, prompt: str, redundant: bool = False) -> dict:
@@ -57,7 +41,6 @@ def run_trace(lf: Langfuse, prompt: str, redundant: bool = False) -> dict:
         name="search_database",
         input={"action": "query"},
         output={"rows": 14},
-        start_time=None,
     )
     if redundant:
         trace.span(
@@ -71,10 +54,7 @@ def run_trace(lf: Langfuse, prompt: str, redundant: bool = False) -> dict:
         usage={"input": 400, "output": 60, "total": 460},
     )
     lf.flush()
-
-    full = lf.api.trace.get(trace.id).model_dump()
-    full["observations"] = [_snake_to_camel(o) for o in full.get("observations", [])]
-    return full
+    return lf.api.trace.get(trace.id).model_dump()
 
 
 def main() -> None:

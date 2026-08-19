@@ -10,14 +10,10 @@
 """Cookbook: OpenInference (live OTel) -> real spans -> `openinference` adapter.
 
 Instruments the OpenAI client with OpenInference, makes real calls, and exports
-the resulting OTel spans in-memory. The spans are normalized to the shape the
-``openinference`` adapter expects (hex span/trace ids, timestamps in seconds,
-attributes as a dict), then fed straight in. Two real runs are diffed.
-
-Why the normalization? Real OTel spans carry integer span/trace ids and
-nanosecond timestamps, while the adapter expects hex-string ids and second
-timestamps. The ``_otel_to_adapter`` helper is exactly the glue a real
-OpenInference integration needs.
+the resulting OTel spans in-memory. The spans are projected to plain dicts and
+fed straight into the ``openinference`` adapter, which understands real OTel
+values (integer span/trace ids, nanosecond timestamps) natively. Two real runs
+are diffed.
 
 Requires:
     export OPENAI_API_KEY="sk-..."
@@ -37,14 +33,18 @@ from agentdiff import compare, parse_trace_data
 
 
 def otel_to_adapter_dict(span):
-    """Normalize an OTel ReadableSpan into the adapter's expected shape."""
+    """Project an OTel ReadableSpan into a plain dict for the adapter.
+
+    Values are passed through raw (integer span/trace ids, nanosecond
+    timestamps) — the ``openinference`` adapter handles those natively.
+    """
     sc = span.get_span_context()
     return {
         "name": span.name,
-        "context": {"trace_id": hex(sc.trace_id), "span_id": hex(sc.span_id)},
-        "parent_span_id": hex(span.parent.span_id) if span.parent else None,
-        "start_time": span.start_time / 1e9,  # ns -> seconds (adapter expects s)
-        "end_time": span.end_time / 1e9,
+        "context": {"trace_id": sc.trace_id, "span_id": sc.span_id},
+        "parent_span_id": span.parent.span_id if span.parent else None,
+        "start_time": span.start_time,
+        "end_time": span.end_time,
         "attributes": dict(span.attributes or {}),
         "status": {"status_code": span.status.status_code.name},
     }

@@ -31,8 +31,12 @@ class OpenInferenceAdapter(BaseAdapter):
             context = span.get("context")
             if not isinstance(context, dict):
                 context = {}
-            span_id = context.get("span_id") or span.get("span_id") or f"span_{idx}"
+            span_id = str(
+                context.get("span_id") or span.get("span_id") or f"span_{idx}"
+            )
             parent_id = span.get("parent_span_id") or span.get("parent_id")
+            if parent_id is not None:
+                parent_id = str(parent_id)
 
             attrs = span.get("attributes")
             if not isinstance(attrs, dict):
@@ -100,7 +104,12 @@ class OpenInferenceAdapter(BaseAdapter):
                     if isinstance(start_time, (int, float)) and isinstance(
                         end_time, (int, float)
                     ):
-                        latency_ms = (end_time - start_time) * 1000.0
+                        # OTel spans carry nanoseconds (~1e18); the legacy shape
+                        # uses seconds. Detect ns by magnitude and normalize.
+                        scale = 1.0
+                        if abs(end_time) > 1e11:
+                            scale = 1e-9
+                        latency_ms = max(0.0, (end_time - start_time) * scale * 1000.0)
                     else:
                         t1 = parse_iso_timestamp(start_time)
                         t2 = parse_iso_timestamp(end_time)
@@ -155,6 +164,7 @@ class OpenInferenceAdapter(BaseAdapter):
                 or first_span.get("trace_id")
                 or trace_id
             )
+            trace_id = str(trace_id)
 
         # Task input / Final output from root span if available
         task_input = {}

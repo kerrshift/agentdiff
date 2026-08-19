@@ -6,6 +6,14 @@ from agentdiff.models.step import StepStatus, StepType, TokenUsage, TraceStep
 from agentdiff.models.trace import AgentTrace
 
 
+def _pick(mapping: dict[str, Any], *keys: str) -> Any:
+    """Return the first present value among the given key variants."""
+    for key in keys:
+        if mapping.get(key) is not None:
+            return mapping[key]
+    return None
+
+
 class LangfuseAdapter(BaseAdapter):
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> AgentTrace:
@@ -34,7 +42,7 @@ class LangfuseAdapter(BaseAdapter):
                     f"Langfuse observation at index {idx} is not an object"
                 )
             obs_id = obs.get("id") or f"obs_{idx}"
-            parent_id = obs.get("parentObservationId")
+            parent_id = _pick(obs, "parentObservationId", "parent_observation_id")
 
             # Map Langfuse type to StepType
             obs_type = str(obs.get("type", "")).upper()
@@ -83,8 +91,8 @@ class LangfuseAdapter(BaseAdapter):
 
             # Latency
             latency_ms = 0.0
-            start_str = obs.get("startTime")
-            end_str = obs.get("endTime")
+            start_str = _pick(obs, "startTime", "start_time")
+            end_str = _pick(obs, "endTime", "end_time")
             if start_str and end_str:
                 t1 = parse_iso_timestamp(start_str)
                 t2 = parse_iso_timestamp(end_str)
@@ -92,7 +100,7 @@ class LangfuseAdapter(BaseAdapter):
                     latency_ms = max(0.0, (t2 - t1).total_seconds() * 1000.0)
             if latency_ms == 0.0:
                 latency_ms = (
-                    cls._as_float(obs.get("latency_ms"))
+                    cls._as_float(_pick(obs, "latency_ms", "latency"))
                     or cls._as_float(obs.get("duration") or 0.0) * 1000.0
                 )
 
@@ -100,9 +108,9 @@ class LangfuseAdapter(BaseAdapter):
             level = str(obs.get("level", "")).upper()
             status = StepStatus.SUCCESS
             error_message = None
-            if "ERROR" in level or obs.get("statusMessage"):
+            if "ERROR" in level or _pick(obs, "statusMessage", "status_message"):
                 status = StepStatus.ERROR
-                error_message = obs.get("statusMessage")
+                error_message = _pick(obs, "statusMessage", "status_message")
 
             step = TraceStep(
                 step_id=obs_id,

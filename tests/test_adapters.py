@@ -120,6 +120,34 @@ def test_openinference_root_span_becomes_task_and_output():
     assert trace.agent_name == "root"
 
 
+def test_openinference_accepts_real_otel_ints_and_nanoseconds():
+    # In-memory OTel spans carry integer ids and nanosecond timestamps.
+    start_ns = 1_730_000_000_000_000_000  # 2024-10
+    end_ns = start_ns + 2_000_000_000  # +2 seconds
+    data = {
+        "spans": [
+            {
+                "context": {"span_id": 123456789, "trace_id": 987654321},
+                "name": "call",
+                "kind": "LLM",
+                "attributes": {
+                    "openinference.span.kind": "LLM",
+                    "llm.token_count.prompt": 10,
+                    "llm.token_count.completion": 5,
+                },
+                "start_time": start_ns,
+                "end_time": end_ns,
+                "status": {"status_code": "OK"},
+            }
+        ]
+    }
+    trace = OpenInferenceAdapter.from_dict(data)
+    assert trace.steps[0].step_id == "123456789"  # int id -> str
+    assert trace.trace_id == "987654321"
+    assert trace.steps[0].latency_ms == 2000.0  # 2s from nanoseconds
+    assert trace.steps[0].tokens.prompt_tokens == 10
+
+
 # ── Langfuse ────────────────────────────────────────────────────────────────
 
 
@@ -190,3 +218,45 @@ def test_langfuse_iso_timestamp_latency():
     assert trace.steps[0].latency_ms == 500.0
     # o2 falls back to duration
     assert trace.steps[1].latency_ms == 300.0
+
+
+def test_langfuse_accepts_sdk_snake_case_observations():
+    # Langfuse SDK returns observations in snake_case (start_time,
+    # parent_observation_id, status_message); the adapter must accept them
+    # natively, not only the dashboard-export camelCase.
+    data = {
+        "id": "t1",
+        "name": "agent",
+        "input": {"q": 1},
+        "output": {"a": 2},
+        "observations": [
+            {
+                "id": "o1",
+                "type": "generation",
+                "name": "call_llm",
+                "input": {"q": 1},
+                "output": {"a": 2},
+                "start_time": "2024-01-01T00:00:00Z",
+                "end_time": "2024-01-01T00:00:00.5Z",
+                "usage": {"input": 10, "output": 4, "total": 14, "cost": 0.01},
+            },
+            {
+                "id": "o2",
+                "type": "span",
+                "name": "sql_tool",
+                "parent_observation_id": "o1",
+            },
+            {
+                "id": "o3",
+                "type": "span",
+                "name": "bad",
+                "level": "ERROR",
+                "status_message": "boom",
+            },
+        ],
+    }
+    trace = LangfuseAdapter.from_dict(data)
+    assert trace.steps[0].latency_ms == 500.0  # snake start/end time parsed
+    assert trace.steps[1].parent_id == "o1"  # snake parent parsed
+    assert trace.steps[2].status == StepStatus.ERROR
+    assert trace.steps[2].error_message == "boom"
