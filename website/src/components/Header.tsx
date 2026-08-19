@@ -77,7 +77,7 @@ export default function Header({ version = "0.2.1" }: { version?: string }) {
             <span className="font-semibold text-[#18181B] tracking-tight text-base group-hover:opacity-80 transition-opacity duration-150">
               agentdiff
             </span>
-            <span className="text-[10px] font-mono text-[#A1A1AA] border border-[#E4E4E7] rounded px-1.5 py-0.5">
+            <span className="text-[10px] text-[#A1A1AA] border border-[#E4E4E7] rounded px-1.5 py-0.5">
               v{version}
             </span>
           </button>

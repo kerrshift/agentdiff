@@ -18,8 +18,8 @@ const FEATURES = [
         <div className="flex items-center gap-2.5 py-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-[#E5484D]" />
           <span className="text-[#A1A1AA] w-16">candidate</span>
-          <span className="text-[#C2262B]">0.42</span>
-          <span className="ml-auto text-[#C2262B] text-[11px]">divergent</span>
+          <span className="text-[#E5484D]">0.42</span>
+          <span className="ml-auto text-[#E5484D] text-[11px]">divergent</span>
         </div>
       </div>
     ),
@@ -38,7 +38,7 @@ const FEATURES = [
         </div>
         <div className="mt-2.5 font-mono text-[12.5px] flex items-center justify-between">
           <span className="text-[#A1A1AA]">6 of 7 steps wasted</span>
-          <span className="text-[#C2262B]">0.22</span>
+          <span className="text-[#E5484D]">0.22</span>
         </div>
       </div>
     ),
@@ -50,7 +50,7 @@ const FEATURES = [
     title: "Loop detection",
     body: "Flags cyclical tool calling — the same endpoint, same params, no state progress. The classic agent failure that burns through your budget.",
     example: (
-      <div className="font-mono text-[12.5px] text-[#C2262B] leading-relaxed">
+      <div className="font-mono text-[12.5px] text-[#E5484D] leading-relaxed">
         <div>execute_sql</div>
         <div className="text-[#A1A1AA]">↓</div>
         <div>sql_error</div>
@@ -78,8 +78,8 @@ const FEATURES = [
         <div className="flex items-center gap-2.5 py-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-[#E5484D]" />
           <span className="text-[#A1A1AA] w-16">candidate</span>
-          <span className="text-[#C2262B]">$0.030</span>
-          <span className="ml-auto text-[#C2262B] text-[11px]">+148%</span>
+          <span className="text-[#E5484D]">$0.030</span>
+          <span className="ml-auto text-[#E5484D] text-[11px]">+148%</span>
         </div>
       </div>
     ),
@@ -89,17 +89,17 @@ const FEATURES = [
 
 export default function FeaturesGrid() {
   return (
-    <section id="features-section" className="py-24 border-t border-[#E4E4E7] bg-transparent font-sans">
+    <section id="features-section" className="py-24 bg-transparent font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <Reveal>
-        {/* Section Header — centered */}
-        <div className="max-w-3xl mx-auto text-center mb-16">
-          <span className="text-xs font-mono uppercase tracking-[0.16em] text-[#A1A1AA] font-medium block mb-4">Capabilities</span>
+        {/* Section Header — left rail */}
+        <div className="max-w-3xl mb-12">
+          <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-4">Capabilities</span>
           <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
             Four metrics that explain how the agent really ran.
           </h2>
-          <p className="mt-4 text-base text-[#52525B] leading-relaxed font-normal max-w-2xl mx-auto">
+          <p className="mt-4 text-base text-[#52525B] leading-relaxed font-normal">
             Every trace reduces to a few computed indices. Exposed as a JSON report, they become hard gates in CI — no more guessing whether a run drifted.
           </p>
         </div>
@@ -112,10 +112,10 @@ export default function FeaturesGrid() {
             <div key={f.num} className="flex flex-col">
               {/* Index header */}
               <div className="flex items-baseline justify-between mb-6">
-                <span className="font-mono text-sm text-[#A1A1AA] tracking-tight">
+                <span className="font-medium text-sm text-[#A1A1AA] tracking-tight">
                   {f.num}
                 </span>
-                <span className="text-[10px] uppercase tracking-[0.12em] text-[#A1A1AA] font-mono">
+                <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#A1A1AA]">
                   {f.label}
                 </span>
               </div>

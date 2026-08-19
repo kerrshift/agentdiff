@@ -19,7 +19,7 @@ function NodeCell({ node, index, pruned }: { node?: TraceNode; index: number; pr
   }
   return (
     <div>
-      <div className="text-[11px] text-[#A1A1AA] font-mono mb-0.5">
+      <div className="text-[11px] text-[#A1A1AA] mb-0.5 tabular-nums">
         Step {String(index).padStart(2, "0")} · {node.tokens} tok · ${node.cost.toFixed(4)}
       </div>
       <div className={`text-sm font-medium ${pruned ? "line-through text-[#A1A1AA]" : "text-[#18181B]"}`}>
@@ -31,9 +31,9 @@ function NodeCell({ node, index, pruned }: { node?: TraceNode; index: number; pr
 
 const STATUS_STYLE: Record<ComparisonRow["diffStatus"], string> = {
   aligned: "text-[#A1A1AA]",
-  pruned: "text-[#C2262B]",
-  loop: "text-[#C2262B]",
-  added: "text-[#0B8C6C]",
+  pruned: "text-[#E5484D]",
+  loop: "text-[#E5484D]",
+  added: "text-[#0FA47F]",
 };
 
 export default function BlueprintWorkspace() {
@@ -96,13 +96,13 @@ export default function BlueprintWorkspace() {
   const isFail = activeScenario.status === "FAIL";
 
   return (
-    <section id="workspace-section" className="py-24 border-t border-[#E4E4E7] bg-transparent font-sans">
+    <section id="workspace-section" className="py-32 bg-transparent font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <Reveal>
         {/* Section Header — left rail */}
         <div className="max-w-3xl mb-12">
-          <span className="text-xs font-mono uppercase tracking-[0.16em] text-[#A1A1AA] font-medium block mb-4">Workspace</span>
+          <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-4">Workspace</span>
           <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
             A diff you can read.
           </h2>
@@ -144,7 +144,7 @@ export default function BlueprintWorkspace() {
           {/* LEFT: comparison */}
           <div className="lg:col-span-8">
             {/* Column labels */}
-            <div className="grid grid-cols-12 gap-4 pb-3 mb-1 text-[10px] font-mono uppercase tracking-[0.14em] text-[#A1A1AA]">
+            <div className="grid grid-cols-12 gap-4 pb-3 mb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA]">
               <div className="col-span-5">Baseline</div>
               <div className="col-span-2 text-center">Diff</div>
               <div className="col-span-5 text-right">Candidate</div>
@@ -165,7 +165,7 @@ export default function BlueprintWorkspace() {
                       <NodeCell node={row.baselineNode} index={row.index} pruned={isPruned} />
                     </div>
                     <div className="col-span-2 flex justify-center">
-                      <span className={`text-[10px] font-mono uppercase tracking-widest ${STATUS_STYLE[row.diffStatus]}`}>
+                      <span className={`text-[10px] font-medium uppercase tracking-widest ${STATUS_STYLE[row.diffStatus]}`}>
                         {row.diffLabel}
                       </span>
                     </div>
@@ -182,11 +182,11 @@ export default function BlueprintWorkspace() {
           <div className="lg:col-span-4 space-y-10">
             {/* Gating status */}
             <div>
-              <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#A1A1AA] mb-3 block">Gating status</span>
+              <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA] mb-3 block">Gating status</span>
               <div className="flex items-center gap-3">
                 <span
                   className={`px-2.5 py-1 text-xs font-semibold rounded ${
-                    isFail ? "bg-[#FDF2F2] text-[#C2262B]" : "bg-[#F2FBF7] text-[#0B8C6C]"
+                    isFail ? "bg-[#FDF2F2] text-[#E5484D]" : "bg-[#F2FBF7] text-[#0FA47F]"
                   }`}
                 >
                   {isFail ? "FAIL" : "PASS"}
@@ -197,31 +197,31 @@ export default function BlueprintWorkspace() {
               {/* Computed indices — the four core metrics */}
               <div className="grid grid-cols-2 gap-x-6 gap-y-5 mt-6 pt-5">
                 <div>
-                  <div className="text-[10px] uppercase tracking-widest text-[#A1A1AA] font-mono mb-1">TDI · divergence</div>
-                  <div className="font-mono text-xl font-semibold text-[#18181B]">{activeScenario.tdi}</div>
+                  <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-1">TDI · divergence</div>
+                  <div className="text-xl font-semibold text-[#18181B] tabular-nums">{activeScenario.tdi}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] uppercase tracking-widest text-[#A1A1AA] font-mono mb-1">WEI · wasted effort</div>
-                  <div className="font-mono text-xl font-semibold text-[#18181B]">{activeScenario.wei}</div>
+                  <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-1">WEI · wasted effort</div>
+                  <div className="text-xl font-semibold text-[#18181B] tabular-nums">{activeScenario.wei}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] uppercase tracking-widest text-[#A1A1AA] font-mono mb-1">Δ cost</div>
-                  <div className={`font-mono text-xl font-semibold ${activeScenario.costDelta.startsWith("-") ? "text-[#0B8C6C]" : "text-[#C2262B]"}`}>
+                  <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-1">Δ cost</div>
+                  <div className={`text-xl font-semibold tabular-nums ${activeScenario.costDelta.startsWith("-") ? "text-[#0FA47F]" : "text-[#E5484D]"}`}>
                     {activeScenario.costDelta}
                   </div>
                 </div>
                 <div>
-                  <div className="text-[10px] uppercase tracking-widest text-[#A1A1AA] font-mono mb-1">Δ latency</div>
-                  <div className="font-mono text-xl font-semibold text-[#18181B]">{activeScenario.latencyDelta}</div>
+                  <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-1">Δ latency</div>
+                  <div className="text-xl font-semibold text-[#18181B] tabular-nums">{activeScenario.latencyDelta}</div>
                 </div>
               </div>
 
               {/* Verdict */}
               <div className="mt-6 pt-4 flex items-center gap-3">
-                <span className={`font-mono text-sm font-semibold ${isFail ? "text-[#C2262B]" : "text-[#0B8C6C]"}`}>
+                <span className={`font-semibold text-sm ${isFail ? "text-[#E5484D]" : "text-[#0FA47F]"}`}>
                   Verdict {isFail ? "FAIL" : "PASS"}
                 </span>
-                <span className="font-mono text-[11px] text-[#A1A1AA]">
+                <span className="text-[11px] text-[#A1A1AA]">
                   {isFail ? "· blocks this change" : "· mergeable"}
                 </span>
               </div>
@@ -230,7 +230,7 @@ export default function BlueprintWorkspace() {
             {/* Evaluation logs */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#A1A1AA]">Evaluation logs</span>
+                <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA]">Evaluation logs</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#18181B] animate-pulse"></span>
               </div>
               <div

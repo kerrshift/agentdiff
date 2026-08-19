@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@lobehub/icons": "^5.16.0",
     "@types/prismjs": "^1.26.6",
     "katex": "^0.18.4",
     "lucide-react": "^1.31.0",

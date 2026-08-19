@@ -91,12 +91,12 @@ const CARDS = [
 
 export default function ActionSection() {
   return (
-    <section id="action-section" className="py-24 border-t border-[#E4E4E7] bg-transparent font-sans">
+    <section id="action-section" className="py-28 bg-transparent font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <Reveal>
-        <div className="max-w-3xl mb-14">
-          <span className="text-xs font-mono uppercase tracking-[0.16em] text-[#A1A1AA] font-medium block mb-4">
+        <div className="max-w-3xl mb-16">
+          <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-4">
             Beyond the metrics
           </span>
           <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
@@ -108,35 +108,33 @@ export default function ActionSection() {
         </div>
         </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-14 items-stretch">
-          {CARDS.map((card, i) => (
-            <Reveal key={card.num} delay={i % 2 === 0 ? 0 : 140}>
-              <div className="flex flex-col h-full">
-                <div className="flex items-baseline justify-between mb-6">
-                  <span className="font-mono text-sm text-[#A1A1AA] tracking-tight">{card.num}</span>
-                  <span className="text-[10px] uppercase tracking-[0.12em] text-[#A1A1AA] font-mono">
-                    {card.label}
-                  </span>
+        <div className="flex flex-col gap-20">
+          {CARDS.map((card) => (
+            <Reveal key={card.num}>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-14 gap-y-6 items-center">
+                <div className="max-w-md">
+                  <div className="flex items-baseline justify-between mb-4">
+                    <span className="font-medium text-sm text-[#A1A1AA] tracking-tight">{card.num}</span>
+                    <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#A1A1AA]">
+                      {card.label}
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-semibold text-[#18181B] mb-3 leading-snug tracking-[-0.01em]">
+                    {card.title}
+                  </h3>
+                  <p className="text-sm text-[#52525B] leading-relaxed font-normal">
+                    {card.body}
+                  </p>
                 </div>
-
-                <h3 className="text-lg font-semibold text-[#18181B] mb-3 leading-snug tracking-[-0.01em]">
-                  {card.title}
-                </h3>
-                <p className="text-sm text-[#52525B] leading-relaxed font-normal mb-6">
-                  {card.body}
-                </p>
-
-                <div className="mt-auto">
-                  <CodePanel tab={card.tab} lines={card.lines} />
-                </div>
+                <CodePanel tab={card.tab} lines={card.lines} />
               </div>
             </Reveal>
           ))}
         </div>
 
-        <Reveal delay={140}>
-        <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-[#E4E4E7] pt-8">
-          <span className="text-[11px] text-[#A1A1AA] font-mono">
+        <Reveal>
+        <div className="mt-20 flex flex-wrap items-center justify-between gap-4">
+          <span className="text-[11px] text-[#A1A1AA] font-medium">
             Everything here is a real flag you can run today.
           </span>
           <a

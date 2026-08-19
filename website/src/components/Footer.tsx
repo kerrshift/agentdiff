@@ -19,7 +19,7 @@ export default function Footer({ version = "0.2.1" }: { version?: string }) {
             <p className="text-sm text-[#52525B] leading-relaxed mt-3 max-w-[16rem]">
               Trajectory regression engine for AI agents.
             </p>
-            <div className="flex items-center gap-2 mt-5 font-mono text-[11px] text-[#A1A1AA]">
+            <div className="flex items-center gap-2 mt-5 text-[11px] text-[#A1A1AA]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#0FA47F]" />
               v{version} · MIT · local-first
             </div>
@@ -28,14 +28,14 @@ export default function Footer({ version = "0.2.1" }: { version?: string }) {
           {/* Link columns */}
           <div className="flex gap-16 lg:gap-24">
             <div className="flex flex-col gap-2.5">
-              <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#A1A1AA] mb-1">Product</span>
+              <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA] mb-1">Product</span>
               <a href="#workspace-section" className="text-sm text-[#52525B] hover:text-[#18181B] transition-colors duration-150 font-medium">Workspace</a>
               <a href="#features-section" className="text-sm text-[#52525B] hover:text-[#18181B] transition-colors duration-150 font-medium">Features</a>
               <a href="#action-section" className="text-sm text-[#52525B] hover:text-[#18181B] transition-colors duration-150 font-medium">Action</a>
               <a href="#integration-section" className="text-sm text-[#52525B] hover:text-[#18181B] transition-colors duration-150 font-medium">Integration</a>
             </div>
             <div className="flex flex-col gap-2.5">
-              <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#A1A1AA] mb-1">Resources</span>
+              <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA] mb-1">Resources</span>
               <a href="/docs" className="text-sm text-[#52525B] hover:text-[#18181B] transition-colors duration-150 font-medium">Docs</a>
               <a href="https://github.com/lostmartian/agentdiff/tree/main/cookbooks" target="_blank" rel="noopener noreferrer" className="text-sm text-[#52525B] hover:text-[#18181B] transition-colors duration-150 font-medium">Cookbooks</a>
               <a href="https://github.com/lostmartian/agentdiff" target="_blank" rel="noopener noreferrer" className="text-sm text-[#52525B] hover:text-[#18181B] transition-colors duration-150 font-medium">GitHub</a>
@@ -47,7 +47,7 @@ export default function Footer({ version = "0.2.1" }: { version?: string }) {
         {/* Bottom bar — whitespace separated, no extra rule */}
         <div className="mt-14 flex flex-col md:flex-row items-center justify-between gap-3 text-[#A1A1AA]">
           <span className="text-xs">© {new Date().getFullYear()} AgentDiff</span>
-          <span className="text-[11px] font-mono">Python SDK · CLI · GitHub Actions</span>
+          <span className="text-[11px]">Python SDK · CLI · GitHub Actions</span>
         </div>
 
       </div>

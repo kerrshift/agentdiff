@@ -1,6 +1,16 @@
 import fs from "fs";
 import path from "path";
+import type { Metadata } from "next";
 import DocsClient, { DocPage } from "./DocsClient";
+
+export const metadata: Metadata = {
+  title: "Documentation",
+  description:
+    "AgentDiff documentation: installation, CLI reference, adapters for OpenAI Agents, Langfuse, LangSmith and OpenInference, CI/CD GitHub Action setup, and cookbooks.",
+  alternates: {
+    canonical: "/docs",
+  },
+};
 
 /** Read the version string from the package `__init__.py` at build time. */
 function readPackageVersion(): string {

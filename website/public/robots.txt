@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://agentdiff.lostmartian.in/sitemap.xml

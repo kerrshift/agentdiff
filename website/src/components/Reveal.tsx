@@ -6,15 +6,18 @@ export default function Reveal({
   children,
   className = "",
   delay = 0,
+  animate = false,
 }: {
   children: React.ReactNode;
   className?: string;
   delay?: number;
+  animate?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    if (!animate) return;
     const el = ref.current;
     if (!el) return;
     if (typeof IntersectionObserver === "undefined") {
@@ -32,7 +35,11 @@ export default function Reveal({
     );
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [animate]);
+
+  if (!animate) {
+    return <div className={className}>{children}</div>;
+  }
 
   return (
     <div

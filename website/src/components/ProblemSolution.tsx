@@ -33,23 +33,23 @@ function TraceRow({ idx, name, loop, empty }: { idx: number; name: string; loop?
     >
       <span className="w-6 text-right font-mono text-[11px] text-[#A1A1AA]">{String(idx).padStart(2, "0")}</span>
       <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: loop ? "#E5484D" : "#0FA47F" }} />
-      <span className={`font-mono text-[13px] tracking-tight ${loop ? "text-[#C2262B]" : "text-[#18181B]"}`}>
+      <span className={`font-mono text-[13px] tracking-tight ${loop ? "text-[#E5484D]" : "text-[#18181B]"}`}>
         {name}
       </span>
-      {loop && <span className="ml-auto font-mono text-[10px] text-[#E5484D]">loop</span>}
+      {loop && <span className="ml-auto text-[10px] font-medium uppercase tracking-widest text-[#E5484D]">loop</span>}
     </div>
   );
 }
 
 export default function ProblemSolution() {
   return (
-    <section id="problem-section" className="py-24 border-t border-[#E4E4E7] bg-transparent font-sans">
+    <section id="problem-section" className="py-28 bg-transparent font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <Reveal>
         {/* Section Header — left rail */}
         <div className="max-w-3xl mb-12">
-          <span className="text-xs font-mono uppercase tracking-[0.16em] text-[#A1A1AA] font-medium block mb-4">The problem</span>
+          <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-4">The problem</span>
           <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
             Agents fail silently. Tests can&apos;t see it.
           </h2>
@@ -66,11 +66,11 @@ export default function ProblemSolution() {
           {/* Baseline */}
           <div className="flex flex-col md:pr-12">
             <div className="flex items-center justify-between mb-3">
-              <span className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-[#18181B] font-semibold">
+              <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-[#18181B]">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0FA47F]" />
                 Baseline
               </span>
-              <span className="text-[11px] font-mono text-[#A1A1AA]">6 steps</span>
+              <span className="text-[11px] text-[#A1A1AA]">6 steps</span>
             </div>
             <div className="pt-2 flex-1">
               {BASELINE.map((step, i) => (
@@ -79,21 +79,21 @@ export default function ProblemSolution() {
             </div>
             <div className="mt-3 pt-5 flex items-end justify-between">
               <div>
-                <div className="text-[10px] uppercase tracking-widest text-[#A1A1AA] font-mono mb-1">Tokens</div>
-                <div className="font-mono text-2xl font-semibold text-[#18181B] tracking-tight">1,204</div>
+                <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-1">Tokens</div>
+                <div className="text-2xl font-semibold text-[#18181B] tracking-tight tabular-nums">1,204</div>
               </div>
-              <div className="font-mono text-sm font-semibold text-[#0FA47F]">−62.5% cost</div>
+              <div className="text-sm font-semibold text-[#0FA47F] tabular-nums">−62.5% cost</div>
             </div>
           </div>
 
           {/* Candidate */}
           <div className="flex flex-col md:pl-12">
             <div className="flex items-center justify-between mb-3">
-              <span className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-[#18181B] font-semibold">
+              <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-[#18181B]">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#E5484D]" />
                 Candidate
               </span>
-              <span className="text-[11px] font-mono text-[#C2262B]">loop ×3</span>
+              <span className="text-[11px] font-semibold text-[#E5484D]">loop ×3</span>
             </div>
             <div className="pt-2 flex-1">
               {CANDIDATE.map((step, i) => (
@@ -102,10 +102,10 @@ export default function ProblemSolution() {
             </div>
             <div className="mt-3 pt-5 flex items-end justify-between">
               <div>
-                <div className="text-[10px] uppercase tracking-widest text-[#A1A1AA] font-mono mb-1">Tokens</div>
-                <div className="font-mono text-2xl font-semibold text-[#18181B] tracking-tight">2,986</div>
+                <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-1">Tokens</div>
+                <div className="text-2xl font-semibold text-[#18181B] tracking-tight tabular-nums">2,986</div>
               </div>
-              <div className="font-mono text-sm font-semibold text-[#E5484D]">+148% cost</div>
+              <div className="text-sm font-semibold text-[#E5484D] tabular-nums">+148% cost</div>
             </div>
           </div>
 
@@ -113,7 +113,7 @@ export default function ProblemSolution() {
 
         {/* The fix — continues the same left rail as the header */}
         <div className="max-w-2xl mt-14">
-          <span className="text-xs font-mono uppercase tracking-[0.14em] text-[#A1A1AA] block mb-3">The fix</span>
+          <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-3">The fix</span>
           <h3 className="text-2xl font-semibold text-[#18181B] mb-3 leading-snug">
             Catch it in CI, before it ships.
           </h3>
@@ -122,15 +122,15 @@ export default function ProblemSolution() {
           </p>
           <div className="flex items-center gap-6">
             <div>
-              <div className="text-[10px] uppercase tracking-widest text-[#A1A1AA] font-mono mb-2">Baseline</div>
-              <div className="font-mono text-xl font-semibold text-[#18181B]">PASS</div>
-              <div className="font-mono text-[11px] text-[#0B8C6C] mt-1">6 steps · −62.5%</div>
+              <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-2">Baseline</div>
+              <div className="text-xl font-semibold text-[#18181B] tracking-tight">PASS</div>
+              <div className="text-[11px] text-[#0FA47F] mt-1">6 steps · −62.5%</div>
             </div>
             <div className="h-10 w-px bg-[#E4E4E7]"></div>
             <div>
-              <div className="text-[10px] uppercase tracking-widest text-[#A1A1AA] font-mono mb-2">Regression</div>
-              <div className="font-mono text-xl font-semibold text-[#E5484D]">FAIL</div>
-              <div className="font-mono text-[11px] text-[#C2262B] mt-1">loop ×3 · +148%</div>
+              <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-2">Regression</div>
+              <div className="text-xl font-semibold text-[#E5484D] tracking-tight">FAIL</div>
+              <div className="text-[11px] text-[#E5484D] mt-1">loop ×3 · +148%</div>
             </div>
           </div>
         </div>

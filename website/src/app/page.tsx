@@ -7,6 +7,8 @@ import ProblemSolution from "../components/ProblemSolution";
 import FeaturesGrid from "../components/FeaturesGrid";
 import ActionSection from "../components/ActionSection";
 import IntegrationShowcase from "../components/IntegrationShowcase";
+import ProofBand from "../components/ProofBand";
+import PRCommentShowcase from "../components/PRCommentShowcase";
 import ClosingCTA from "../components/ClosingCTA";
 import Footer from "../components/Footer";
 
@@ -39,7 +41,9 @@ export default function Home() {
           <BlueprintWorkspace />
           <FeaturesGrid />
           <ActionSection />
+          <ProofBand />
           <IntegrationShowcase />
+          <PRCommentShowcase />
           <ClosingCTA />
         </main>
         <Footer version={readPackageVersion()} />

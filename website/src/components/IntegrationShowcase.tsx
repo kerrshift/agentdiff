@@ -122,13 +122,13 @@ tool loop and a 148% cost increase over baseline.`;
       : "python";
 
   return (
-<section id="integration-section" className="py-24 border-t border-[#E4E4E7] bg-transparent font-sans">
+<section id="integration-section" className="py-28 bg-transparent font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <Reveal>
         {/* Section Header — left rail */}
         <div className="max-w-3xl mb-12">
-          <span className="text-xs font-mono uppercase tracking-[0.16em] text-[#A1A1AA] font-medium block mb-4">Developer integration</span>
+          <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-4">Developer integration</span>
           <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
             Zero boilerplate DX.
           </h2>
@@ -141,8 +141,8 @@ tool loop and a 148% cost increase over baseline.`;
 
         <Reveal delay={140}>
         {/* Formats — mono readout, left rail */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-mono text-[#52525B] mb-10">
-          <span className="text-[10px] uppercase tracking-[0.14em] text-[#A1A1AA] font-semibold mr-3">Formats</span>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#52525B] mb-10">
+          <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA] mr-3">Formats</span>
           {FORMATS.map((fmt, i) => (
             <React.Fragment key={fmt}>
               {i > 0 && <span className="text-[#E4E4E7]">·</span>}
@@ -230,7 +230,7 @@ tool loop and a 148% cost increase over baseline.`;
             Try the live cookbooks
             <ArrowUpRight className="w-4 h-4" />
           </a>
-          <span className="text-[11px] text-[#A1A1AA] font-mono">Gemini · OpenAI Agents · OTel · Langfuse · LangSmith</span>
+          <span className="text-[11px] text-[#A1A1AA]">Gemini · OpenAI Agents · OTel · Langfuse · LangSmith</span>
         </div>
         </Reveal>
 
