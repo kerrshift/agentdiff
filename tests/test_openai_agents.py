@@ -105,10 +105,31 @@ def test_openai_agents_skips_real_task_turn_custom_spans():
             "2026-08-01T00:00:04Z",
             name="support_agent",
         ),
-        _span("t1", "a1", "custom", "2026-08-01T00:00:00Z", "2026-08-01T00:00:04Z", name="task"),
-        _span("u1", "a1", "custom", "2026-08-01T00:00:00Z", "2026-08-01T00:00:04Z", name="turn"),
+        _span(
+            "t1",
+            "a1",
+            "custom",
+            "2026-08-01T00:00:00Z",
+            "2026-08-01T00:00:04Z",
+            name="task",
+        ),
+        _span(
+            "u1",
+            "a1",
+            "custom",
+            "2026-08-01T00:00:00Z",
+            "2026-08-01T00:00:04Z",
+            name="turn",
+        ),
         _span("r1", "a1", "response", "2026-08-01T00:00:00Z", "2026-08-01T00:00:01Z"),
-        _span("f1", "a1", "function", "2026-08-01T00:00:02Z", "2026-08-01T00:00:03Z", name="get_user_database_stats"),
+        _span(
+            "f1",
+            "a1",
+            "function",
+            "2026-08-01T00:00:02Z",
+            "2026-08-01T00:00:03Z",
+            name="get_user_database_stats",
+        ),
     ]
     trace = OpenAIAgentsAdapter.from_dict(_trace(spans))
     assert [s.step_id for s in trace.steps] == ["a1", "r1", "f1"]
