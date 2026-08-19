@@ -20,6 +20,7 @@ def test_assertion_raises_on_divergence():
     with pytest.raises(AssertionError) as excinfo:
         assert_no_regressions(report, max_divergence=0.10)
     assert "Trajectory Divergence Index" in str(excinfo.value)
+    assert report.passed is False
 
 
 def test_assertion_raises_on_cost_spike():

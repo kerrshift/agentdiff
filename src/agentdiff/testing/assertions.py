@@ -51,6 +51,7 @@ def assert_no_regressions(
         )
 
     if errors:
+        report.passed = False
         errors_str = "\n".join(f"  - {err}" for err in errors)
         summary_str = report.summary()
         raise AssertionError(
