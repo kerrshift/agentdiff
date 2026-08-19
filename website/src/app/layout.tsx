@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, JetBrains_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import "katex/dist/katex.min.css";
 
@@ -12,6 +13,20 @@ const jetBrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
+
+const themeScript = `
+(function () {
+  try {
+    if (!location.pathname.startsWith("/docs")) return;
+    var root = document.documentElement;
+    var stored = localStorage.getItem("agentdiff-theme");
+    var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    var theme = stored || (prefersDark ? "dark" : "light");
+    root.classList.toggle("dark", theme === "dark");
+    root.style.colorScheme = theme;
+  } catch (e) {}
+})();
+`;
 
 export const metadata: Metadata = {
   title: {
@@ -37,8 +52,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${manrope.variable} ${jetBrainsMono.variable} h-full antialiased`}
     >
+      <head>
+        <Script id="agentdiff-theme" strategy="beforeInteractive">
+          {themeScript}
+        </Script>
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

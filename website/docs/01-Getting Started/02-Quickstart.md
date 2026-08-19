@@ -22,8 +22,8 @@ agentdiff baseline.json candidate.json
 ```
 
 AgentDiff auto-detects the telemetry format (`generic`, `openinference`,
-`langfuse`, `langsmith`) and prints a terminal report with the divergence
-metrics:
+`langfuse`, `langsmith`, `openai_agents`) and prints a terminal report with
+the divergence metrics:
 
 ```text
 Trajectory Divergence Index (TDI):  0.33

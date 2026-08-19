@@ -49,6 +49,9 @@ agentdiff baseline.json candidate.json \
   --max-cost-delta 5.0
 ```
 
+These defaults can also be committed in an `agentdiff.toml` (see
+[Configuration](../03-Guides/05-Configuration.md)) — explicit flags still win.
+
 ## pytest plugin
 
 The same gating is available as a pytest plugin:

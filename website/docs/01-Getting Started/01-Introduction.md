@@ -17,7 +17,7 @@ You feed AgentDiff two runs of the same task — say, one from your `main` branc
 - **Loop detection.** Flags redundant, repeating tool-calling sequences and wasteful retries.
 - **Resource deltas.** Quantifies changes in cost, token usage, and latency.
 - **Explanations & culprit location.** Human-readable "why" plus the specific step responsible.
-- **Bring-your-own-telemetry.** Native adapters for the Generic format, OpenInference/OTel, Langfuse, and LangSmith.
+- **Bring-your-own-telemetry.** Native adapters for the Generic format, OpenInference/OTel, Langfuse, LangSmith, and the OpenAI Agents SDK.
 - **CI/CD native gates.** A CLI gate, a **pytest plugin**, baseline rotation, and one-command **PR comments**.
 
 ## What it is not

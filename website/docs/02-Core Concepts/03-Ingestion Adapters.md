@@ -36,6 +36,7 @@ trace = parse_trace_data(raw_dict, adapter_name="langfuse")
 | OpenInference / OTel | `openinference` | Standard OTel span collections (e.g. Arize Phoenix, Traceloop). |
 | Langfuse | `langfuse` | Exported Langfuse observation dumps. |
 | LangSmith | `langsmith` | LangSmith run-trees (nested `run` objects). |
+| OpenAI Agents SDK | `openai_agents` | OpenAI Agents SDK trace exports (a `trace` of `spans`). |
 
 ### Generic (`generic`)
 
@@ -70,6 +71,22 @@ Parses LangSmith run-trees (nested `run` objects) into ordered steps:
 - `child_runs` are flattened recursively while preserving the hierarchy.
 - Token usage comes from `usage_metadata` / `extra.metadata.usage`; errored
   runs are marked via the `error` field.
+
+### OpenAI Agents SDK (`openai_agents`)
+
+Parses OpenAI Agents SDK trace exports — a top-level `trace` object with a flat
+list of `spans`, each carrying a `span_data.type`:
+
+- `agent` / `guardrail` / `handoff` → `routing`.
+- `generation` / `response` → `llm_call` (tokens from `usage`).
+- `function` → `tool_call`.
+- `custom` → `thought`.
+- `task` and `turn` are internal bookkeeping wrappers and are skipped.
+- Spans are ordered chronologically by `started_at`; latency comes from the
+  span timestamps; errored spans are marked via the `error` field.
+
+The `openai_agents` name also works from the CLI and is auto-detected from the
+`spans`/`span_data` structure.
 
 ## Load any two runs and compare
 

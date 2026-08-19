@@ -8,10 +8,10 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Reveal from "./Reveal";
 
-const FORMATS = ["Generic JSON", "OpenInference", "Langfuse", "LangSmith"];
+const FORMATS = ["Generic JSON", "OpenInference", "Langfuse", "LangSmith", "OpenAI Agents"];
 
 export default function IntegrationShowcase() {
-  const [activeCodeTab, setActiveCodeTab] = useState<"pytest" | "cli" | "report">("pytest");
+  const [activeCodeTab, setActiveCodeTab] = useState<"pytest" | "cli" | "config" | "report">("pytest");
   const [copiedCode, setCopiedCode] = useState(false);
 
   const copyToClipboard = (text: string) => {
@@ -25,7 +25,7 @@ from agentdiff import load_trace, compare
 from agentdiff.testing import assert_no_regressions
 
 def test_agent_refactor_efficiency():
-    # load_trace() auto-detects format: generic, openinference, langfuse, langsmith
+    # load_trace() auto-detects format: generic, openinference, langfuse, langsmith, openai_agents
     baseline  = load_trace("tests/traces/baseline.json")
     candidate = load_trace("tests/traces/candidate.json")
 
@@ -54,7 +54,30 @@ $ agentdiff baseline.json candidate.json \\
     --max-divergence 0.25 \\
     --max-cost-delta 10.0 \\
     --format markdown \\
-    --output-file pr_comment.md`;
+    --output-file pr_comment.md
+
+# ...or run the same gate as a one-step GitHub Action
+- uses: lostmartian/agentdiff/.github/actions/agentdiff-check@main
+  with:
+    baseline: baselines/current.json
+    candidate: trace.json
+    max-divergence: 0.25`;
+
+  const configCode = `# Commit your gates once, next to your traces.
+# Explicit CLI flags still win over these defaults.
+
+[adapter]
+name = "auto"   # auto, generic, langfuse, langsmith, openai_agents
+
+[cli]
+baseline = "baselines/current.json"
+max_divergence = 0.3
+max_loops = 0
+max_cost_delta = 10.0
+
+[assertions]
+max_divergence = 0.25
+allow_loops = false`;
 
   const reportCode = `# AgentDiff · Regression Report
 > baseline: sql_agent_v1.json · candidate: sql_agent_v2.json
@@ -77,11 +100,26 @@ tool loop and a 148% cost increase over baseline.`;
   const TABS = [
     { id: "pytest", name: "pytest_test.py" },
     { id: "cli", name: "agentdiff_cli.sh" },
+    { id: "config", name: "agentdiff.toml" },
     { id: "report", name: "pr_comment.md" },
   ] as const;
 
-  const activeCode = activeCodeTab === "pytest" ? pytestCode : activeCodeTab === "cli" ? cliCode : reportCode;
-  const activeLanguage = activeCodeTab === "report" ? "markdown" : activeCodeTab === "cli" ? "bash" : "python";
+  const activeCode =
+    activeCodeTab === "pytest"
+      ? pytestCode
+      : activeCodeTab === "cli"
+      ? cliCode
+      : activeCodeTab === "config"
+      ? configCode
+      : reportCode;
+  const activeLanguage =
+    activeCodeTab === "report"
+      ? "markdown"
+      : activeCodeTab === "config"
+      ? "ini"
+      : activeCodeTab === "cli"
+      ? "bash"
+      : "python";
 
   return (
 <section id="integration-section" className="py-24 border-t border-[#E4E4E7] bg-transparent font-sans">
@@ -95,7 +133,8 @@ tool loop and a 148% cost increase over baseline.`;
             Zero boilerplate DX.
           </h2>
           <p className="mt-4 text-base text-[#52525B] leading-relaxed font-normal">
-            A thin Python SDK for pytest, plus a strict CLI runner that drops straight into any pipeline.
+            A thin Python SDK for pytest, a strict CLI runner, and a one-step
+            GitHub Action — with your gates committed once in <code className="text-[#18181B] font-mono">agentdiff.toml</code>.
           </p>
         </div>
         </Reveal>
@@ -191,7 +230,7 @@ tool loop and a 148% cost increase over baseline.`;
             Try the live cookbooks
             <ArrowUpRight className="w-4 h-4" />
           </a>
-          <span className="text-[11px] text-[#A1A1AA] font-mono">Gemini · OpenAI · OTel · Langfuse · LangSmith</span>
+          <span className="text-[11px] text-[#A1A1AA] font-mono">Gemini · OpenAI Agents · OTel · Langfuse · LangSmith</span>
         </div>
         </Reveal>
 

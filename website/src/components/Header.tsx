@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import LogoMark from "./LogoMark";
 
 const NAV = [
   { id: "workspace-section", label: "Workspace" },
@@ -71,9 +72,7 @@ export default function Header({ version = "0.1.0" }: { version?: string }) {
             aria-label="Back to top"
           >
             <span className="flex items-center justify-center w-6 h-6 rounded-md bg-[#18181B] text-white">
-              <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                <path d="M3 4.5h4.5M3 8h6.5M3 11.5h3.5" />
-              </svg>
+              <LogoMark size={14} />
             </span>
             <span className="font-semibold text-[#18181B] tracking-tight text-base group-hover:opacity-80 transition-opacity duration-150">
               agentdiff

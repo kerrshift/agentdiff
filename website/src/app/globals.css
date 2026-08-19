@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
+/* ==========================================
+   THEME TOKENS — landing page palette, with a
+   dark variant flipped via a `.dark` class.
+   ========================================== */
 :root {
-  --background: #fbfbfc;
-  --foreground: #18181b;
-  --accent: #18181b;
-  --border-color: #e4e4e7;
+  --bg: #fbfbfc;
+  --surface: #ffffff;
+  --surface-2: #f4f4f5;
+  --fg: #18181b;
+  --muted: #52525b;
+  --faint: #a1a1aa;
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
+  --accent: #0fa47f;
+  --accent-strong: #0a7a5e;
+  --code-bg: #fbfbfc;
+}
+
+.dark {
+  --bg: #0b0c0e;
+  --surface: #101214;
+  --surface-2: #181b1f;
+  --fg: #e8eaed;
+  --muted: #a9b0ba;
+  --faint: #6b7480;
+  --border: #23262b;
+  --border-strong: #3a3f46;
+  --accent: #34d399;
+  --accent-strong: #6ee7b7;
+  --code-bg: #0d0e10;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg);
+  color: var(--fg);
   font-family: var(--font-sans);
   position: relative;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Custom scrollbars */
@@ -32,11 +58,16 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d4d4d8;
+  background: var(--border-strong);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1aa;
+  background: var(--faint);
+}
+
+::selection {
+  background: var(--surface-2);
+  color: var(--fg);
 }
 
 @keyframes canvas-fade {
@@ -49,47 +80,63 @@ body {
 }
 
 /* ==========================================
-   MARKDOWN RENDERING CONTENT STYLES (light)
+   MARKDOWN RENDERING CONTENT STYLES
+   (theme-aware, tuned for readability)
    ========================================== */
+.markdown-content {
+  color: var(--muted);
+  line-height: 1.75;
+  font-size: 0.95rem;
+}
+
 .markdown-content h1 {
   font-size: 1.875rem;
   font-weight: 600;
-  color: #18181b;
+  color: var(--fg);
   margin-top: 2rem;
   margin-bottom: 1.5rem;
   font-family: var(--font-mono);
-  border: 1px solid #e4e4e7;
+  border: 1px solid var(--border);
   padding: 0.75rem 1rem;
-  background-color: #ffffff;
+  background-color: var(--surface);
   display: inline-block;
+  border-radius: 0.5rem;
 }
 
 .markdown-content h2 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #18181b;
+  color: var(--fg);
   margin-top: 2.5rem;
   margin-bottom: 1rem;
-  border-left: 2px solid #18181b;
+  border-left: 2px solid var(--fg);
   padding-left: 0.75rem;
+  scroll-margin-top: 5rem;
 }
 
 .markdown-content h3 {
   font-size: 1.05rem;
   font-weight: 600;
-  color: #18181b;
+  color: var(--fg);
   margin-top: 1.75rem;
   margin-bottom: 0.75rem;
+  scroll-margin-top: 5rem;
 }
 
 .markdown-content p {
   margin-bottom: 1.25rem;
-  line-height: 1.75;
-  color: #52525b;
+  line-height: 1.8;
+  color: var(--muted);
   font-size: 0.95rem;
 }
 
-.markdown-content ul, .markdown-content ol {
+.markdown-content strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.markdown-content ul,
+.markdown-content ol {
   margin-top: 1rem;
   margin-bottom: 1.25rem;
   padding-left: 0.25rem;
@@ -99,7 +146,7 @@ body {
   position: relative;
   padding-left: 1.25rem;
   margin-bottom: 0.5rem;
-  color: #52525b;
+  color: var(--muted);
   font-size: 0.95rem;
   line-height: 1.6;
 }
@@ -112,7 +159,7 @@ body {
   width: 0.35rem;
   height: 0.35rem;
   border-radius: 50%;
-  background-color: #18181b;
+  background-color: var(--accent);
 }
 
 .markdown-content ol {
@@ -122,20 +169,31 @@ body {
 
 .markdown-content ol li {
   margin-bottom: 0.5rem;
-  color: #52525b;
+  color: var(--muted);
   font-size: 0.95rem;
   line-height: 1.6;
+}
+
+.markdown-content a {
+  color: var(--accent-strong);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  transition: border-color 0.15s ease;
+}
+
+.markdown-content a:hover {
+  border-bottom-color: var(--accent);
 }
 
 /* Only style inline code — not code inside syntax highlighter blocks */
 .markdown-content :not(.relative) > code:not([class*="language-"]) {
   font-family: var(--font-mono);
-  background-color: #f4f4f5;
-  border: 1px solid #e4e4e7;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
   padding: 0.125rem 0.4rem;
   border-radius: 0.25rem;
   font-size: 0.82em;
-  color: #18181b;
+  color: var(--fg);
   white-space: nowrap;
 }
 
@@ -149,26 +207,80 @@ body {
   border-radius: 0 !important;
 }
 
+.markdown-content blockquote {
+  border-left: 2px solid var(--border-strong);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  color: var(--muted);
+  font-style: normal;
+}
+
 .markdown-content table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
+  font-size: 0.9rem;
 }
 
 .markdown-content th {
-  background-color: #f4f4f5;
-  color: #18181b;
+  background-color: var(--surface-2);
+  color: var(--fg);
   font-weight: 600;
   text-align: left;
   padding: 0.6rem 0.75rem;
-  border-bottom: 2px solid #d4d4d8;
-  font-size: 0.9rem;
+  border-bottom: 2px solid var(--border-strong);
 }
 
 .markdown-content td {
   padding: 0.6rem 0.75rem;
-  border-bottom: 1px solid #e4e4e7;
-  color: #52525b;
-  font-size: 0.9rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.markdown-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
+}
+
+/* ==========================================
+   KATEX MATH — crisp, carded display math
+   ========================================== */
+.markdown-content .katex {
+  color: var(--fg);
+  font-size: 1.05em;
+}
+
+/* Inline math sits neatly on the text baseline */
+.markdown-content .inlineMath,
+.markdown-content span.katex-mathml {
+  vertical-align: baseline;
+}
+
+/* Display math: tinted, accent-barred panel clearly separated from prose */
+.markdown-content .katex-display {
+  display: block;
+  width: 100%;
+  margin: 1.75rem 0;
+  padding: 1.5rem 1.75rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0.5rem;
+  background-color: color-mix(in srgb, var(--accent) 7%, var(--surface));
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.markdown-content .katex-display > .katex {
+  display: block;
+  text-align: center;
+}
+
+.markdown-content .katex-display > .katex > .katex-html {
+  display: block;
+}
+
+.markdown-content .katex-display .katex-display {
+  margin: 0;
 }

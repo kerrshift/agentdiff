@@ -57,6 +57,18 @@ export default function ClosingCTA() {
                 <ArrowRight className="w-4 h-4" />
               </a>
             </div>
+
+            {/* Trust strip — local-first + license, where it reassures before install */}
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] font-mono text-[#A1A1AA]">
+              <span className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#0FA47F]" />
+                Runs 100% locally
+              </span>
+              <span className="text-[#E4E4E7] select-none">·</span>
+              <span>No trace data leaves your machine</span>
+              <span className="text-[#E4E4E7] select-none">·</span>
+              <span>Open source under MIT</span>
+            </div>
           </div>
         </Reveal>
       </div>

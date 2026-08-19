@@ -1,4 +1,5 @@
 import React from "react";
+import LogoMark from "./LogoMark";
 
 export default function Footer({ version = "0.1.0" }: { version?: string }) {
   return (
@@ -11,9 +12,7 @@ export default function Footer({ version = "0.1.0" }: { version?: string }) {
           <div className="max-w-xs">
             <div className="flex items-center gap-2.5">
               <span className="flex items-center justify-center w-7 h-7 rounded-md bg-[#18181B] text-white">
-                <svg viewBox="0 0 16 16" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                  <path d="M3 4.5h4.5M3 8h6.5M3 11.5h3.5" />
-                </svg>
+                <LogoMark size={16} />
               </span>
               <span className="font-semibold text-[#18181B] tracking-tight text-lg">agentdiff</span>
             </div>
@@ -22,7 +21,7 @@ export default function Footer({ version = "0.1.0" }: { version?: string }) {
             </p>
             <div className="flex items-center gap-2 mt-5 font-mono text-[11px] text-[#A1A1AA]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#0FA47F]" />
-              v{version} · open source
+              v{version} · MIT · local-first
             </div>
           </div>
 

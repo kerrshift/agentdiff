@@ -51,14 +51,6 @@ export default function Hero() {
             Explore the workspace
             <ArrowRight className="w-4 h-4" />
           </a>
-
-          <a
-            href="/docs"
-            className="flex items-center gap-1.5 text-sm font-medium text-[#18181B] hover:text-[#52525B] py-3 transition-colors duration-150"
-          >
-            Read the docs
-            <ArrowRight className="w-4 h-4" />
-          </a>
         </div>
 
         {/* Install — centered, no-box */}
@@ -77,7 +69,7 @@ export default function Hero() {
             </button>
           </div>
           <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-[11px] font-mono text-[#A1A1AA]">
-            {["Generic JSON", "OpenInference", "Langfuse", "LangSmith"].map((fmt, i) => (
+            {["Generic JSON", "OpenInference", "Langfuse", "LangSmith", "OpenAI Agents"].map((fmt, i) => (
               <React.Fragment key={fmt}>
                 {i > 0 && <span className="text-[#E4E4E7]">·</span>}
                 <span>{fmt}</span>
