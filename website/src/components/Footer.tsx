@@ -44,7 +44,7 @@ export default function Footer({ version = "0.2.1" }: { version?: string }) {
           </div>
         </div>
 
-        {/* Bottom bar — whitespace separated, no extra rule */}
+        {/* Bottom bar - whitespace separated, no extra rule */}
         <div className="mt-14 flex flex-col md:flex-row items-center justify-between gap-3 text-[#A1A1AA]">
           <span className="text-xs">© {new Date().getFullYear()} AgentDiff</span>
           <span className="text-[11px]">Python SDK · CLI · GitHub Actions</span>

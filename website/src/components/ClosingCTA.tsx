@@ -12,7 +12,7 @@ export default function ClosingCTA() {
         <Reveal>
           <div className="rounded-2xl border border-[#E4E4E7] bg-white p-8 sm:p-12 lg:p-16">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-              {/* Left — statement + primary action */}
+              {/* Left - statement + primary action */}
               <div>
                 <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA]">
                   Get started
@@ -21,7 +21,7 @@ export default function ClosingCTA() {
                   Run it in your pipeline.
                 </h2>
                 <p className="text-base text-[#52525B] leading-relaxed mt-4 font-normal">
-                  Compare any two agent runs, gate on divergence, loops, and cost — and never ship a silent regression again.
+                  Compare any two agent runs, gate on divergence, loops, and cost - and never ship a silent regression again.
                 </p>
 
                 <div className="flex flex-wrap items-center gap-4 mt-9">
@@ -37,7 +37,7 @@ export default function ClosingCTA() {
                 </div>
               </div>
 
-              {/* Right — install terminal + trust */}
+              {/* Right - install terminal + trust */}
               <div className="flex flex-col items-start gap-6">
                 <div className="flex items-center gap-2 w-full">
                   <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA] mb-1">

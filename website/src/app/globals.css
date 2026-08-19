@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ==========================================
-   THEME TOKENS — landing page palette, with a
+   THEME TOKENS - landing page palette, with a
    dark variant flipped via a `.dark` class.
    ========================================== */
 :root {
@@ -185,7 +185,7 @@ body {
   border-bottom-color: var(--accent);
 }
 
-/* Only style inline code — not code inside syntax highlighter blocks */
+/* Only style inline code - not code inside syntax highlighter blocks */
 .markdown-content :not(.relative) > code:not([class*="language-"]) {
   font-family: var(--font-mono);
   background-color: var(--surface-2);
@@ -323,7 +323,7 @@ body {
 }
 
 /* ==========================================
-   KATEX MATH — crisp, carded display math
+   KATEX MATH - crisp, carded display math
    ========================================== */
 .markdown-content .katex {
   color: var(--fg);

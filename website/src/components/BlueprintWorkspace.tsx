@@ -15,7 +15,7 @@ interface ComparisonRow {
 
 function NodeCell({ node, index, pruned }: { node?: TraceNode; index: number; pruned?: boolean }) {
   if (!node) {
-    return <div className="h-9 flex items-center text-[#E4E4E7] font-mono text-xs">—</div>;
+    return <div className="h-9 flex items-center text-[#E4E4E7] font-mono text-xs">-</div>;
   }
   return (
     <div>
@@ -100,7 +100,7 @@ export default function BlueprintWorkspace() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <Reveal>
-        {/* Section Header — left rail */}
+        {/* Section Header - left rail */}
         <div className="max-w-3xl mb-12">
           <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-4">Workspace</span>
           <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
@@ -115,7 +115,7 @@ export default function BlueprintWorkspace() {
         <Reveal delay={140}>
         <div className="rounded-xl border border-[#E4E4E7] bg-white p-6 sm:p-8">
 
-        {/* Scenario switcher — ink underline tabs */}
+        {/* Scenario switcher - ink underline tabs */}
         <div className="flex flex-wrap gap-7 mb-10 border-b border-[#E4E4E7] -mb-px">
           {SCENARIOS.map((s) => {
             const active = activeScenario.code === s.code;
@@ -194,7 +194,7 @@ export default function BlueprintWorkspace() {
                 <span className="text-sm text-[#52525B] font-normal leading-relaxed">{activeScenario.description}</span>
               </div>
 
-              {/* Computed indices — the four core metrics */}
+              {/* Computed indices - the four core metrics */}
               <div className="grid grid-cols-2 gap-x-6 gap-y-5 mt-6 pt-5">
                 <div>
                   <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-1">TDI · divergence</div>

@@ -29,7 +29,7 @@ const FEATURES = [
     num: "02",
     label: "Wasted effort",
     title: "Wasted effort index",
-    body: "The share of steps spent on failures, retries, and abandoned work — the tokens you pay for and get nothing back from.",
+    body: "The share of steps spent on failures, retries, and abandoned work - the tokens you pay for and get nothing back from.",
     example: (
       <div className="w-full">
         <div className="h-1.5 w-full rounded-full bg-[#E4E4E7] overflow-hidden flex">
@@ -48,7 +48,7 @@ const FEATURES = [
     num: "03",
     label: "Loops",
     title: "Loop detection",
-    body: "Flags cyclical tool calling — the same endpoint, same params, no state progress. The classic agent failure that burns through your budget.",
+    body: "Flags cyclical tool calling - the same endpoint, same params, no state progress. The classic agent failure that burns through your budget.",
     example: (
       <div className="font-mono text-[12.5px] text-[#E5484D] leading-relaxed">
         <div>execute_sql</div>
@@ -66,7 +66,7 @@ const FEATURES = [
     num: "04",
     label: "Resource deltas",
     title: "Cost, tokens & latency",
-    body: "The candidate's cost, token, and latency deltas against baseline — the price of a refactor that quietly calls more tools or burns more tokens.",
+    body: "The candidate's cost, token, and latency deltas against baseline - the price of a refactor that quietly calls more tools or burns more tokens.",
     example: (
       <div className="font-mono text-[12.5px]">
         <div className="flex items-center gap-2.5 py-1.5">
@@ -93,14 +93,14 @@ export default function FeaturesGrid() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <Reveal>
-        {/* Section Header — left rail */}
+        {/* Section Header - left rail */}
         <div className="max-w-3xl mb-12">
           <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-4">Capabilities</span>
           <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
             Four metrics that explain how the agent really ran.
           </h2>
           <p className="mt-4 text-base text-[#52525B] leading-relaxed font-normal">
-            Every trace reduces to a few computed indices. Exposed as a JSON report, they become hard gates in CI — no more guessing whether a run drifted.
+            Every trace reduces to a few computed indices. Exposed as a JSON report, they become hard gates in CI - no more guessing whether a run drifted.
           </p>
         </div>
         </Reveal>
@@ -125,12 +125,12 @@ export default function FeaturesGrid() {
                 {f.title}
               </h3>
 
-              {/* Body — flexes; absorbs differing prose length */}
+              {/* Body - flexes; absorbs differing prose length */}
               <p className="text-sm text-[#52525B] leading-relaxed font-normal flex-1 mb-6">
                 {f.body}
               </p>
 
-              {/* Example + formula — pinned to bottom */}
+              {/* Example + formula - pinned to bottom */}
               <div className="mt-auto pt-4">
                 <div className="mb-3">{f.example}</div>
                 <div className="font-mono text-xs text-[#18181B] leading-relaxed pt-3">

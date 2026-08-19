@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Reveal from "./Reveal";
 
-const FAILED = `## AgentDiff — Trajectory Regression Check
+const FAILED = `## AgentDiff - Trajectory Regression Check
 
 **Status:** ⛔ **FAILED**
 
@@ -17,14 +17,14 @@ const FAILED = `## AgentDiff — Trajectory Regression Check
 
 ### Root cause
 
-> **Culprit:** \`get_user_database_stats\` \`[loop]\` — entered a loop repeating 'get_user_database_stats' (2 times).
+> **Culprit:** \`get_user_database_stats\` \`[loop]\` - entered a loop repeating 'get_user_database_stats' (2 times).
 
 ### Divergence tree
 
 \`\`\`text
 baseline [3 steps] vs candidate [4 steps]
      1 ~ gemini_tool_decision   (changed)
-     2 + get_user_database_stats   (added — absent in baseline)
+     2 + get_user_database_stats   (added - absent in baseline)
      3 · get_user_database_stats
      4 ~ gemini_synthesis   (changed)
 \`\`\`
@@ -32,7 +32,7 @@ baseline [3 steps] vs candidate [4 steps]
 ### Loops detected
 - Loop #1: repeated ['get_user_database_stats'] \`2\` times (stagnant state)`;
 
-const PASSED = `## AgentDiff — Trajectory Regression Check
+const PASSED = `## AgentDiff - Trajectory Regression Check
 
 **Status:** ✅ **PASSED**
 
@@ -44,7 +44,7 @@ const PASSED = `## AgentDiff — Trajectory Regression Check
 
 ### Root cause
 
-> **Culprit:** \`gemini_synthesis\` \`[divergence]\` — the candidate changed this step's behavior.
+> **Culprit:** \`gemini_synthesis\` \`[divergence]\` - the candidate changed this step's behavior.
 
 ### Divergence tree
 
@@ -97,7 +97,7 @@ export default function PRCommentShowcase() {
               These are genuine AgentDiff comments, posted automatically onto
               live pull requests of a real Gemini agent by the{" "}
               <code className="text-[#18181B] font-mono text-sm">agentdiff-check</code>{" "}
-              GitHub Action. No manual PR number — it posts to the PR that
+              GitHub Action. No manual PR number - it posts to the PR that
               triggered the run.
             </p>
           </div>
@@ -173,13 +173,13 @@ export default function PRCommentShowcase() {
                   <span className="text-[#0FA47F] mt-0.5">✓</span>
                   <span>
                     <strong className="text-[#18181B] font-semibold">Status</strong> and the gate
-                    table — TDI, loops, and cost against your thresholds.
+                    table - TDI, loops, and cost against your thresholds.
                   </span>
                 </li>
                 <li className="flex gap-2.5">
                   <span className="text-[#0FA47F] mt-0.5">✓</span>
                   <span>
-                    <strong className="text-[#18181B] font-semibold">Root cause</strong> — the
+                    <strong className="text-[#18181B] font-semibold">Root cause</strong> - the
                     culprit step and why it changed.
                   </span>
                 </li>
@@ -187,7 +187,7 @@ export default function PRCommentShowcase() {
                   <span className="text-[#0FA47F] mt-0.5">✓</span>
                   <span>
                     <strong className="text-[#18181B] font-semibold">Collapsed divergence tree</strong>{" "}
-                    — matched steps folded into <code className="font-mono text-xs">· · · N · · ·</code>,
+                    - matched steps folded into <code className="font-mono text-xs">· · · N · · ·</code>,
                     only divergent steps shown.
                   </span>
                 </li>

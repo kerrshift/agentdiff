@@ -47,7 +47,7 @@ are exceeded:
 agentdiff baseline.json candidate.json --fail-on-regression
 ```
 
-The full CLI surface — including baseline rotation and PR comments — is covered
+The full CLI surface - including baseline rotation and PR comments - is covered
 in the Guides.
 
 ## 3. Gate it in pytest
@@ -70,6 +70,6 @@ directory for runnable end-to-end examples.
 
 ## Next steps
 
-- **Reading the Report** — what the metrics mean.
-- **Regression Gates** — thresholds.
-- **Ingestion Adapters** — formats you can load.
+- **Reading the Report** - what the metrics mean.
+- **Regression Gates** - thresholds.
+- **Ingestion Adapters** - formats you can load.

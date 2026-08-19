@@ -31,11 +31,11 @@ const themeScript = `
 export const metadata: Metadata = {
   metadataBase: new URL("https://agentdiff.lostmartian.in"),
   title: {
-    default: "AgentDiff — Trajectory Regression Testing for AI Agents",
+    default: "AgentDiff - Trajectory Regression Testing for AI Agents",
     template: "%s | AgentDiff",
   },
   description:
-    "AgentDiff compares agent execution traces as DAGs in CI/CD — automatically detecting trajectory drift, redundant tool loops, and cost regressions.",
+    "AgentDiff compares agent execution traces as DAGs in CI/CD - automatically detecting trajectory drift, redundant tool loops, and cost regressions.",
   applicationName: "AgentDiff",
   keywords: [
     "AI agents",
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     apple: "/favicon.svg",
   },
   openGraph: {
-    title: "AgentDiff — Trajectory Regression Testing for AI Agents",
+    title: "AgentDiff - Trajectory Regression Testing for AI Agents",
     description: "Compare agent execution traces as DAGs. Detect drift, loops, and cost regressions in CI/CD.",
     url: "https://agentdiff.lostmartian.in",
     siteName: "AgentDiff",
@@ -84,14 +84,14 @@ export const metadata: Metadata = {
         url: "/og.png",
         width: 1200,
         height: 630,
-        alt: "AgentDiff — Trajectory Regression Testing for AI Agents",
+        alt: "AgentDiff - Trajectory Regression Testing for AI Agents",
         type: "image/png",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "AgentDiff — Trajectory Regression Testing for AI Agents",
+    title: "AgentDiff - Trajectory Regression Testing for AI Agents",
     description: "Compare agent execution traces as DAGs. Detect drift, loops, and cost regressions in CI/CD.",
     images: ["/og.png"],
   },

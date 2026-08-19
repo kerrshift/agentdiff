@@ -33,7 +33,7 @@ const CARDS = [
   {
     num: "01",
     label: "Explain",
-    title: "Know why it diverged — and what to fix",
+    title: "Know why it diverged - and what to fix",
     body: "Raw metrics tell you something changed. AgentDiff tells you why, and points at the single step most responsible.",
     tab: "agentdiff --explain --tree",
     lines: [
@@ -62,7 +62,7 @@ const CARDS = [
     num: "03",
     label: "pytest",
     title: "Gate your test suite with one flag",
-    body: "Each test records its run and is compared against a committed baseline on teardown — failing the test on regression.",
+    body: "Each test records its run and is compared against a committed baseline on teardown - failing the test on regression.",
     tab: "pytest --agentdiff",
     lines: [
       "def test_returns_orders(agentdiff_trace):",
@@ -77,7 +77,7 @@ const CARDS = [
     num: "04",
     label: "PR comments",
     title: "The report shows up in the pull request",
-    body: "Paste-ready markdown, posted straight to the PR — status, metrics, divergence tree, and culprit — right where reviewers look.",
+    body: "Paste-ready markdown, posted straight to the PR - status, metrics, divergence tree, and culprit - right where reviewers look.",
     tab: "agentdiff --format pr --pr 42",
     lines: [
       "$ agentdiff base.json cand.json \\",
@@ -100,7 +100,7 @@ export default function ActionSection() {
             Beyond the metrics
           </span>
           <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
-            Not just what changed. Why it changed — and what to do about it.
+            Not just what changed. Why it changed - and what to do about it.
           </h2>
           <p className="mt-4 text-base text-[#52525B] leading-relaxed font-normal max-w-2xl">
             A regression tool is only as good as the action it drives. AgentDiff turns divergence into an explanation, a culprit, and a gate that ships with every change.

@@ -2,7 +2,7 @@ import React from "react";
 
 /**
  * AgentDiff logo mark: a trajectory node (DAG) that starts at a dot, runs a
- * trunk, then splits into two diverging branches — one baseline, one candidate.
+ * trunk, then splits into two diverging branches - one baseline, one candidate.
  * Minimal, geometric, and rendered from `currentColor` by default so it
  * inherits the tile colour in light contexts (Header/Footer). Pass an explicit
  * `color` (e.g. "#FFFFFF") where the tile background is dark and the enclosing

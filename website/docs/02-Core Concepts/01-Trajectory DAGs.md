@@ -6,7 +6,7 @@ AgentDiff translates a multi-turn execution sequence into a **directed acyclic g
 
 AgentDiff uses Pydantic (v2+) for strongly-typed trace schemas.
 
-### `AgentTrace` — one run
+### `AgentTrace` - one run
 
 | Field | Type | Notes |
 | --- | --- | --- |
@@ -21,7 +21,7 @@ AgentDiff uses Pydantic (v2+) for strongly-typed trace schemas.
 | `total_tokens` | `TokenUsage?` | Aggregated token/cost metadata. |
 | `metadata` | `dict?` | Free-form extra data. |
 
-### `TraceStep` — one node
+### `TraceStep` - one node
 
 | Field | Type | Notes |
 | --- | --- | --- |

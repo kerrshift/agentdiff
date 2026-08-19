@@ -74,7 +74,7 @@ Parses LangSmith run-trees (nested `run` objects) into ordered steps:
 
 ### OpenAI Agents SDK (`openai_agents`)
 
-Parses OpenAI Agents SDK trace exports — a top-level `trace` object with a flat
+Parses OpenAI Agents SDK trace exports - a top-level `trace` object with a flat
 list of `spans`, each carrying a `span_data.type`:
 
 - `agent` / `guardrail` / `handoff` → `routing`.

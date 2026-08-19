@@ -1,6 +1,6 @@
 # Baseline Rotation
 
-As your agent legitimately changes over time, the baseline must advance too —
+As your agent legitimately changes over time, the baseline must advance too -
 but it should advance **deliberately**, not silently. Baseline rotation
 controls when the committed baseline is replaced.
 

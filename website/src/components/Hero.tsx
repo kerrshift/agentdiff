@@ -29,12 +29,12 @@ export default function Hero() {
         </h1>
 
         <p className="max-w-2xl mx-auto text-base sm:text-lg text-[#52525B] leading-relaxed my-8 font-sans font-normal">
-          AgentDiff diffs every agent run against a baseline as a DAG — and blocks drift, tool loops, and cost spikes right in CI/CD.
+          AgentDiff diffs every agent run against a baseline as a DAG - and blocks drift, tool loops, and cost spikes right in CI/CD.
         </p>
         </Reveal>
 
         <Reveal animate delay={140}>
-        {/* CTA + install — one action cluster */}
+        {/* CTA + install - one action cluster */}
         <div className="flex flex-col items-center gap-4">
           <a
             href="#workspace-section"
@@ -46,12 +46,12 @@ export default function Hero() {
           <CopyCommand />
         </div>
 
-        {/* Adapter logos — easily integrable, generic + adapter-ready */}
+        {/* Adapter logos - easily integrable, generic + adapter-ready */}
         <div className="mt-14">
           <AdapterLogos />
         </div>
 
-        {/* Product terminal — the hero's focal visual */}
+        {/* Product terminal - the hero's focal visual */}
         <div className="mt-14 flex flex-col items-center">
           <div className="w-full max-w-2xl">
             <TerminalWindow />

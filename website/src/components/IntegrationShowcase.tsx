@@ -32,7 +32,7 @@ def test_agent_refactor_efficiency():
     # Run the DAG-LCS comparison engine
     report = compare(baseline, candidate)
 
-    # Expressive assertions — raises AssertionError with full report on failure
+    # Expressive assertions - raises AssertionError with full report on failure
     assert_no_regressions(
         report,
         max_divergence=0.25,        # TDI threshold [0.0 - 1.0]
@@ -126,7 +126,7 @@ tool loop and a 148% cost increase over baseline.`;
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <Reveal>
-        {/* Section Header — left rail */}
+        {/* Section Header - left rail */}
         <div className="max-w-3xl mb-12">
           <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-4">Developer integration</span>
           <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
@@ -134,13 +134,13 @@ tool loop and a 148% cost increase over baseline.`;
           </h2>
           <p className="mt-4 text-base text-[#52525B] leading-relaxed font-normal">
             A thin Python SDK for pytest, a strict CLI runner, and a one-step
-            GitHub Action — with your gates committed once in <code className="text-[#18181B] font-mono">agentdiff.toml</code>.
+            GitHub Action - with your gates committed once in <code className="text-[#18181B] font-mono">agentdiff.toml</code>.
           </p>
         </div>
         </Reveal>
 
         <Reveal delay={140}>
-        {/* Formats — mono readout, left rail */}
+        {/* Formats - mono readout, left rail */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#52525B] mb-10">
           <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA] mr-3">Formats</span>
           {FORMATS.map((fmt, i) => (
@@ -151,7 +151,7 @@ tool loop and a 148% cost increase over baseline.`;
           ))}
         </div>
 
-        {/* Code panel — clean light surface */}
+        {/* Code panel - clean light surface */}
         <div className="bg-white border border-[#E4E4E7] rounded-xl overflow-hidden">
 
           {/* Panel header */}
@@ -219,7 +219,7 @@ tool loop and a 148% cost increase over baseline.`;
 
         </div>
 
-        {/* Cookbook + models — left rail, hairline top */}
+        {/* Cookbook + models - left rail, hairline top */}
         <div className="mt-10 max-w-2xl flex flex-wrap items-center justify-between gap-4">
           <a
             href="https://github.com/lostmartian/agentdiff/tree/main/cookbooks"

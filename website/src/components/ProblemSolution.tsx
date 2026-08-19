@@ -47,20 +47,20 @@ export default function ProblemSolution() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <Reveal>
-        {/* Section Header — left rail */}
+        {/* Section Header - left rail */}
         <div className="max-w-3xl mb-12">
           <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-4">The problem</span>
           <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
             Agents fail silently. Tests can&apos;t see it.
           </h2>
           <p className="mt-4 text-base text-[#52525B] leading-relaxed font-normal">
-            Assertions pass because the agent returned an answer. But the <span className="font-medium text-[#18181B]">trajectory</span> it took — the tools, the loops, the token spend — drifts underneath.
+            Assertions pass because the agent returned an answer. But the <span className="font-medium text-[#18181B]">trajectory</span> it took - the tools, the loops, the token spend - drifts underneath.
           </p>
         </div>
         </Reveal>
 
         <Reveal delay={140}>
-        {/* Before / after trace — equal-height aligned columns */}
+        {/* Before / after trace - equal-height aligned columns */}
         <div className="grid grid-cols-1 md:grid-cols-2 md:divide-x divide-[#E4E4E7] items-stretch">
 
           {/* Baseline */}
@@ -111,14 +111,14 @@ export default function ProblemSolution() {
 
         </div>
 
-        {/* The fix — continues the same left rail as the header */}
+        {/* The fix - continues the same left rail as the header */}
         <div className="max-w-2xl mt-14">
           <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-3">The fix</span>
           <h3 className="text-2xl font-semibold text-[#18181B] mb-3 leading-snug">
             Catch it in CI, before it ships.
           </h3>
           <p className="text-sm text-[#52525B] leading-relaxed font-normal mb-8">
-            AgentDiff diffs this run against the golden baseline as a DAG — and turns the drift into a hard gate failure in the PR. The loop, the wasted tokens, the cost spike: explicit, and blocking.
+            AgentDiff diffs this run against the golden baseline as a DAG - and turns the drift into a hard gate failure in the PR. The loop, the wasted tokens, the cost spike: explicit, and blocking.
           </p>
           <div className="flex items-center gap-6">
             <div>

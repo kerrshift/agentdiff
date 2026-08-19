@@ -4,7 +4,7 @@ Catch agent regressions automatically on every pull request.
 
 ## The pieces
 
-1. **Generate two traces** — one from `main`, one from the PR — in your test
+1. **Generate two traces** - one from `main`, one from the PR - in your test
    run (see the [pytest Plugin](03-Guides/03-pytest-Plugin.md) or the ingestion
    cookbooks).
 2. **Compare them** with the `agentdiff` CLI.

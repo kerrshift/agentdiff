@@ -154,7 +154,7 @@ export default function DocsClient({ docs, version }: DocsClientProps) {
         {/* Docs Intro Strip */}
         <div className="border-b border-[var(--border)] px-5 sm:px-8 py-4 flex items-center justify-between gap-4">
           <div className="text-xs text-[var(--muted)] leading-relaxed max-w-2xl">
-            Trajectory regression testing for AI agents — compare execution DAGs in CI/CD and gate on drift, loops, and cost.
+            Trajectory regression testing for AI agents - compare execution DAGs in CI/CD and gate on drift, loops, and cost.
           </div>
           <Link
             href="/"
@@ -174,10 +174,10 @@ export default function DocsClient({ docs, version }: DocsClientProps) {
           </div>
         )}
 
-        {/* 2-Column Sidebar Layout — both panes scroll independently */}
+        {/* 2-Column Sidebar Layout - both panes scroll independently */}
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
 
-          {/* Left Sidebar — desktop */}
+          {/* Left Sidebar - desktop */}
           <aside className="hidden md:flex w-56 shrink-0 border-r border-[var(--border)] overflow-y-auto p-6 flex-col gap-6 bg-[var(--surface)]">
             {renderNav()}
           </aside>

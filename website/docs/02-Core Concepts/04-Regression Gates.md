@@ -50,7 +50,7 @@ agentdiff baseline.json candidate.json \
 ```
 
 These defaults can also be committed in an `agentdiff.toml` (see
-[Configuration](../03-Guides/05-Configuration.md)) — explicit flags still win.
+[Configuration](../03-Guides/05-Configuration.md)) - explicit flags still win.
 
 ## pytest plugin
 
@@ -67,5 +67,5 @@ See the **pytest Plugin** guide.
 There's no universal "right" value. Start conservative (low `max_divergence`,
 `allow_loops=False`) and loosen as you learn what changes are intentional. Use
 `--max-drift` and baseline rotation to control how often the baseline advances
-instead of letting gates creep silently — see
+instead of letting gates creep silently - see
 [Baseline Rotation].

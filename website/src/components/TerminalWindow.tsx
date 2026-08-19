@@ -45,11 +45,11 @@ export default function TerminalWindow() {
           <span className="w-3 h-3 rounded-full bg-[#2A2D33]"></span>
           <span className="w-3 h-3 rounded-full bg-[#2A2D33]"></span>
         </div>
-        <span className="text-[11px] font-mono text-[#6B7480]">agentdiff — live gemini-3.6-flash gate</span>
+        <span className="text-[11px] font-mono text-[#6B7480]">agentdiff - live gemini-3.6-flash gate</span>
         <span className="text-[10px] font-mono text-[#E5484D] px-2 py-0.5 rounded-md font-bold bg-[#E5484D]/10">FAIL</span>
       </div>
 
-      {/* Terminal body — all lines occupy space; later ones hidden so height never changes */}
+      {/* Terminal body - all lines occupy space; later ones hidden so height never changes */}
       <div className="px-6 py-6 font-mono text-sm leading-[1.7] tracking-tight whitespace-pre text-left">
         {LINES.map((line, i) => (
           <div

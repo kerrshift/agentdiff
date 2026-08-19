@@ -1,6 +1,6 @@
 # CI/CD in Action
 
-How AgentDiff gates a real agent in a real pipeline — and posts the result
+How AgentDiff gates a real agent in a real pipeline - and posts the result
 straight onto the pull request. Everything here was run against live model
 calls and genuine GitHub Actions.
 
@@ -12,7 +12,7 @@ trace, and a workflow that gates every run. It shows the whole lifecycle:
 
 - a **clean** PR passes the gate;
 - a **regressive** PR (the agent's prompt now forces a redundant call) is
-  **blocked** — `TDI 0.1429`, a `get_user_database_stats` loop — and the
+  **blocked** - `TDI 0.1429`, a `get_user_database_stats` loop - and the
   failure report is posted as a comment;
 - a **feature** PR auto-posts the report onto the PR that triggered it, with no
   manually supplied PR number.
@@ -54,7 +54,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-On `pull_request`, `github.event.pull_request.number` is the PR being built — so
+On `pull_request`, `github.event.pull_request.number` is the PR being built - so
 the report is posted to the right PR automatically.
 
 ## Anatomy of a posted comment
@@ -62,7 +62,7 @@ the report is posted to the right PR automatically.
 Here is a real comment from a run whose candidate **regressed** (the agent
 looped a tool call). AgentDiff posted it automatically:
 
-> **AgentDiff — Trajectory Regression Check**
+> **AgentDiff - Trajectory Regression Check**
 >
 > **Status:** ⛔ **FAILED**
 >
@@ -72,7 +72,7 @@ looped a tool call). AgentDiff posted it automatically:
 > | Loops | `1` | ≤ `0` |
 > | Cost delta | `+54.21%` | ≤ `10.0%` |
 >
-> **Root cause** — *Culprit:* `get_user_database_stats` `[loop]` — entered a
+> **Root cause** - *Culprit:* `get_user_database_stats` `[loop]` - entered a
 > loop repeating 'get_user_database_stats' (2 times).
 >
 > **Divergence tree**
@@ -80,18 +80,18 @@ looped a tool call). AgentDiff posted it automatically:
 > ```text
 > baseline [3 steps] vs candidate [4 steps]
 >      1 ~ gemini_tool_decision   (changed)
->      2 + get_user_database_stats   (added — absent in baseline)
+>      2 + get_user_database_stats   (added - absent in baseline)
 >      3 · get_user_database_stats
 >      4 ~ gemini_synthesis   (changed)
 > ```
 
 Three things to notice:
 
-1. **Status + gate table** — the pass/fail verdict and the three gates (TDI,
+1. **Status + gate table** - the pass/fail verdict and the three gates (TDI,
    loops, cost) with your thresholds.
-2. **Root cause** — `locate_culprit` points at the step and the kind of change
+2. **Root cause** - `locate_culprit` points at the step and the kind of change
    (here a `loop`).
-3. **Collapsed divergence tree** — long runs of matched steps are folded into
+3. **Collapsed divergence tree** - long runs of matched steps are folded into
    `· · · N matched step(s) · · ·`; only divergent steps are shown (`+` added,
    `−` removed, `~` changed). The comment stays small even for big traces.
 
@@ -108,7 +108,7 @@ agentdiff baseline.json candidate.json \
 ```
 
 `--pr` posts the report and `--fail-on-regression` still exits `1` on a
-regression — the pipeline fails *and* the PR explains itself.
+regression - the pipeline fails *and* the PR explains itself.
 
 ## Required permission
 

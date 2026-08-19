@@ -13,10 +13,10 @@ Cost Delta:                         +41.0%
 Status:                             REGRESSION
 ```
 
-## `--explain` — why did it diverge?
+## `--explain` - why did it diverge?
 
 Human-readable findings that describe the concrete differences between the two
-runs — added, removed, or modified steps, new loops, and resource changes.
+runs - added, removed, or modified steps, new loops, and resource changes.
 
 ```bash
 agentdiff baseline.json candidate.json --explain
@@ -31,7 +31,7 @@ Finding: candidate cost increased by 41.0% over baseline.
 In Python, use `generate_explanations(report)` (returns structured findings) or
 `format_explanations(report)` (returns the formatted text).
 
-## `--tree` — where did it diverge?
+## `--tree` - where did it diverge?
 
 A collapsed, capped visual comparison of the two paths, side by side. Matched
 runs are collapsed so you can focus on the parts that actually changed.
@@ -42,7 +42,7 @@ agentdiff baseline.json candidate.json --tree
 
 In Python: `render_tree(report)`.
 
-## Culprit step — what to fix first
+## Culprit step - what to fix first
 
 AgentDiff can point at the single step most responsible for the divergence,
 prioritizing loop entries, then added steps, then errored steps, then modified

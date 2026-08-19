@@ -28,7 +28,7 @@ $$\text{WEI} = \frac{\text{Count}(\text{steps with status} \in \{\text{error, re
 ## 3. Loop detection
 
 A loop is a subsequence of steps that repeats consecutively (often with
-stagnant inputs/outputs) — a sign of redundant tool calls or near-infinite
+stagnant inputs/outputs) - a sign of redundant tool calls or near-infinite
 retries. The report lists each detected loop; the pytest plugin and CLI gate
 fail when the loop count exceeds your threshold.
 

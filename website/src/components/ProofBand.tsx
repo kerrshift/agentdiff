@@ -5,8 +5,8 @@ import Reveal from "./Reveal";
 
 const STATS = [
   { value: "5", label: "adapters validated against real SDK/API traces" },
-  { value: "3+", label: "live providers exercised — OpenAI, Gemini, Langfuse" },
-  { value: "205", label: "tests green across Python 3.10 – 3.13" },
+  { value: "3+", label: "live providers exercised - OpenAI, Gemini, Langfuse" },
+  { value: "205", label: "tests green across Python 3.10 - 3.13" },
   { value: "auto", label: "PR comments posted on real pull requests" },
 ];
 
