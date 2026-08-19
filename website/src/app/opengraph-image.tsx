@@ -81,7 +81,7 @@ export default async function Image() {
               padding: "3px 8px",
             }}
           >
-            v0.2.0
+            v0.2.1
           </span>
         </div>
 

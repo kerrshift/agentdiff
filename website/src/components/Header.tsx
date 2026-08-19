@@ -20,7 +20,7 @@ const TRACKED_SECTIONS = [
   ...NAV.map((n) => n.id),
 ];
 
-export default function Header({ version = "0.2.0" }: { version?: string }) {
+export default function Header({ version = "0.2.1" }: { version?: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<string>("");
   const [open, setOpen] = useState(false);

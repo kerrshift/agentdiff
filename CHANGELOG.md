@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-08-19
+
+Patch release. Every change below was **found by live-testing the adapters
+against real SDK/API output** and fixed so the adapters ingest real traces
+natively (no caller-side reshaping).
+
+### Fixed
+- **openai_agents**: skip `task`/`turn` bookkeeping spans as the real SDK emits
+  them (type `custom` + name `task`/`turn`, not a dedicated span type).
+- **langfuse**: map the v4 SDK's `AGENT`/`CHAIN`/`TOOL`/`RETRIEVER` observation
+  types (previously they fell through to `thought`); sort observations
+  chronologically by start time; accept snake_case SDK keys
+  (`start_time`, `parent_observation_id`, `status_message`, `latency`).
+- **openinference**: accept real OTel values natively — integer span/trace ids
+  are stringified, and nanosecond timestamps are auto-detected (the legacy
+  shape used seconds).
+- **testing**: `assert_no_regressions` now marks the report `passed=False` on
+  failure, so a printed `summary()` no longer misleadingly shows "PASSED" after
+  a blocked gate.
+
+### Cookbooks
+- Added live recipes that ingest **real** traces through each adapter:
+  `live_openai_agents.py` (OpenAI Agents SDK), `live_openinference.py`
+  (OpenInference/OTel), `live_langfuse.py` (Langfuse Cloud, v4 SDK).
+
+### Documentation
+- README/cookbook guides updated for the live adapter recipes.
+
+[0.2.1]: https://github.com/lostmartian/agentdiff/releases/tag/v0.2.1
+
 ## [0.2.0] - 2026-08-19
 
 **AgentDiff v0.2.0** — the first PyPI release of a developer-first trajectory
