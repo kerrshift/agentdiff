@@ -1,7 +1,7 @@
 import json
-from datetime import datetime
 from typing import Any
 
+from agentdiff.adapters._iso import parse_iso_timestamp
 from agentdiff.adapters.base import BaseAdapter
 from agentdiff.models.step import StepStatus, StepType, TokenUsage, TraceStep
 from agentdiff.models.trace import AgentTrace
@@ -127,12 +127,10 @@ class LangSmithAdapter(BaseAdapter):
         start = run.get("start_time")
         end = run.get("end_time")
         if start and end:
-            try:
-                t1 = datetime.fromisoformat(str(start).replace("Z", "+00:00"))
-                t2 = datetime.fromisoformat(str(end).replace("Z", "+00:00"))
+            t1 = parse_iso_timestamp(start)
+            t2 = parse_iso_timestamp(end)
+            if t1 is not None and t2 is not None:
                 latency_ms = max(0.0, (t2 - t1).total_seconds() * 1000.0)
-            except Exception:
-                pass
 
         error = run.get("error")
         status = StepStatus.ERROR if error else StepStatus.SUCCESS

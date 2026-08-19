@@ -1,6 +1,6 @@
-from datetime import datetime
 from typing import Any
 
+from agentdiff.adapters._iso import parse_iso_timestamp
 from agentdiff.adapters.base import BaseAdapter
 from agentdiff.models.step import StepStatus, StepType, TokenUsage, TraceStep
 from agentdiff.models.trace import AgentTrace
@@ -86,12 +86,10 @@ class LangfuseAdapter(BaseAdapter):
             start_str = obs.get("startTime")
             end_str = obs.get("endTime")
             if start_str and end_str:
-                try:
-                    t1 = datetime.fromisoformat(str(start_str).replace("Z", "+00:00"))
-                    t2 = datetime.fromisoformat(str(end_str).replace("Z", "+00:00"))
-                    latency_ms = (t2 - t1).total_seconds() * 1000.0
-                except Exception:
-                    pass
+                t1 = parse_iso_timestamp(start_str)
+                t2 = parse_iso_timestamp(end_str)
+                if t1 is not None and t2 is not None:
+                    latency_ms = max(0.0, (t2 - t1).total_seconds() * 1000.0)
             if latency_ms == 0.0:
                 latency_ms = (
                     cls._as_float(obs.get("latency_ms"))

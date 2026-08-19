@@ -1,7 +1,7 @@
 import json
-from datetime import datetime
 from typing import Any
 
+from agentdiff.adapters._iso import parse_iso_timestamp
 from agentdiff.adapters.base import BaseAdapter
 from agentdiff.models.step import StepStatus, StepType, TokenUsage, TraceStep
 from agentdiff.models.trace import AgentTrace
@@ -102,13 +102,10 @@ class OpenInferenceAdapter(BaseAdapter):
                     ):
                         latency_ms = (end_time - start_time) * 1000.0
                     else:
-                        t1 = datetime.fromisoformat(
-                            str(start_time).replace("Z", "+00:00")
-                        )
-                        t2 = datetime.fromisoformat(
-                            str(end_time).replace("Z", "+00:00")
-                        )
-                        latency_ms = (t2 - t1).total_seconds() * 1000.0
+                        t1 = parse_iso_timestamp(start_time)
+                        t2 = parse_iso_timestamp(end_time)
+                        if t1 is not None and t2 is not None:
+                            latency_ms = max(0.0, (t2 - t1).total_seconds() * 1000.0)
                 except Exception:
                     pass
             if latency_ms == 0.0:
