@@ -50,6 +50,7 @@ python moat_diff_workflow.py
 | [`live_openai_agents.py`](live_openai_agents.py) | `OPENAI_API_KEY` | Runs the **OpenAI Agents SDK** for real and feeds its own trace straight through the `openai_agents` adapter — validates that adapter against genuine SDK output. |
 | [`live_openinference.py`](live_openinference.py) | `OPENAI_API_KEY` | Instruments OpenAI with **OpenInference (OTel)**, exports real spans, normalizes them, and feeds them through the `openinference` adapter. |
 | [`live_langfuse.py`](live_langfuse.py) | `LANGFUSE_HOST/PUBLIC_KEY/SECRET_KEY` | Creates a real **Langfuse** trace via the SDK, fetches it back, normalizes snake_case keys, and feeds it through the `langfuse` adapter. |
+| [`live_gemini_cases.py`](live_gemini_cases.py) | `GEMINI_API_KEY` | Runs a live Gemini tool loop through **four** AgentDiff cases: a clean run (gate passes), a prompt-change regression, a forced-redundancy loop (gate blocked), and baseline-rotation / drift decisions. |
 
 ```bash
 export OPENAI_API_KEY="sk-..."    # or GEMINI_API_KEY="AIza..."
@@ -69,3 +70,9 @@ uv run cookbooks/live_gemini_cases.py   # regression, prompt-change, loop, drift
   agent changed and what to fix.**
 - `sample/` traces are tiny synthetic fixtures for demonstration; bring your own
   real traces for actual regression gates.
+
+> **See it in CI:** the
+> [`agentdiff-demo`](https://github.com/lostmartian/agentdiff-demo) repository
+> wires a real Gemini agent into a GitHub Actions workflow that runs the
+> `agentdiff-check` action and auto-posts the PR-ready report onto pull
+> requests (blocked PRs included).

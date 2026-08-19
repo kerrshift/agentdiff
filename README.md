@@ -125,6 +125,10 @@ name: AgentDiff Gate
 on:
   pull_request:
 
+permissions:
+  contents: read
+  pull-requests: write   # lets the action post the PR comment
+
 jobs:
   agentdiff:
     runs-on: ubuntu-latest
@@ -140,11 +144,18 @@ jobs:
           update-baseline: "false"
           max-divergence: "0.3"
           max-cost-delta: "10.0"
+          # Optional: auto-post the report onto the triggering PR.
+          pr: ${{ github.event.pull_request.number }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 The action installs the package (default `agent-trajectory-diff` from PyPI),
 runs `agentdiff --fail-on-regression`, and fails the job when divergence,
-loops, or cost spikes exceed the thresholds.
+loops, or cost spikes exceed the thresholds. When `pr` is set it also posts the
+PR-ready report (status, gate table, root-cause culprit, collapsed divergence
+tree, loops) as a comment on that PR — even when the gate blocks. See the
+[`agentdiff-demo`](https://github.com/lostmartian/agentdiff-demo) repository
+for a working, live example (real Gemini agent + auto PR comments).
 
 **Available inputs:**
 
@@ -158,6 +169,11 @@ loops, or cost spikes exceed the thresholds.
 | `max-loops` | `0` | Maximum loop count before regression. |
 | `max-cost-delta` | `10.0` | Maximum cost increase percentage before regression. |
 | `update-baseline` | `false` | Overwrite the stored baseline with the candidate when the run is clean. |
+| `pr` | *(empty)* | GitHub PR number to post the report comment to (e.g. `github.event.pull_request.number`). |
+| `github-token` | *(empty)* | GitHub token used to post the comment (e.g. `secrets.GITHUB_TOKEN`). Required when `pr` is set. |
+
+> **Permission:** to post the PR comment the workflow needs `pull-requests: write`
+> (the built-in `GITHUB_TOKEN` is otherwise read-only). No manual token required.
 
 ## Core Metrics
 
