@@ -17,7 +17,6 @@ Requires:
     export OPENAI_API_KEY="sk-..."
 """
 
-import json
 import os
 import sys
 
@@ -105,8 +104,10 @@ def main() -> None:
     print("\nNormalized traces (real SDK output):")
     print("  baseline :", [f"{s.name}/{s.step_type.value}" for s in base.steps])
     print("  candidate:", [f"{s.name}/{s.step_type.value}" for s in cand.steps])
-    print(f"  baseline tokens={base.total_tokens.total_tokens} "
-          f"latency={base.total_latency_ms:.0f}ms")
+    print(
+        f"  baseline tokens={base.total_tokens.total_tokens} "
+        f"latency={base.total_latency_ms:.0f}ms"
+    )
 
     report = compare(base, cand)
     print(f"\nTrajectory Divergence Index: {report.trajectory_divergence_index:.3f}")

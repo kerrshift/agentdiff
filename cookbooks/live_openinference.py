@@ -27,12 +27,11 @@ import os
 import sys
 
 from openai import OpenAI
+from openinference.instrumentation.openai import OpenAIInstrumentor
 from opentelemetry import trace as otel_trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
-
-from openinference.instrumentation.openai import OpenAIInstrumentor
 
 from agentdiff import compare, parse_trace_data
 
@@ -85,8 +84,10 @@ def main() -> None:
     print("\nNormalized traces (real OpenInference spans):")
     print("  baseline :", [f"{s.name}/{s.step_type.value}" for s in base.steps])
     print("  candidate:", [f"{s.name}/{s.step_type.value}" for s in cand.steps])
-    print(f"  baseline tokens={base.total_tokens.total_tokens} "
-          f"latency={base.total_latency_ms:.0f}ms")
+    print(
+        f"  baseline tokens={base.total_tokens.total_tokens} "
+        f"latency={base.total_latency_ms:.0f}ms"
+    )
 
     report = compare(base, cand)
     print(f"\nTrajectory Divergence Index: {report.trajectory_divergence_index:.3f}")
