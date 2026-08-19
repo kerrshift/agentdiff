@@ -83,7 +83,7 @@ export default function PRCommentShowcase() {
   const current = PRS.find((p) => p.id === active)!;
 
   return (
-    <section id="ci-in-action-section" className="py-24 bg-transparent font-sans">
+    <section id="ci-in-action-section" className="py-20 lg:py-24 bg-transparent font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Reveal>
           <div className="max-w-3xl mb-10">
@@ -126,7 +126,7 @@ export default function PRCommentShowcase() {
 
           <div className="grid lg:grid-cols-5 gap-8">
             {/* PR comment card */}
-            <div className="lg:col-span-3 bg-white border border-[#E4E4E7] rounded-xl overflow-hidden shadow-[0_1px_0_0_rgba(0,0,0,0.02),0_12px_32px_-16px_rgba(0,0,0,0.1)]">
+            <div className="lg:col-span-3 min-w-0 bg-white border border-[#E4E4E7] rounded-xl overflow-hidden shadow-[0_1px_0_0_rgba(0,0,0,0.02),0_12px_32px_-16px_rgba(0,0,0,0.1)]">
               <div className="border-b border-[#E4E4E7] px-5 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <span className="w-7 h-7 rounded-full bg-[#E4E4E7] flex items-center justify-center text-[10px] font-bold text-[#52525B]">
@@ -166,7 +166,7 @@ export default function PRCommentShowcase() {
             </div>
 
             {/* Annotation rail */}
-            <div className="lg:col-span-2 flex flex-col justify-center gap-4">
+            <div className="lg:col-span-2 min-w-0 flex flex-col justify-center gap-4">
               <p className="text-sm text-[#52525B] leading-relaxed">{current.note}</p>
               <ul className="text-sm text-[#52525B] leading-relaxed space-y-2.5">
                 <li className="flex gap-2.5">

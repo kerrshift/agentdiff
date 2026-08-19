@@ -89,7 +89,7 @@ const FEATURES = [
 
 export default function FeaturesGrid() {
   return (
-    <section id="features-section" className="py-24 bg-transparent font-sans">
+    <section id="features-section" className="py-20 lg:py-24 bg-transparent font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <Reveal>
@@ -107,7 +107,7 @@ export default function FeaturesGrid() {
 
         <Reveal delay={140}>
         {/* Engine spec grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-14 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10 md:gap-y-14 items-stretch">
           {FEATURES.map((f) => (
             <div key={f.num} className="flex flex-col">
               {/* Index header */}

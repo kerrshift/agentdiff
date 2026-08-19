@@ -122,7 +122,7 @@ tool loop and a 148% cost increase over baseline.`;
       : "python";
 
   return (
-<section id="integration-section" className="py-28 bg-transparent font-sans">
+<section id="integration-section" className="py-20 lg:py-28 bg-transparent font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <Reveal>
@@ -155,15 +155,15 @@ tool loop and a 148% cost increase over baseline.`;
         <div className="bg-white border border-[#E4E4E7] rounded-xl overflow-hidden">
 
           {/* Panel header */}
-          <div className="border-b border-[#E4E4E7] px-5 py-0 flex items-center justify-between">
-            <div className="flex items-center gap-7 -mb-px">
+          <div className="border-b border-[#E4E4E7] px-4 sm:px-5 py-0 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-5 sm:gap-7 -mb-px overflow-x-auto no-scrollbar">
               {TABS.map((tab) => {
                 const active = activeCodeTab === tab.id;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveCodeTab(tab.id)}
-                    className={`relative text-xs font-semibold py-3.5 transition-colors duration-150 ${
+                    className={`relative text-xs font-semibold py-3.5 whitespace-nowrap transition-colors duration-150 ${
                       active ? "text-[#18181B]" : "text-[#A1A1AA] hover:text-[#18181B]"
                     }`}
                   >
@@ -180,10 +180,10 @@ tool loop and a 148% cost increase over baseline.`;
 
             <button
               onClick={() => copyToClipboard(activeCode)}
-              className="flex items-center gap-1.5 text-xs font-semibold text-[#A1A1AA] hover:text-[#18181B] transition-colors duration-150 py-3.5"
+              className="flex items-center gap-1.5 text-xs font-semibold text-[#A1A1AA] hover:text-[#18181B] transition-colors duration-150 py-3.5 shrink-0"
             >
               {copiedCode ? <Check className="w-3.5 h-3.5 text-[#0FA47F]" /> : <Copy className="w-3.5 h-3.5" />}
-              {copiedCode ? "Copied" : "Copy"}
+              <span className="hidden sm:inline">{copiedCode ? "Copied" : "Copy"}</span>
             </button>
           </div>
 

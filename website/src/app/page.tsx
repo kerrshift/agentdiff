@@ -32,7 +32,7 @@ function readPackageVersion(): string {
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen bg-[#FBFBFC] text-[#18181B] font-sans flex flex-col justify-between selection:bg-[#E4E4E7] selection:text-[#18181B] no-scrollbar">
+    <div className="relative min-h-screen bg-[#FBFBFC] text-[#18181B] font-sans flex flex-col justify-between selection:bg-[#E4E4E7] selection:text-[#18181B] no-scrollbar overflow-x-clip">
       <div id="main-grid-container" className="max-w-7xl mx-auto w-full flex-1 flex flex-col bg-[#FBFBFC] relative">
         <Header version={readPackageVersion()} />
         <main className="flex-1">

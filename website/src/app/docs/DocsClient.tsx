@@ -30,9 +30,12 @@ export default function DocsClient({ docs, version }: DocsClientProps) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    setTheme(
-      document.documentElement.classList.contains("dark") ? "dark" : "light"
+    const id = requestAnimationFrame(() =>
+      setTheme(
+        document.documentElement.classList.contains("dark") ? "dark" : "light"
+      )
     );
+    return () => cancelAnimationFrame(id);
   }, []);
 
   useEffect(() => {

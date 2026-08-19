@@ -39,18 +39,20 @@ export default function TerminalWindow() {
   return (
     <div className="w-full max-w-3xl rounded-xl overflow-hidden border border-[#2A2D33] bg-[#0A0B0C] text-left shadow-[0_1px_0_0_rgba(0,0,0,0.1),0_12px_32px_-16px_rgba(0,0,0,0.35)]">
       {/* Window chrome */}
-      <div className="flex items-center justify-between px-5 h-12 border-b border-[#1E2126] bg-[#0D0E10]">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between px-4 sm:px-5 h-11 sm:h-12 border-b border-[#1E2126] bg-[#0D0E10]">
+        <div className="flex items-center gap-2 shrink-0">
           <span className="w-3 h-3 rounded-full bg-[#2A2D33]"></span>
           <span className="w-3 h-3 rounded-full bg-[#2A2D33]"></span>
           <span className="w-3 h-3 rounded-full bg-[#2A2D33]"></span>
         </div>
-        <span className="text-[11px] font-mono text-[#6B7480]">agentdiff - live gemini-3.6-flash gate</span>
-        <span className="text-[10px] font-mono text-[#E5484D] px-2 py-0.5 rounded-md font-bold bg-[#E5484D]/10">FAIL</span>
+        <span className="hidden sm:inline text-[11px] font-mono text-[#6B7480]">
+          agentdiff - live gemini-3.6-flash gate
+        </span>
+        <span className="text-[10px] font-mono text-[#E5484D] px-2 py-0.5 rounded-md font-bold bg-[#E5484D]/10 shrink-0">FAIL</span>
       </div>
 
       {/* Terminal body - all lines occupy space; later ones hidden so height never changes */}
-      <div className="px-6 py-6 font-mono text-sm leading-[1.7] tracking-tight whitespace-pre text-left">
+      <div className="px-4 py-4 sm:px-6 sm:py-6 font-mono text-[11px] sm:text-sm leading-[1.7] tracking-tight whitespace-pre overflow-x-auto no-scrollbar text-left">
         {LINES.map((line, i) => (
           <div
             key={i}

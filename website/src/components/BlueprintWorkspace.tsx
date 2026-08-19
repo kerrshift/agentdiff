@@ -19,10 +19,15 @@ function NodeCell({ node, index, pruned }: { node?: TraceNode; index: number; pr
   }
   return (
     <div>
-      <div className="text-[11px] text-[#A1A1AA] mb-0.5 tabular-nums">
-        Step {String(index).padStart(2, "0")} · {node.tokens} tok · ${node.cost.toFixed(4)}
+      <div className="text-[10px] sm:text-[11px] text-[#A1A1AA] mb-0.5 tabular-nums">
+        <span className="sm:hidden">
+          Step {String(index).padStart(2, "0")} · {node.tokens} tok
+        </span>
+        <span className="hidden sm:inline">
+          Step {String(index).padStart(2, "0")} · {node.tokens} tok · ${node.cost.toFixed(4)}
+        </span>
       </div>
-      <div className={`text-sm font-medium ${pruned ? "line-through text-[#A1A1AA]" : "text-[#18181B]"}`}>
+      <div className={`text-[13px] sm:text-sm font-medium ${pruned ? "line-through text-[#A1A1AA]" : "text-[#18181B]"}`}>
         {node.label}
       </div>
     </div>
@@ -42,9 +47,13 @@ export default function BlueprintWorkspace() {
   const logContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setSystemLogs([]);
     let currentLogIndex = 0;
+    let cleared = false;
     const interval = setInterval(() => {
+      if (!cleared) {
+        setSystemLogs([]);
+        cleared = true;
+      }
       if (currentLogIndex < activeScenario.logs.length) {
         const logLine = activeScenario.logs[currentLogIndex];
         if (logLine) setSystemLogs((prev) => [...prev, logLine]);
@@ -96,7 +105,7 @@ export default function BlueprintWorkspace() {
   const isFail = activeScenario.status === "FAIL";
 
   return (
-    <section id="workspace-section" className="py-32 bg-transparent font-sans">
+    <section id="workspace-section" className="py-20 lg:py-32 bg-transparent font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <Reveal>
@@ -113,10 +122,10 @@ export default function BlueprintWorkspace() {
         </Reveal>
 
         <Reveal delay={140}>
-        <div className="rounded-xl border border-[#E4E4E7] bg-white p-6 sm:p-8">
+        <div className="rounded-xl border border-[#E4E4E7] bg-white p-4 sm:p-8">
 
         {/* Scenario switcher - ink underline tabs */}
-        <div className="flex flex-wrap gap-7 mb-10 border-b border-[#E4E4E7] -mb-px">
+        <div className="flex flex-wrap gap-4 sm:gap-7 mb-6 sm:mb-10 border-b border-[#E4E4E7] -mb-px">
           {SCENARIOS.map((s) => {
             const active = activeScenario.code === s.code;
             return (
@@ -139,25 +148,26 @@ export default function BlueprintWorkspace() {
         </div>
 
         {/* Comparison + side panel */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
 
           {/* LEFT: comparison */}
           <div className="lg:col-span-8">
-            {/* Column labels */}
-            <div className="grid grid-cols-12 gap-4 pb-3 mb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA]">
+            {/* Column labels - desktop only */}
+            <div className="hidden lg:grid grid-cols-12 gap-3 sm:gap-4 pb-3 mb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA]">
               <div className="col-span-5">Baseline</div>
               <div className="col-span-2 text-center">Diff</div>
               <div className="col-span-5 text-right">Candidate</div>
             </div>
 
-            <div className="divide-y divide-[#E4E4E7]">
+            {/* Desktop: 3-column aligned diff */}
+            <div className="hidden lg:block divide-y divide-[#E4E4E7]">
               {rows.map((row) => {
                 const isLoop = row.diffStatus === "loop";
                 const isPruned = row.diffStatus === "pruned";
                 return (
                   <div
                     key={row.index}
-                    className={`grid grid-cols-12 gap-4 items-center py-4 ${
+                    className={`grid grid-cols-12 gap-3 sm:gap-4 items-center py-4 ${
                       isLoop || isPruned ? "border-l-2 border-[#E5484D] -ml-2 pl-2" : ""
                     }`}
                   >
@@ -176,10 +186,63 @@ export default function BlueprintWorkspace() {
                 );
               })}
             </div>
+
+            {/* Mobile: vertical status-driven diff */}
+            <div className="lg:hidden">
+              <div className="flex items-center justify-between pb-3 mb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA]">
+                <span>Candidate run</span>
+                <span>vs baseline</span>
+              </div>
+              <div className="divide-y divide-[#E4E4E7]">
+                {rows.map((row) => {
+                  const node = row.candidateNode ?? row.baselineNode;
+                  const aligned = row.diffStatus === "aligned";
+                  const loop = row.diffStatus === "loop";
+                  const added = row.diffStatus === "added";
+                  const pruned = row.diffStatus === "pruned";
+                  return (
+                    <div key={row.index} className="flex items-center gap-3 py-3">
+                      <span className="w-7 shrink-0 font-mono text-[11px] text-[#A1A1AA]">
+                        {String(row.index).padStart(2, "0")}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div
+                          className={`font-mono text-[13px] tracking-tight break-words ${
+                            loop
+                              ? "text-[#E5484D] font-semibold"
+                              : added
+                              ? "text-[#0FA47F] font-semibold"
+                              : pruned
+                              ? "text-[#A1A1AA] line-through"
+                              : "text-[#18181B]"
+                          }`}
+                        >
+                          {node ? node.label : ""}
+                        </div>
+                        {node && (
+                          <div className="text-[10px] text-[#A1A1AA] tabular-nums mt-0.5">{node.tokens} tok</div>
+                        )}
+                      </div>
+                      <span
+                        className={`shrink-0 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${
+                          aligned
+                            ? "text-[#A1A1AA] bg-[#F4F4F5]"
+                            : added
+                            ? "text-[#0FA47F] bg-[#F2FBF7]"
+                            : "text-[#E5484D] bg-[#FDF2F2]"
+                        }`}
+                      >
+                        {row.diffLabel}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
           {/* RIGHT: gating + logs */}
-          <div className="lg:col-span-4 space-y-10">
+          <div className="lg:col-span-4 space-y-8 lg:space-y-10">
             {/* Gating status */}
             <div>
               <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA] mb-3 block">Gating status</span>

@@ -11,24 +11,24 @@ export default function Hero() {
   return (
     <section
       id="hero-section"
-      className="relative overflow-hidden min-h-[calc(100svh-4rem)] flex flex-col justify-center py-16 lg:py-24 font-sans border-b border-[#E4E4E7]"
+      className="relative overflow-hidden min-h-[calc(100svh-4rem)] flex flex-col justify-center py-12 sm:py-16 lg:py-24 font-sans border-b border-[#E4E4E7]"
     >
-<div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+<div className="max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 text-center min-w-0">
 
         <Reveal animate>
         {/* Eyebrow */}
-        <div className="mb-8">
-          <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA]">
+        <div className="mb-6 md:mb-8">
+          <span className="text-xs font-medium uppercase tracking-[0.12em] sm:tracking-[0.18em] text-[#A1A1AA]">
             Trajectory regression testing for AI agents
           </span>
         </div>
 
         {/* Headline */}
-        <h1 className="text-4xl sm:text-6xl xl:text-7xl font-semibold tracking-[-0.035em] text-[#18181B] leading-[1.04] mx-auto max-w-4xl">
+        <h1 className="text-[2.125rem] sm:text-6xl xl:text-7xl font-semibold tracking-[-0.035em] text-[#18181B] leading-[1.08] sm:leading-[1.04] mx-auto max-w-4xl">
           Static assertions can&apos;t test AI agents.
         </h1>
 
-        <p className="max-w-2xl mx-auto text-base sm:text-lg text-[#52525B] leading-relaxed my-8 font-sans font-normal">
+        <p className="max-w-2xl mx-auto text-base sm:text-lg text-[#52525B] leading-relaxed my-6 md:my-8 font-sans font-normal">
           AgentDiff diffs every agent run against a baseline as a DAG - and blocks drift, tool loops, and cost spikes right in CI/CD.
         </p>
         </Reveal>
@@ -38,7 +38,7 @@ export default function Hero() {
         <div className="flex flex-col items-center gap-4">
           <a
             href="#workspace-section"
-            className="inline-flex items-center gap-2 bg-[#18181B] hover:bg-black text-white font-semibold text-sm py-3 px-7 rounded-lg transition-colors duration-150"
+            className="inline-flex items-center justify-center gap-2 bg-[#18181B] hover:bg-black text-white font-semibold text-sm py-3 px-7 rounded-lg transition-colors duration-150 w-full sm:w-auto"
           >
             Explore the workspace
             <ArrowRight className="w-4 h-4" />
@@ -47,12 +47,12 @@ export default function Hero() {
         </div>
 
         {/* Adapter logos - easily integrable, generic + adapter-ready */}
-        <div className="mt-14">
+        <div className="mt-10 md:mt-14 hidden md:block">
           <AdapterLogos />
         </div>
 
         {/* Product terminal - the hero's focal visual */}
-        <div className="mt-14 flex flex-col items-center">
+        <div className="mt-10 md:mt-14 flex flex-col items-center">
           <div className="w-full max-w-2xl">
             <TerminalWindow />
           </div>

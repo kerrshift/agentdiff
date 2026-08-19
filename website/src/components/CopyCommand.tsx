@@ -19,13 +19,13 @@ export default function CopyCommand({ dark = false, bare = false }: { dark?: boo
       className={`inline-flex items-center gap-2 ${
         bare
           ? "px-1 py-1"
-          : `rounded-lg px-4 py-2.5 ${
+          : `rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 ${
               dark ? "bg-[#0A0B0C] border border-[#2A2D33]" : "bg-white border border-[#E4E4E7]"
             }`
       }`}
     >
       <span
-        className={`text-[13px] font-mono whitespace-nowrap ${
+        className={`text-xs sm:text-[13px] font-mono whitespace-nowrap ${
           dark ? "text-[#E8EAED]" : "text-[#18181B]"
         }`}
       >

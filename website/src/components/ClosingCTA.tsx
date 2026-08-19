@@ -7,10 +7,10 @@ import CopyCommand from "./CopyCommand";
 
 export default function ClosingCTA() {
   return (
-    <section id="get-started-section" className="py-32 bg-transparent font-sans">
+    <section id="get-started-section" className="py-20 lg:py-32 bg-transparent font-sans">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <Reveal>
-          <div className="rounded-2xl border border-[#E4E4E7] bg-white p-8 sm:p-12 lg:p-16">
+          <div className="rounded-2xl border border-[#E4E4E7] bg-white p-6 sm:p-12 lg:p-16">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
               {/* Left - statement + primary action */}
               <div>

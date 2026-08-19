@@ -26,7 +26,7 @@ export default function Footer({ version = "0.2.1" }: { version?: string }) {
           </div>
 
           {/* Link columns */}
-          <div className="flex gap-16 lg:gap-24">
+          <div className="flex gap-12 lg:gap-24">
             <div className="flex flex-col gap-2.5">
               <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA] mb-1">Product</span>
               <a href="#workspace-section" className="text-sm text-[#52525B] hover:text-[#18181B] transition-colors duration-150 font-medium">Workspace</a>
@@ -45,7 +45,7 @@ export default function Footer({ version = "0.2.1" }: { version?: string }) {
         </div>
 
         {/* Bottom bar - whitespace separated, no extra rule */}
-        <div className="mt-14 flex flex-col md:flex-row items-center justify-between gap-3 text-[#A1A1AA]">
+        <div className="mt-10 lg:mt-14 flex flex-col md:flex-row items-center justify-between gap-3 text-[#A1A1AA]">
           <span className="text-xs">© {new Date().getFullYear()} AgentDiff</span>
           <span className="text-[11px]">Python SDK · CLI · GitHub Actions</span>
         </div>

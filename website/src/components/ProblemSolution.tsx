@@ -21,29 +21,9 @@ const CANDIDATE = [
   { name: "write_report", loop: false },
 ];
 
-function TraceRow({ idx, name, loop, empty }: { idx: number; name: string; loop?: boolean; empty?: boolean }) {
-  if (empty) {
-    return <div className="flex items-center py-[9px] rounded-r-lg" aria-hidden="true" />;
-  }
-  return (
-    <div
-      className={`flex items-center gap-3 py-[9px] rounded-r-lg ${
-        loop ? "-ml-3 pl-3 border-l-2 border-[#E5484D] bg-[#FDF2F2]/60" : ""
-      }`}
-    >
-      <span className="w-6 text-right font-mono text-[11px] text-[#A1A1AA]">{String(idx).padStart(2, "0")}</span>
-      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: loop ? "#E5484D" : "#0FA47F" }} />
-      <span className={`font-mono text-[13px] tracking-tight ${loop ? "text-[#E5484D]" : "text-[#18181B]"}`}>
-        {name}
-      </span>
-      {loop && <span className="ml-auto text-[10px] font-medium uppercase tracking-widest text-[#E5484D]">loop</span>}
-    </div>
-  );
-}
-
 export default function ProblemSolution() {
   return (
-    <section id="problem-section" className="py-28 bg-transparent font-sans">
+    <section id="problem-section" className="py-20 lg:py-28 bg-transparent font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <Reveal>
@@ -60,24 +40,29 @@ export default function ProblemSolution() {
         </Reveal>
 
         <Reveal delay={140}>
-        {/* Before / after trace - equal-height aligned columns */}
-        <div className="grid grid-cols-1 md:grid-cols-2 md:divide-x divide-[#E4E4E7] items-stretch">
+        {/* Before / after - chips tell the drift story in one glance on mobile */}
+        <div className="grid grid-cols-1 md:grid-cols-2 md:divide-x divide-[#E4E4E7] gap-10 md:gap-0">
 
           {/* Baseline */}
           <div className="flex flex-col md:pr-12">
-            <div className="flex items-center justify-between mb-3">
-              <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-[#18181B]">
+            <div className="flex items-center justify-between mb-4">
+              <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-[#0FA47F]">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#0FA47F]" />
                 Baseline
               </span>
               <span className="text-[11px] text-[#A1A1AA]">6 steps</span>
             </div>
-            <div className="pt-2 flex-1">
-              {BASELINE.map((step, i) => (
-                <TraceRow key={i} idx={i + 1} name={step.name} empty={!step.name} />
+            <div className="flex flex-wrap gap-1.5">
+              {BASELINE.filter((s) => s.name).map((s, i) => (
+                <span
+                  key={i}
+                  className="px-2 py-1 rounded-md bg-[#F4F4F5] border border-[#E4E4E7] font-mono text-[12px] text-[#18181B] tracking-tight"
+                >
+                  {s.name}
+                </span>
               ))}
             </div>
-            <div className="mt-3 pt-5 flex items-end justify-between">
+            <div className="mt-5 flex items-end justify-between border-t border-[#E4E4E7] pt-4">
               <div>
                 <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-1">Tokens</div>
                 <div className="text-2xl font-semibold text-[#18181B] tracking-tight tabular-nums">1,204</div>
@@ -86,21 +71,30 @@ export default function ProblemSolution() {
             </div>
           </div>
 
-          {/* Candidate */}
+          {/* Candidate - loop steps pop in red */}
           <div className="flex flex-col md:pl-12">
-            <div className="flex items-center justify-between mb-3">
-              <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-[#18181B]">
+            <div className="flex items-center justify-between mb-4">
+              <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-[#E5484D]">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#E5484D]" />
                 Candidate
               </span>
               <span className="text-[11px] font-semibold text-[#E5484D]">loop ×3</span>
             </div>
-            <div className="pt-2 flex-1">
-              {CANDIDATE.map((step, i) => (
-                <TraceRow key={i} idx={i + 1} name={step.name} loop={step.loop} />
+            <div className="flex flex-wrap gap-1.5">
+              {CANDIDATE.map((s, i) => (
+                <span
+                  key={i}
+                  className={`px-2 py-1 rounded-md border font-mono text-[12px] tracking-tight ${
+                    s.loop
+                      ? "bg-[#FDF2F2] border-[#E5484D]/40 text-[#E5484D] font-semibold"
+                      : "bg-[#F4F4F5] border-[#E4E4E7] text-[#18181B]"
+                  }`}
+                >
+                  {s.name}
+                </span>
               ))}
             </div>
-            <div className="mt-3 pt-5 flex items-end justify-between">
+            <div className="mt-5 flex items-end justify-between border-t border-[#E4E4E7] pt-4">
               <div>
                 <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-1">Tokens</div>
                 <div className="text-2xl font-semibold text-[#18181B] tracking-tight tabular-nums">2,986</div>
@@ -112,7 +106,7 @@ export default function ProblemSolution() {
         </div>
 
         {/* The fix - continues the same left rail as the header */}
-        <div className="max-w-2xl mt-14">
+        <div className="max-w-2xl mt-10 md:mt-14">
           <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-3">The fix</span>
           <h3 className="text-2xl font-semibold text-[#18181B] mb-3 leading-snug">
             Catch it in CI, before it ships.

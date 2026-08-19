@@ -11,7 +11,7 @@ function CodePanel({ lines, tab }: { lines: string[]; tab: string }) {
         <span className="w-2.5 h-2.5 rounded-full bg-[#2A2D33]" />
         <span className="ml-2 text-[10px] text-[#6B7480]">{tab}</span>
       </div>
-      <div className="px-5 py-4 text-[12.5px] leading-[1.8] whitespace-pre text-[#C9CDD3]">
+      <div className="px-4 py-4 sm:px-5 text-[11px] sm:text-[12.5px] leading-[1.8] whitespace-pre text-[#C9CDD3] overflow-x-auto no-scrollbar">
         {lines.map((l, i) => (
           <div
             key={i}
@@ -91,11 +91,11 @@ const CARDS = [
 
 export default function ActionSection() {
   return (
-    <section id="action-section" className="py-28 bg-transparent font-sans">
+    <section id="action-section" className="py-20 lg:py-28 bg-transparent font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <Reveal>
-        <div className="max-w-3xl mb-16">
+        <div className="max-w-3xl mb-12 lg:mb-16">
           <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-4">
             Beyond the metrics
           </span>
@@ -108,7 +108,7 @@ export default function ActionSection() {
         </div>
         </Reveal>
 
-        <div className="flex flex-col gap-20">
+        <div className="flex flex-col gap-16 lg:gap-20">
           {CARDS.map((card) => (
             <Reveal key={card.num}>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-14 gap-y-6 items-center">
