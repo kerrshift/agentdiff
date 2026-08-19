@@ -93,6 +93,27 @@ def test_openai_agents_skips_task_and_turn():
     assert [s.step_id for s in trace.steps] == ["a1", "g1"]
 
 
+def test_openai_agents_skips_real_task_turn_custom_spans():
+    # Real OpenAI Agents traces record task/turn as type="custom" with a name,
+    # not a dedicated span type. These must be skipped like the fixture shape.
+    spans = [
+        _span(
+            "a1",
+            None,
+            "agent",
+            "2026-08-01T00:00:00Z",
+            "2026-08-01T00:00:04Z",
+            name="support_agent",
+        ),
+        _span("t1", "a1", "custom", "2026-08-01T00:00:00Z", "2026-08-01T00:00:04Z", name="task"),
+        _span("u1", "a1", "custom", "2026-08-01T00:00:00Z", "2026-08-01T00:00:04Z", name="turn"),
+        _span("r1", "a1", "response", "2026-08-01T00:00:00Z", "2026-08-01T00:00:01Z"),
+        _span("f1", "a1", "function", "2026-08-01T00:00:02Z", "2026-08-01T00:00:03Z", name="get_user_database_stats"),
+    ]
+    trace = OpenAIAgentsAdapter.from_dict(_trace(spans))
+    assert [s.step_id for s in trace.steps] == ["a1", "r1", "f1"]
+
+
 def test_openai_agents_error_sets_status():
     spans = [
         _span(

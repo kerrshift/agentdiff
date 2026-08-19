@@ -127,7 +127,11 @@ class OpenAIAgentsAdapter(BaseAdapter):
         if not isinstance(span_data, dict):
             span_data = {}
         stype = str(span_data.get("type") or span.get("type") or "").lower()
-        if stype in _SKIPPED_TYPES:
+        sname = str(span_data.get("name") or "").lower()
+        # Real OpenAI Agents traces mark the task/turn bookkeeping spans as
+        # type="custom" with name="task"/"turn"; older/fixture shapes used a
+        # dedicated type. Skip both so they don't surface as steps.
+        if stype in _SKIPPED_TYPES or (stype == "custom" and sname in _SKIPPED_TYPES):
             return None
 
         step_type = _TYPE_MAP.get(stype, StepType.THOUGHT)
