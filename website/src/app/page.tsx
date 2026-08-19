@@ -10,12 +10,18 @@ import IntegrationShowcase from "../components/IntegrationShowcase";
 import ClosingCTA from "../components/ClosingCTA";
 import Footer from "../components/Footer";
 
-/** Read the version string from the root pyproject.toml at build time. */
+/** Read the version string from the package `__init__.py` at build time. */
 function readPackageVersion(): string {
   try {
-    const tomlPath = path.join(process.cwd(), "..", "pyproject.toml");
-    const toml = fs.readFileSync(tomlPath, "utf-8");
-    const match = toml.match(/^version\s*=\s*"([^"]+)"/m);
+    const initPath = path.join(
+      process.cwd(),
+      "..",
+      "src",
+      "agentdiff",
+      "__init__.py",
+    );
+    const source = fs.readFileSync(initPath, "utf-8");
+    const match = source.match(/^__version__\s*=\s*"([^"]+)"/m);
     return match ? match[1] : "0.0.0";
   } catch {
     return "0.0.0";

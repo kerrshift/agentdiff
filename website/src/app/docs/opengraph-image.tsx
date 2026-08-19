@@ -141,7 +141,7 @@ export default async function Image() {
           Docs
         </span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontSize: 13, color: COLORS.faint }}>v0.1.0</span>
+        <span style={{ fontSize: 13, color: COLORS.faint }}>v0.2.0</span>
       </div>
 
       {/* Main: copy + docs card */}

@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0] - 2026-08-19
+## [0.2.0] - 2026-08-19
 
-**AgentDiff v1** — the first PyPI release of a developer-first trajectory
+**AgentDiff v0.2.0** — the first PyPI release of a developer-first trajectory
 regression engine for multi-turn, tool-using AI agents.
 
 ### Added
@@ -35,6 +35,11 @@ regression engine for multi-turn, tool-using AI agents.
   `StepDiff`, ...).
 - **pytest plugin**: `agentdiff` marker/entry-point for threshold gating.
 
+### Fixed
+- **Python 3.10 ISO timestamp parsing**: telemetry timestamps with a short
+  fractional second (e.g. `...00.5Z`) now parse correctly across all adapters,
+  instead of silently dropping latency to `0.0`.
+
 ### Documentation
 - Full docs site (markdown) covering adapters, CLI, regression gates, CI/CD,
   configuration, and baseline workflows.
@@ -44,4 +49,4 @@ regression engine for multi-turn, tool-using AI agents.
 - Requires Python 3.10+.
 - Licensed under MIT.
 
-[0.1.0]: https://github.com/lostmartian/agentdiff/releases/tag/v0.1.0
+[0.2.0]: https://github.com/lostmartian/agentdiff/releases/tag/v0.2.0

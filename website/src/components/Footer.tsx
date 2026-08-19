@@ -1,7 +1,7 @@
 import React from "react";
 import LogoMark from "./LogoMark";
 
-export default function Footer({ version = "0.1.0" }: { version?: string }) {
+export default function Footer({ version = "0.2.0" }: { version?: string }) {
   return (
     <footer id="footer-section" className="border-t border-[#E4E4E7] bg-transparent pt-16 pb-10 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
