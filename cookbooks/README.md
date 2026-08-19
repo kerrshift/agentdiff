@@ -58,6 +58,7 @@ uv run cookbooks/gemini_sdk_generic.py
 uv run cookbooks/live_openai_agents.py
 uv run cookbooks/live_openinference.py
 uv run cookbooks/live_langfuse.py
+uv run cookbooks/live_gemini_cases.py   # regression, prompt-change, loop, drift
 ```
 
 ## Notes
