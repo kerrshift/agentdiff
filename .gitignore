@@ -2,6 +2,11 @@
 #              AGENTDIFF GITIGNORE
 # ==========================================
 
+# 0. Secrets — never commit API keys
+.env
+.env.*
+!.env.example
+
 # 1. Project Context (User Request)
 /context/
 
