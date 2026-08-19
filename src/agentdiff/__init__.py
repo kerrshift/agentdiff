@@ -29,7 +29,7 @@ Typical flow::
     assert_no_regressions(report)
 """
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 from agentdiff.adapters import (
     BaseAdapter,

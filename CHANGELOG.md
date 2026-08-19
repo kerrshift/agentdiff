@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-08-19
+
+### Added
+- **`agentdiff-check` GitHub Action** gains `pr` and `github-token` inputs: when
+  `pr` is set, the action runs `agentdiff --pr <N>` and posts the PR-ready
+  report (status, gate thresholds, root-cause culprit, collapsed divergence
+  tree, loops) as a comment on the pull request. The comment is posted even
+  when the gate blocks (exit 1).
+
 ## [0.2.1] - 2026-08-19
 
 Patch release. Every change below was **found by live-testing the adapters
@@ -36,6 +45,7 @@ natively (no caller-side reshaping).
 - README/cookbook guides updated for the live adapter recipes.
 
 [0.2.1]: https://github.com/lostmartian/agentdiff/releases/tag/v0.2.1
+[0.2.2]: https://github.com/lostmartian/agentdiff/releases/tag/v0.2.2
 
 ## [0.2.0] - 2026-08-19
 
