@@ -27,7 +27,10 @@ export default function AdapterLogos() {
             <span className="text-[12px] font-medium tracking-tight">{label}</span>
           </span>
         ))}
-        <span className="inline-flex items-center gap-2 text-[#9CA0A6]">
+        <span
+          title="Generic JSON"
+          className="inline-flex items-center gap-2 text-[#9CA0A6] hover:text-[#18181B] transition-colors duration-150"
+        >
           <span className="font-mono text-[14px] leading-none">{"{}"}</span>
           <span className="text-[12px] font-medium tracking-tight">generic JSON</span>
         </span>

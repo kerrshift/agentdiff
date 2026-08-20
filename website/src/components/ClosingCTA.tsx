@@ -46,14 +46,14 @@ export default function ClosingCTA() {
                   <span className="h-px flex-1 bg-[#E4E4E7]"></span>
                 </div>
                 <div className="w-full max-w-md">
-                  <div className="flex items-center gap-2 px-4 h-9 border border-b-0 border-[#2A2D33] rounded-t-lg bg-[#0D0E10]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#2A2D33]" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#2A2D33]" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#2A2D33]" />
-                    <span className="ml-2 text-[10px] text-[#6B7480]">terminal</span>
+                  <div className="flex items-center gap-2 px-4 h-9 border border-b-0 border-[#E4E4E7] rounded-t-lg bg-[#F4F4F5]">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E]" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#28C840]" />
+                    <span className="ml-2 text-[10px] text-[#A1A1AA]">terminal</span>
                   </div>
-                  <div className="border border-[#2A2D33] rounded-b-lg bg-[#0A0B0C] px-4 py-3.5">
-                    <CopyCommand dark bare />
+                  <div className="border border-[#E4E4E7] rounded-b-lg bg-white px-4 py-3.5">
+                    <CopyCommand bare />
                   </div>
                 </div>
                 <p className="text-[11px] text-[#A1A1AA]">

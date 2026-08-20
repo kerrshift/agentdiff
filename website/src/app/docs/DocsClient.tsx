@@ -9,6 +9,7 @@ import remarkMath from "remark-math";
 import remarkGfm from "remark-gfm";
 import rehypeKatex from "rehype-katex";
 import { Menu, X, Moon, Sun } from "lucide-react";
+import LogoMark from "../../components/LogoMark";
 
 export interface DocPage {
   slug: string;
@@ -36,6 +37,16 @@ export default function DocsClient({ docs, version }: DocsClientProps) {
       )
     );
     return () => cancelAnimationFrame(id);
+  }, []);
+
+  // The docs page owns the global `.dark` class. Restore the light root
+  // when we leave docs so the landing page never inherits dark tokens.
+  useEffect(() => {
+    return () => {
+      const html = document.documentElement;
+      html.classList.remove("dark");
+      html.style.colorScheme = "light";
+    };
   }, []);
 
   useEffect(() => {
@@ -66,15 +77,22 @@ export default function DocsClient({ docs, version }: DocsClientProps) {
   };
 
   const toggleTheme = () => {
+    // Suppress CSS transitions during the flip so elements don't
+    // flash through intermediate colors while every var changes.
+    const html = document.documentElement;
+    html.classList.add("theme-transitioning");
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
-    document.documentElement.classList.toggle("dark", next === "dark");
-    document.documentElement.style.colorScheme = next;
+    html.classList.toggle("dark", next === "dark");
+    html.style.colorScheme = next;
     try {
       localStorage.setItem("agentdiff-theme", next);
     } catch {
       /* ignore */
     }
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => html.classList.remove("theme-transitioning"));
+    });
   };
 
   const getCleanTitle = (title: string) => title.replace(/^\d+-\s*/, "");
@@ -130,9 +148,7 @@ export default function DocsClient({ docs, version }: DocsClientProps) {
                 className="font-semibold text-[var(--fg)] tracking-tight text-base hover:opacity-80 transition-opacity duration-150 flex items-center gap-2"
               >
                 <span className="flex items-center justify-center w-6 h-6 rounded-md bg-[var(--fg)] text-[var(--bg)]">
-                  <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                    <path d="M3 4.5h4.5M3 8h6.5M3 11.5h3.5" />
-                  </svg>
+                  <LogoMark size={14} />
                 </span>
                 <span>agentdiff</span>
                 <span className="text-[10px] font-mono font-normal text-[var(--faint)] bg-[var(--surface-2)] px-1.5 py-0.5 rounded border border-[var(--border)]">

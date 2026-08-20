@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { SCENARIOS } from "../lib/scenarios";
 import { Scenario, TraceNode } from "../lib/types";
 import Reveal from "./Reveal";
@@ -13,63 +13,96 @@ interface ComparisonRow {
   diffLabel: string;
 }
 
-function NodeCell({ node, index, pruned }: { node?: TraceNode; index: number; pruned?: boolean }) {
-  if (!node) {
-    return <div className="h-9 flex items-center text-[#E4E4E7] font-mono text-xs">-</div>;
-  }
+function ScenarioDropdown({
+  value,
+  onChange,
+}: {
+  value: Scenario;
+  onChange: (scenario: Scenario) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: MouseEvent | TouchEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  const fail = value.status === "FAIL";
+
   return (
-    <div>
-      <div className="text-[10px] sm:text-[11px] text-[#A1A1AA] mb-0.5 tabular-nums">
-        <span className="sm:hidden">
-          Step {String(index).padStart(2, "0")} · {node.tokens} tok
+    <div ref={ref} className="relative min-w-0 flex-1">
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex w-full items-center justify-between gap-3 rounded-xl border border-[#E4E4E7] bg-white px-4 py-3 text-sm font-medium text-[#18181B] outline-none transition-colors focus:border-[#18181B]"
+      >
+        <span className="flex min-w-0 items-center gap-2">
+          <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${fail ? "bg-[#E5484D]" : "bg-[#0FA47F]"}`} />
+          <span className="truncate">{value.name}</span>
         </span>
-        <span className="hidden sm:inline">
-          Step {String(index).padStart(2, "0")} · {node.tokens} tok · ${node.cost.toFixed(4)}
-        </span>
-      </div>
-      <div className={`text-[13px] sm:text-sm font-medium ${pruned ? "line-through text-[#A1A1AA]" : "text-[#18181B]"}`}>
-        {node.label}
-      </div>
+        <svg
+          className={`h-4 w-4 shrink-0 text-[#A1A1AA] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          viewBox="0 0 20 20"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path d="M6 8l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+
+      {open && (
+        <ul
+          role="listbox"
+          className="absolute left-0 right-0 z-20 mt-2 overflow-hidden rounded-xl border border-[#E4E4E7] bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
+        >
+          {SCENARIOS.map((s) => {
+            const active = s.code === value.code;
+            const optionFail = s.status === "FAIL";
+            return (
+              <li key={s.code} role="option" aria-selected={active}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange(s);
+                    setOpen(false);
+                  }}
+                  className={`flex w-full items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
+                    active ? "bg-[#F4F4F5] text-[#18181B]" : "text-[#52525B] hover:bg-[#FAFAFA]"
+                  }`}
+                >
+                  <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${optionFail ? "bg-[#E5484D]" : "bg-[#0FA47F]"}`} />
+                  <span className="flex-1 truncate text-left">{s.name}</span>
+                  {active && <span className="text-[#A1A1AA]">✓</span>}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }
 
-const STATUS_STYLE: Record<ComparisonRow["diffStatus"], string> = {
-  aligned: "text-[#A1A1AA]",
-  pruned: "text-[#E5484D]",
-  loop: "text-[#E5484D]",
-  added: "text-[#0FA47F]",
-};
-
 export default function BlueprintWorkspace() {
   const [activeScenario, setActiveScenario] = useState<Scenario>(SCENARIOS[0]);
-  const [systemLogs, setSystemLogs] = useState<string[]>([]);
-  const logContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let currentLogIndex = 0;
-    let cleared = false;
-    const interval = setInterval(() => {
-      if (!cleared) {
-        setSystemLogs([]);
-        cleared = true;
-      }
-      if (currentLogIndex < activeScenario.logs.length) {
-        const logLine = activeScenario.logs[currentLogIndex];
-        if (logLine) setSystemLogs((prev) => [...prev, logLine]);
-        currentLogIndex++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 140);
-    return () => clearInterval(interval);
-  }, [activeScenario]);
-
-  useEffect(() => {
-    if (logContainerRef.current) {
-      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
-    }
-  }, [systemLogs]);
 
   const getComparisonRows = (): ComparisonRow[] => {
     const nodes = activeScenario.nodes;
@@ -110,218 +143,171 @@ export default function BlueprintWorkspace() {
 
         <Reveal>
         {/* Section Header - left rail */}
-        <div className="max-w-3xl mb-12">
-          <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-4">Workspace</span>
+        <div className="max-w-2xl mb-10 lg:mb-12">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA]">Workspace</span>
+            <span className="text-[11px] text-[#A1A1AA]">3 diagnostic scenarios</span>
+          </div>
           <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
             A diff you can read.
           </h2>
           <p className="mt-4 text-base text-[#52525B] leading-relaxed font-normal">
-            Pick a diagnostic scenario. AgentDiff aligns the baseline and candidate runs step-by-step and flags exactly where they diverge.
+            Drop in two traces — baseline and candidate. AgentDiff aligns them step-by-step and shows you exactly where the run changed.
           </p>
         </div>
         </Reveal>
 
         <Reveal delay={140}>
-        <div className="rounded-xl border border-[#E4E4E7] bg-white p-4 sm:p-8">
-
-        {/* Scenario switcher - ink underline tabs */}
-        <div className="flex flex-wrap gap-4 sm:gap-7 mb-6 sm:mb-10 border-b border-[#E4E4E7] -mb-px">
-          {SCENARIOS.map((s) => {
-            const active = activeScenario.code === s.code;
-            return (
-              <button
-                key={s.code}
-                onClick={() => setActiveScenario(s)}
-                className={`relative text-sm font-semibold py-3 transition-colors duration-150 ${
-                  active ? "text-[#18181B]" : "text-[#A1A1AA] hover:text-[#18181B]"
-                }`}
-              >
-                {s.name}
-                <span
-                  className={`absolute left-0 bottom-0 h-0.5 bg-[#18181B] transition-all duration-200 ${
-                    active ? "w-full" : "w-0"
-                  }`}
-                />
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Comparison + side panel */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
-
-          {/* LEFT: comparison */}
-          <div className="lg:col-span-8">
-            {/* Column labels - desktop only */}
-            <div className="hidden lg:grid grid-cols-12 gap-3 sm:gap-4 pb-3 mb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA]">
-              <div className="col-span-5">Baseline</div>
-              <div className="col-span-2 text-center">Diff</div>
-              <div className="col-span-5 text-right">Candidate</div>
-            </div>
-
-            {/* Desktop: 3-column aligned diff */}
-            <div className="hidden lg:block divide-y divide-[#E4E4E7]">
-              {rows.map((row) => {
-                const isLoop = row.diffStatus === "loop";
-                const isPruned = row.diffStatus === "pruned";
-                return (
-                  <div
-                    key={row.index}
-                    className={`grid grid-cols-12 gap-3 sm:gap-4 items-center py-4 ${
-                      isLoop || isPruned ? "border-l-2 border-[#E5484D] -ml-2 pl-2" : ""
-                    }`}
-                  >
-                    <div className="col-span-5">
-                      <NodeCell node={row.baselineNode} index={row.index} pruned={isPruned} />
-                    </div>
-                    <div className="col-span-2 flex justify-center">
-                      <span className={`text-[10px] font-medium uppercase tracking-widest ${STATUS_STYLE[row.diffStatus]}`}>
-                        {row.diffLabel}
-                      </span>
-                    </div>
-                    <div className="col-span-5 text-right">
-                      <NodeCell node={row.candidateNode} index={row.index} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Mobile: vertical status-driven diff */}
-            <div className="lg:hidden">
-              <div className="flex items-center justify-between pb-3 mb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA]">
-                <span>Candidate run</span>
-                <span>vs baseline</span>
-              </div>
-              <div className="divide-y divide-[#E4E4E7]">
-                {rows.map((row) => {
-                  const node = row.candidateNode ?? row.baselineNode;
-                  const aligned = row.diffStatus === "aligned";
-                  const loop = row.diffStatus === "loop";
-                  const added = row.diffStatus === "added";
-                  const pruned = row.diffStatus === "pruned";
-                  return (
-                    <div key={row.index} className="flex items-center gap-3 py-3">
-                      <span className="w-7 shrink-0 font-mono text-[11px] text-[#A1A1AA]">
-                        {String(row.index).padStart(2, "0")}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div
-                          className={`font-mono text-[13px] tracking-tight break-words ${
-                            loop
-                              ? "text-[#E5484D] font-semibold"
-                              : added
-                              ? "text-[#0FA47F] font-semibold"
-                              : pruned
-                              ? "text-[#A1A1AA] line-through"
-                              : "text-[#18181B]"
-                          }`}
-                        >
-                          {node ? node.label : ""}
-                        </div>
-                        {node && (
-                          <div className="text-[10px] text-[#A1A1AA] tabular-nums mt-0.5">{node.tokens} tok</div>
-                        )}
-                      </div>
-                      <span
-                        className={`shrink-0 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${
-                          aligned
-                            ? "text-[#A1A1AA] bg-[#F4F4F5]"
-                            : added
-                            ? "text-[#0FA47F] bg-[#F2FBF7]"
-                            : "text-[#E5484D] bg-[#FDF2F2]"
-                        }`}
-                      >
-                        {row.diffLabel}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT: gating + logs */}
-          <div className="lg:col-span-4 space-y-8 lg:space-y-10">
-            {/* Gating status */}
-            <div>
-              <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA] mb-3 block">Gating status</span>
-              <div className="flex items-center gap-3">
-                <span
-                  className={`px-2.5 py-1 text-xs font-semibold rounded ${
-                    isFail ? "bg-[#FDF2F2] text-[#E5484D]" : "bg-[#F2FBF7] text-[#0FA47F]"
+        {/* Scenario switcher: pills on desktop, compact selector on mobile */}
+        <div className="mb-9">
+          <div className="hidden sm:flex gap-2">
+            {SCENARIOS.map((s) => {
+              const active = activeScenario.code === s.code;
+              const fail = s.status === "FAIL";
+              return (
+                <button
+                  key={s.code}
+                  onClick={() => setActiveScenario(s)}
+                  aria-pressed={active}
+                  className={`flex shrink-0 snap-start items-center gap-2 px-3.5 py-2.5 rounded-full text-[13px] font-medium transition-colors duration-150 ${
+                    active
+                      ? "bg-[#18181B] text-white"
+                      : "bg-transparent text-[#52525B] border border-[#E4E4E7] hover:border-[#D4D4D8] hover:text-[#18181B]"
                   }`}
                 >
-                  {isFail ? "FAIL" : "PASS"}
-                </span>
-                <span className="text-sm text-[#52525B] font-normal leading-relaxed">{activeScenario.description}</span>
-              </div>
-
-              {/* Computed indices - the four core metrics */}
-              <div className="grid grid-cols-2 gap-x-6 gap-y-5 mt-6 pt-5">
-                <div>
-                  <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-1">TDI · divergence</div>
-                  <div className="text-xl font-semibold text-[#18181B] tabular-nums">{activeScenario.tdi}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-1">WEI · wasted effort</div>
-                  <div className="text-xl font-semibold text-[#18181B] tabular-nums">{activeScenario.wei}</div>
-                </div>
-                <div>
-                  <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-1">Δ cost</div>
-                  <div className={`text-xl font-semibold tabular-nums ${activeScenario.costDelta.startsWith("-") ? "text-[#0FA47F]" : "text-[#E5484D]"}`}>
-                    {activeScenario.costDelta}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-1">Δ latency</div>
-                  <div className="text-xl font-semibold text-[#18181B] tabular-nums">{activeScenario.latencyDelta}</div>
-                </div>
-              </div>
-
-              {/* Verdict */}
-              <div className="mt-6 pt-4 flex items-center gap-3">
-                <span className={`font-semibold text-sm ${isFail ? "text-[#E5484D]" : "text-[#0FA47F]"}`}>
-                  Verdict {isFail ? "FAIL" : "PASS"}
-                </span>
-                <span className="text-[11px] text-[#A1A1AA]">
-                  {isFail ? "· blocks this change" : "· mergeable"}
-                </span>
-              </div>
-            </div>
-
-            {/* Evaluation logs */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA]">Evaluation logs</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#18181B] animate-pulse"></span>
-              </div>
-              <div
-                ref={logContainerRef}
-                className="h-52 text-xs text-[#52525B] overflow-y-auto no-scrollbar space-y-2 font-mono bg-[#FBFBFC] border border-[#E4E4E7] rounded-lg p-4"
-              >
-                {systemLogs.map((log, idx) => (
-                  <div key={idx} className="flex items-start gap-2">
-                    <span className="text-[#A1A1AA] font-semibold">&gt;</span>
-                    <span
-                      className={
-                        log.includes("failed") || log.includes("Warning") || log.includes("FAIL")
-                          ? "text-[#E5484D] font-semibold"
-                          : log.includes("[PASS]")
-                          ? "text-[#0FA47F] font-semibold"
-                          : ""
-                      }
-                    >
-                      {log}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+                  <span className={`w-1.5 h-1.5 rounded-full ${fail ? "bg-[#E5484D]" : "bg-[#0FA47F]"}`} />
+                  {s.name}
+                </button>
+              );
+            })}
           </div>
 
+          <div className="sm:hidden">
+            <label id="workspace-scenario-label" className="sr-only">
+              Choose a diagnostic scenario
+            </label>
+            <div className="flex items-center gap-3">
+              <ScenarioDropdown
+                value={activeScenario}
+                onChange={setActiveScenario}
+              />
+              <span
+                className={`flex shrink-0 items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest ${
+                  activeScenario.status === "FAIL" ? "text-[#E5484D]" : "text-[#0FA47F]"
+                }`}
+              >
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${
+                    activeScenario.status === "FAIL" ? "bg-[#E5484D]" : "bg-[#0FA47F]"
+                  }`}
+                />
+                {activeScenario.status}
+              </span>
+            </div>
+          </div>
         </div>
 
+        {/* The diff - single-column trajectory, no boxes */}
+        <div className="mx-auto w-full">
+          {/* Frame caption */}
+          <div className="flex items-center justify-between mb-4 text-[11px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA]">
+            <span className="flex items-center gap-2">
+              Baseline
+              <span className="text-[#D4D4D8]">→</span>
+              Candidate
+            </span>
+            <span className="tabular-nums">{rows.length} trace steps</span>
+          </div>
+
+          <p className="mb-6 max-w-2xl text-sm leading-relaxed text-[#52525B]">
+            {activeScenario.description}
+          </p>
+
+          {/* Trajectory timeline */}
+          <div>
+            {rows.map((row, idx) => {
+              const isLast = idx === rows.length - 1;
+              const isBad = row.diffStatus === "loop" || row.diffStatus === "pruned";
+              const isAdded = row.diffStatus === "added";
+              const isAligned = row.diffStatus === "aligned";
+              const changed = isBad || isAdded;
+              return (
+                <div key={row.index} className="relative flex gap-4 pb-5 last:pb-0 sm:gap-5">
+                  {/* Left rail: step number + connector line */}
+                  <div className="flex flex-col items-center w-5 shrink-0">
+                    <span
+                      className={`font-mono text-[11px] leading-4 ${
+                        changed
+                          ? isAdded
+                            ? "text-[#0FA47F] font-semibold"
+                            : "text-[#E5484D] font-semibold"
+                          : "text-[#A1A1AA]"
+                      }`}
+                    >
+                      {String(row.index).padStart(2, "0")}
+                    </span>
+                    {!isLast && <span className="mt-1 w-px flex-1 bg-[#E4E4E7]" />}
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0 pt-0.5 pb-1">
+                    {isAligned ? (
+                      /* Aligned: one quiet node */
+                      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                        <span className="text-sm font-medium text-[#18181B]">
+                          {row.baselineNode?.label}
+                        </span>
+                        <span className="text-[11px] text-[#A1A1AA] tabular-nums">
+                          {row.baselineNode?.tokens} tok · ${row.baselineNode?.cost.toFixed(4)}
+                        </span>
+                      </div>
+                    ) : (
+                      /* Changed: baseline → candidate, softly tinted */
+                      <div
+                        className={`flex flex-wrap items-center gap-x-3 gap-y-1.5 border-l-2 px-3 py-2 ${
+                          isAdded ? "border-[#0FA47F] bg-[#F2FBF7]/70" : "border-[#E5484D] bg-[#FDF2F2]/70"
+                        }`}
+                      >
+                        {row.baselineNode ? (
+                          <span className="text-[13px] font-medium text-[#A1A1AA] line-through">
+                            {row.baselineNode.label}
+                          </span>
+                        ) : (
+                          <span className="text-[13px] text-[#A1A1AA]">—</span>
+                        )}
+                        <span className="text-[#C4C4C8]">→</span>
+                        <span
+                          className={`flex items-center gap-2 text-[13px] font-semibold ${
+                            isAdded ? "text-[#0FA47F]" : "text-[#E5484D]"
+                          }`}
+                        >
+                          {row.candidateNode?.label ?? "—"}
+                          <span className="text-[10px] font-semibold uppercase tracking-widest opacity-90">
+                            {row.diffLabel}
+                          </span>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Verdict - one quiet line, no box */}
+          <div className="mt-8 pt-6 border-t border-[#E4E4E7] flex items-center justify-center gap-3">
+            <span
+              className={`flex items-center gap-2 text-sm font-semibold ${
+                isFail ? "text-[#E5484D]" : "text-[#0FA47F]"
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${isFail ? "bg-[#E5484D]" : "bg-[#0FA47F]"}`} />
+              {isFail ? "FAIL" : "PASS"}
+            </span>
+            <span className="text-sm text-[#52525B] font-normal">
+              {isFail ? "blocks this change until fixed" : "mergeable"}
+            </span>
+          </div>
         </div>
         </Reveal>
       </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { ArrowRight } from "lucide-react";
 import TerminalWindow from "./TerminalWindow";
 import Reveal from "./Reveal";
 import CopyCommand from "./CopyCommand";
@@ -14,6 +13,25 @@ export default function Hero() {
       className="relative overflow-hidden min-h-[calc(100svh-4rem)] flex flex-col justify-center py-12 sm:py-16 lg:py-24 font-sans border-b border-[#E4E4E7]"
     >
 <div className="max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 text-center min-w-0">
+
+        {/* Product Hunt - featured trust marker above the pitch */}
+        <Reveal animate>
+        <div className="flex justify-center mb-6 md:mb-8">
+          <a
+            href="https://www.producthunt.com/products/agentdiff-2?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-agentdiff-2"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              alt="AgentDiff - Trajectory regression testing for AI agents | Product Hunt"
+              width="250"
+              height="54"
+              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1226602&theme=orange&t=1787248084110"
+              className="h-9 sm:h-12 w-auto"
+            />
+          </a>
+        </div>
+        </Reveal>
 
         <Reveal animate>
         {/* Eyebrow */}
@@ -35,14 +53,7 @@ export default function Hero() {
 
         <Reveal animate delay={140}>
         {/* CTA + install - one action cluster */}
-        <div className="flex flex-col items-center gap-4">
-          <a
-            href="#workspace-section"
-            className="inline-flex items-center justify-center gap-2 bg-[#18181B] hover:bg-black text-white font-semibold text-sm py-3 px-7 rounded-lg transition-colors duration-150 w-full sm:w-auto"
-          >
-            Explore the workspace
-            <ArrowRight className="w-4 h-4" />
-          </a>
+        <div id="install-section" className="flex flex-col items-center gap-4 scroll-mt-24">
           <CopyCommand />
         </div>
 
