@@ -48,6 +48,7 @@ python moat_diff_workflow.py
 | [`openai_sdk_generic.py`](openai_sdk_generic.py) | `OPENAI_API_KEY` | A live multi-turn tool loop via `gpt-4o-mini`, captured to the Generic format, then diffed. Run 2 deliberately loops → caught by AgentDiff. |
 | [`gemini_sdk_generic.py`](gemini_sdk_generic.py) | `GEMINI_API_KEY` | Same live workflow with Google Gemini. |
 | [`live_openai_agents.py`](live_openai_agents.py) | `OPENAI_API_KEY` | Runs the **OpenAI Agents SDK** for real and feeds its own trace straight through the `openai_agents` adapter — validates that adapter against genuine SDK output. |
+| [`live_langgraph.py`](live_langgraph.py) | `OPENAI_API_KEY` | Builds a real **LangGraph** ReAct agent, instruments it with **OpenInference**, and diffs two live graph executions through the `openinference` adapter — extra tool calls in Run 2 raise TDI, flag loops, and block the gate. |
 | [`live_openinference.py`](live_openinference.py) | `OPENAI_API_KEY` | Instruments OpenAI with **OpenInference (OTel)**, exports real spans, normalizes them, and feeds them through the `openinference` adapter. |
 | [`live_langfuse.py`](live_langfuse.py) | `LANGFUSE_HOST/PUBLIC_KEY/SECRET_KEY` | Creates a real **Langfuse** trace via the SDK, fetches it back, normalizes snake_case keys, and feeds it through the `langfuse` adapter. |
 | [`live_gemini_cases.py`](live_gemini_cases.py) | `GEMINI_API_KEY` | Runs a live Gemini tool loop through **four** AgentDiff cases: a clean run (gate passes), a prompt-change regression, a forced-redundancy loop (gate blocked), and baseline-rotation / drift decisions. |
@@ -58,6 +59,7 @@ uv run cookbooks/openai_sdk_generic.py
 uv run cookbooks/gemini_sdk_generic.py
 uv run cookbooks/live_openai_agents.py
 uv run cookbooks/live_openinference.py
+uv run cookbooks/live_langgraph.py
 uv run cookbooks/live_langfuse.py
 uv run cookbooks/live_gemini_cases.py   # regression, prompt-change, loop, drift
 ```

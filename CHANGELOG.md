@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Cookbooks
+- Added `live_langgraph.py`: runs a real **LangGraph** ReAct agent
+  (`create_react_agent` + `gpt-4o-mini`), instruments it with OpenInference,
+  and diffs two live graph executions through the `openinference` adapter —
+  demonstrating end-to-end LangGraph regression testing (divergence, loop
+  flags, and gate blocking on real graph output).
+
 ## [0.2.2] - 2026-08-19
 
 ### Added
