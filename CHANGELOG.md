@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **A/B benchmark mode** (`agentdiff.run_benchmark`): head-to-head comparison
+  of two agents on the same task across frameworks. Each case is scored on
+  four deterministic efficiency dimensions (steps, wasted effort, tokens,
+  latency); majority wins with explicit ties, plus a per-case side-by-side
+  table (`summary()` / `to_markdown()`) and overall tally. Opt-in parallel
+  execution via `workers=N`. Verdicts are structural-efficiency only —
+  semantic quality remains a non-goal.
 - **CrewAI adapter** (`agentdiff.adapters.CrewAIAdapter`, name `"crewai"`):
   direct ingestion of CrewAI kickoff output (`CrewOutput.model_dump()`) —
   per-task message logs map to fine-grained routing/tool/response steps

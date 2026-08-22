@@ -49,6 +49,7 @@ from agentdiff.adapters.registry import (
 from agentdiff.ci.baseline import decide_rotation
 from agentdiff.config import AgentDiffConfig, load_config
 from agentdiff.engine import compare
+from agentdiff.engine.benchmark import BenchmarkCase, BenchmarkReport, run_benchmark
 from agentdiff.engine.explanations import (
     format_explanations,
     generate_explanations,
@@ -81,6 +82,8 @@ __all__ = [
     "AgentDiffConfig",
     "AgentTrace",
     "BaseAdapter",
+    "BenchmarkCase",
+    "BenchmarkReport",
     "DiffReport",
     "GateThresholds",
     "GenericAdapter",
@@ -111,6 +114,7 @@ __all__ = [
     "parse_trace_data",
     "register_adapter",
     "render_tree",
+    "run_benchmark",
     "run_scenario",
     "run_scenarios",
 ]
