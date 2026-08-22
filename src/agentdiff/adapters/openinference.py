@@ -159,10 +159,11 @@ class OpenInferenceAdapter(BaseAdapter):
         trace_id = "openinference_trace"
         if spans:
             first_span = spans[0]
+            first_context = first_span.get("context")
+            if not isinstance(first_context, dict):
+                first_context = {}
             trace_id = (
-                first_span.get("context", {}).get("trace_id")
-                or first_span.get("trace_id")
-                or trace_id
+                first_context.get("trace_id") or first_span.get("trace_id") or trace_id
             )
             trace_id = str(trace_id)
 
