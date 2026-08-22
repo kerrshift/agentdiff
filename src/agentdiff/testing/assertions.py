@@ -7,6 +7,7 @@ def assert_no_regressions(
     max_cost_increase_pct: float = 5.0,
     allow_loops: bool = False,
     max_wasted_effort: float = 0.10,
+    max_recovery_step_ratio: float | None = None,
 ):
     """Regression assertion helper for pytest suites.
 
@@ -19,6 +20,9 @@ def assert_no_regressions(
         max_cost_increase_pct: Maximum allowed cost increase, in percent.
         allow_loops: If True, detected loops do not fail the assertion.
         max_wasted_effort: Maximum allowed candidate Wasted Effort Index (WEI).
+        max_recovery_step_ratio: Maximum allowed Recovery Step Ratio (RSR) —
+            candidate vs baseline post-error recovery effort. Opt-in: when
+            ``None`` (default) the gate is disabled.
     """
     errors = []
 
@@ -48,6 +52,18 @@ def assert_no_regressions(
         errors.append(
             f"Candidate Wasted Effort Index (WEI) of {report.candidate_wei:.4f} "
             f"exceeded threshold of {max_wasted_effort:.4f}."
+        )
+
+    # 5. Recovery Effort Check (opt-in)
+    if (
+        max_recovery_step_ratio is not None
+        and report.recovery_step_ratio > max_recovery_step_ratio
+    ):
+        errors.append(
+            f"Recovery Step Ratio (RSR) of {report.recovery_step_ratio:.4f} "
+            f"(candidate {report.candidate_recovery_steps} recovery step(s) vs "
+            f"baseline {report.baseline_recovery_steps}) exceeded threshold of "
+            f"{max_recovery_step_ratio:.4f}."
         )
 
     if errors:

@@ -19,12 +19,14 @@ Example ``agentdiff.toml``::
     max_loops = 0
     max_divergence = 0.3
     max_cost_delta = 10.0
+    max_recovery_ratio = 1.5
 
     [assertions]
     max_divergence = 0.25
     max_cost_increase_pct = 5.0
     allow_loops = false
     max_wasted_effort = 0.1
+    max_recovery_step_ratio = 1.5
 
 Configuration is discovered by looking for ``agentdiff.toml`` in the current
 directory (or an explicit path). ``load_config`` returns an
@@ -66,6 +68,7 @@ class CliConfig:
     max_divergence: float = 0.3
     max_cost_delta: float = 10.0
     max_wasted_effort: float = 0.1
+    max_recovery_ratio: float | None = None
 
 
 @dataclass
@@ -74,6 +77,7 @@ class AssertionsConfig:
     max_cost_increase_pct: float = 5.0
     allow_loops: bool = False
     max_wasted_effort: float = 0.1
+    max_recovery_step_ratio: float | None = None
 
 
 @dataclass

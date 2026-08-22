@@ -199,6 +199,7 @@ for a working, live example (real Gemini agent + auto PR comments).
 | **Trajectory Divergence Index (TDI)** | `0.0` (Identical) to `1.0` (Divergent) | $$1.0 - \frac{2 \times \vert{}\text{LCS}(\text{Steps}_A, \text{Steps}_B)\vert{}}{\vert{}\text{Steps}_A\vert{} + \vert{}\text{Steps}_B\vert{}}$$ |
 | **Wasted Effort Index (WEI)** | `0.0` (Optimal) to `1.0` (Total Waste) | $$\frac{\text{Count}(\text{Steps with status} \in \{\text{ERROR, RETRY, ABANDONED}\})}{\text{Total Execution Steps}}$$ |
 | **Loop Buster Index (LBI)** | Integer ($\ge 0$) | Detects consecutive repeating sequences of tools with stagnant state changes. |
+| **Recovery Step Ratio (RSR)** | `1.0` = parity; $> 1.0$ = slower recovery than baseline | Successful steps spent after ERROR/RETRY/ABANDONED clusters until re-aligning with the baseline path: $\text{RSR} = \frac{\text{Recovery}_{\text{candidate}}}{\text{Recovery}_{\text{baseline}}}$ (falls back to the raw candidate count when the baseline is clean). Gate via `--max-recovery-ratio` / `max_recovery_step_ratio`. |
 | **Resource Deltas ($\Delta\text{Res}$)** | Percentage ($\pm\%$) | Standard deltas for $\Delta\text{Tokens}$, $\Delta\text{Cost}$, and $\Delta\text{Latency}$. |
 
 ## FAQ
