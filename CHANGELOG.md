@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and diffs two live graph executions through the `openinference` adapter —
   demonstrating end-to-end LangGraph regression testing (divergence, loop
   flags, and gate blocking on real graph output).
+- Added `live_crewai.py`: runs a real **CrewAI** crew (custom `BaseTool` +
+  `gpt-4o-mini`) under OpenInference instrumentation and diffs two live crew
+  executions through the `openinference` adapter — CrewAI's product telemetry
+  is disabled; scope creep in the candidate run raises TDI, flags a loop, and
+  blocks the gate.
 
 ## [0.2.2] - 2026-08-19
 
