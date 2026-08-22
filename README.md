@@ -17,6 +17,17 @@
 * **Not an LLM-as-a-judge scorer.** Semantic answer quality is DeepEval/Ragas territory; AgentDiff measures *how* your agent got there — structurally and deterministically.
 * **Not an agent framework.** It doesn't orchestrate or run agents; it evaluates the trajectories your existing agents (LangGraph, CrewAI, OpenAI Agents SDK, custom loops) already produce.
 
+### Local-First Privacy
+
+Agent trajectories contain your prompts, your tool outputs, and often your customers' data. AgentDiff is architected so that **nothing ever leaves your machine:**
+
+* **No network calls at diff time.** Parsing, DAG alignment, and scoring are pure local computation — run a diff on a plane, in a bank's air-gapped CI, or behind a strict egress firewall.
+* **No account, no telemetry.** AgentDiff doesn't phone home, has no API to sign up for, and collects nothing.
+* **Your baselines live in your repo.** Baseline traces are ordinary committed files (`--baseline` / `--update-baseline`), versioned with the code they gate — no external service holds them.
+* **CI stays inside your perimeter.** The GitHub Action reads traces from your checkout and posts reports with your own `GITHUB_TOKEN`; traces are never uploaded anywhere by us.
+
+Hosted eval platforms require shipping production traces to a third party before you can diff them. With AgentDiff, the diff is a file operation.
+
 ## Installation
 
 Install the PyPI package:
