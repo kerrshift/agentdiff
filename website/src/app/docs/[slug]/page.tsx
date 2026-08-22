@@ -75,5 +75,39 @@ export default async function DocPage({
   const doc = getDoc(slug);
   if (!doc) notFound();
 
-  return <DocContent content={withResolvedLinks(doc.content)} />;
+  const description = getDocDescription(doc.content);
+  const url = `${SITE_URL}/docs/${doc.slug}`;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "TechArticle",
+        headline: doc.title,
+        description,
+        url,
+        articleSection: doc.category,
+        publisher: { "@id": `${SITE_URL}/#organization` },
+        isPartOf: { name: "AgentDiff Documentation", url: `${SITE_URL}/docs` },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+          { "@type": "ListItem", position: 2, name: "Docs", item: `${SITE_URL}/docs` },
+          { "@type": "ListItem", position: 3, name: doc.title, item: url },
+        ],
+      },
+    ],
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <DocContent content={withResolvedLinks(doc.content)} />
+    </>
+  );
 }
