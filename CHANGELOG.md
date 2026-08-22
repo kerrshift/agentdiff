@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Scenario runner** (`agentdiff.run_scenarios`): run multi-scenario
+  regression suites programmatically. Each `Scenario` pairs a baseline and a
+  candidate (trace objects or file paths) with its own `GateThresholds`; the
+  resulting `SuiteReport` aggregates pass/fail/error per scenario with a
+  CI-friendly `summary()` — one broken trace or failing scenario never aborts
+  the rest of the suite.
+- Gate semantics are now centralized in a pure `evaluate_report()` shared by
+  `assert_no_regressions` and the scenario runner (single source of truth for
+  current and future gates).
+
+### Added
 - **Adapter registry + plugin discovery** (`agentdiff.adapters.register_adapter` /
   `available_adapters`): custom adapters can be registered at runtime or via
   the standard `agentdiff.adapters` entry-point group, and resolved by name
