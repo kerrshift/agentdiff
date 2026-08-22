@@ -48,20 +48,12 @@ export async function generateMetadata({
       url,
       siteName: "AgentDiff",
       type: "article",
-      images: [
-        {
-          url: "/og.png",
-          width: 1200,
-          height: 630,
-          alt: `AgentDiff documentation - ${doc.title}`,
-        },
-      ],
+      // og:image is auto-wired from the per-slug opengraph-image card.
     },
     twitter: {
       card: "summary_large_image",
       title: `${doc.title} | AgentDiff Docs`,
       description,
-      images: ["/og.png"],
     },
   };
 }
