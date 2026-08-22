@@ -1,15 +1,18 @@
-.PHONY: lint format test build website-dev website-build website-install ci all
+.PHONY: lint format test bench build website-dev website-build website-install ci all
 
 # ── Python ──────────────────────────────────────────────────────────────────
 
 lint:
-	uv run ruff check src tests
+	uv run ruff check src tests benchmarks
 
 format:
-	uv run ruff format src tests
+	uv run ruff format src tests benchmarks
 
 test:
 	uv run pytest
+
+bench:
+	uv run python -m pytest benchmarks/ --benchmark-only --benchmark-autosave
 
 build:
 	uv build

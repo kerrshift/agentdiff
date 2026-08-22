@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Performance benchmark suite** (`make bench`, `benchmarks/`): pytest-benchmark
+  coverage for alignment, end-to-end compare, loop detection, recovery metrics,
+  adapter parsing, and report serialization at 100/500/1000-step scales.
+  Baseline finding: LCS alignment dominates runtime (~1.6s at 1000 steps,
+  quadratic-ish growth); ingestion and metric computation are negligible.
+  Excluded from the regular test suite; results are local (`.benchmarks/` is
+  gitignored).
 - **A/B benchmark mode** (`agentdiff.run_benchmark`): head-to-head comparison
   of two agents on the same task across frameworks. Each case is scored on
   four deterministic efficiency dimensions (steps, wasted effort, tokens,

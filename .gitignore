@@ -79,3 +79,6 @@ website/.env.local
 website/.env.development.local
 website/.env.test.local
 website/.env.production.local
+
+# pytest-benchmark local results
+.benchmarks/
