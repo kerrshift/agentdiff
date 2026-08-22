@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Parallel scenario execution**: `run_scenarios(..., workers=N)` executes
+  scenarios on a thread pool (opt-in; sequential by default). Results are
+  always returned in input order, and per-scenario errors stay contained.
 - **Scenario runner** (`agentdiff.run_scenarios`): run multi-scenario
   regression suites programmatically. Each `Scenario` pairs a baseline and a
   candidate (trace objects or file paths) with its own `GateThresholds`; the
