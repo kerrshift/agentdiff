@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Recovery Step Ratio (RSR)** — new metric quantifying how expensive it is
+  to get back on track after errors: the successful steps spent after each
+  ERROR/RETRY/ABANDONED cluster until the trajectory re-aligns with the
+  baseline path. `DiffReport` gains `baseline_recovery_steps`,
+  `candidate_recovery_steps`, and `recovery_step_ratio` (additive, defaulted);
+  surfaced in `summary()`, terminal, PR markdown (row appears when a threshold
+  is set), and `--explain` findings. Gateable via the opt-in
+  `assert_no_regressions(..., max_recovery_step_ratio=...)` and CLI/config
+  `--max-recovery-ratio` / `[cli] max_recovery_ratio`.
+
 ### Cookbooks
 - Added `live_langgraph.py`: runs a real **LangGraph** ReAct agent
   (`create_react_agent` + `gpt-4o-mini`), instruments it with OpenInference,

@@ -4,8 +4,10 @@ from agentdiff.engine.aligner import align_traces
 from agentdiff.engine.loop_detector import detect_all_loops
 from agentdiff.engine.metrics import (
     calculate_delta_percentage,
+    calculate_recovery_step_ratio,
     calculate_tdi,
     calculate_wei,
+    compute_recovery_steps,
 )
 from agentdiff.models.report import DiffReport, StepDiffStatus
 from agentdiff.models.trace import AgentTrace
@@ -20,8 +22,9 @@ def compare(
     """Aligns two agent runs and scores their divergence.
 
     Produces a :class:`DiffReport` with step-level alignment, trajectory
-    divergence (TDI), wasted-effort (WEI), cost/latency/token deltas, and
-    (optionally) loop detection on the candidate run.
+    divergence (TDI), wasted-effort (WEI), post-error recovery effort
+    (Recovery Step Ratio), cost/latency/token deltas, and (optionally) loop
+    detection on the candidate run.
 
     Args:
         baseline: The known-good trace to compare against.
@@ -53,6 +56,13 @@ def compare(
     baseline_wei = calculate_wei(baseline.steps)
     candidate_wei = calculate_wei(candidate.steps)
 
+    # 3b. Recovery effort (B2): steps spent getting back on track after errors
+    baseline_recovery_steps = compute_recovery_steps(step_diffs, "baseline")
+    candidate_recovery_steps = compute_recovery_steps(step_diffs, "candidate")
+    recovery_step_ratio = calculate_recovery_step_ratio(
+        candidate_recovery_steps, baseline_recovery_steps
+    )
+
     # 4. Calculate Resource Deltas
     cost_delta = calculate_delta_percentage(
         baseline.total_tokens.estimated_cost_usd,
@@ -81,6 +91,9 @@ def compare(
         cost_delta_percentage=cost_delta,
         latency_delta_percentage=latency_delta,
         token_delta_percentage=token_delta,
+        baseline_recovery_steps=baseline_recovery_steps,
+        candidate_recovery_steps=candidate_recovery_steps,
+        recovery_step_ratio=recovery_step_ratio,
         step_diffs=step_diffs,
         passed=True,  # Default to True, assertions/plugins override this
     )

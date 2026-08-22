@@ -13,11 +13,13 @@ def generate_pr_markdown(
     max_divergence: float = DEFAULT_MAX_DIVERGENCE,
     max_loops: int = 0,
     max_cost_delta: float = DEFAULT_MAX_COST_DELTA,
+    max_recovery_ratio: float | None = None,
 ) -> str:
     """Renders a compact, PR-ready markdown comment.
 
     Summary status + gate thresholds, the collapsed divergence tree, and the
     root-cause step — everything a reviewer needs without the full diff.
+    The Recovery Step Ratio row only appears when a threshold is provided.
     """
     status = "⛔ **FAILED**" if not report.passed else "✅ **PASSED**"
 
@@ -31,8 +33,14 @@ def generate_pr_markdown(
         f"| TDI | `{report.trajectory_divergence_index:.4f}` | ≤ `{max_divergence}` |",
         f"| Loops | `{len(report.loops_detected)}` | ≤ `{max_loops}` |",
         f"| Cost delta | `{report.cost_delta_percentage:+.2f}%` | ≤ `{max_cost_delta}%` |",
-        "",
     ]
+    if max_recovery_ratio is not None:
+        lines.append(
+            f"| Recovery Step Ratio | `{report.recovery_step_ratio:.2f} "
+            f"({report.candidate_recovery_steps}/{report.baseline_recovery_steps})` | "
+            f"≤ `{max_recovery_ratio}` |"
+        )
+    lines.append("")
 
     culprit = locate_culprit(report)
     if culprit:

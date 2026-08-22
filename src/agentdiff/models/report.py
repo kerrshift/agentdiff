@@ -32,6 +32,9 @@ class DiffReport(BaseModel):
     cost_delta_percentage: float
     latency_delta_percentage: float
     token_delta_percentage: float
+    baseline_recovery_steps: int = 0
+    candidate_recovery_steps: int = 0
+    recovery_step_ratio: float = 0.0
     step_diffs: list[StepDiff] = Field(default_factory=list)
     passed: bool = True
 
@@ -48,6 +51,11 @@ class DiffReport(BaseModel):
             f"Trajectory Divergence Index (TDI): {self.trajectory_divergence_index:.4f}",
             f"Baseline Wasted Effort Index (WEI): {self.baseline_wei:.4f}",
             f"Candidate Wasted Effort Index (WEI): {self.candidate_wei:.4f}",
+            "-----------------------------------------",
+            "Recovery Effort:",
+            f"  Baseline Recovery Steps:  {self.baseline_recovery_steps}",
+            f"  Candidate Recovery Steps: {self.candidate_recovery_steps}",
+            f"  Recovery Step Ratio (RSR): {self.recovery_step_ratio:.4f}",
             "-----------------------------------------",
             "Resource Deltas:",
             f"  Cost Delta:    {self.cost_delta_percentage:+.2f}%",

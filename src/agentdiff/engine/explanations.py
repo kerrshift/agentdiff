@@ -16,7 +16,7 @@ class Finding:
     """A single human-readable explanation with a severity."""
 
     severity: str  # "info" | "warning" | "error"
-    category: str  # "divergence" | "loop" | "wasted_effort" | "resources" | "clean"
+    category: str  # "divergence" | "loop" | "wasted_effort" | "recovery" | "resources" | "clean"
     message: str
 
     @property
@@ -43,6 +43,7 @@ def generate_explanations(report: DiffReport) -> list[Finding]:
     findings.extend(_explain_loops(report))
     findings.extend(_explain_divergence(report))
     findings.extend(_explain_wasted_effort(report))
+    findings.extend(_explain_recovery(report))
     findings.extend(_explain_resources(report))
 
     if not any(f.is_issue for f in findings):
@@ -186,6 +187,33 @@ def _explain_wasted_effort(report: DiffReport) -> list[Finding]:
             "wasted_effort",
             f"Candidate wasted {report.candidate_wei * 100:.0f}% of effort on "
             f"errored/retried/abandoned steps: {worst}{suffix}.",
+        )
+    ]
+
+
+def _explain_recovery(report: DiffReport) -> list[Finding]:
+    """B2 — explains post-error recovery effort (candidate vs baseline)."""
+    if report.candidate_recovery_steps <= 0:
+        return []
+    base = report.baseline_recovery_steps
+    ratio = report.recovery_step_ratio
+    if report.candidate_recovery_steps > base:
+        return [
+            Finding(
+                "warning",
+                "recovery",
+                f"Candidate needed {report.candidate_recovery_steps} successful "
+                f"step(s) to recover from errors vs {base} in the baseline "
+                f"(Recovery Step Ratio {ratio:.2f}): recovery got more expensive.",
+            )
+        ]
+    return [
+        Finding(
+            "info",
+            "recovery",
+            f"Candidate recovered from errors in "
+            f"{report.candidate_recovery_steps} step(s), within the baseline's "
+            f"recovery budget of {base} (RSR {ratio:.2f}).",
         )
     ]
 

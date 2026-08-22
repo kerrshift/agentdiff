@@ -77,6 +77,11 @@ def diff(
         None,
         help="Maximum allowed cost increase %% before regression (default: config or 10.0)",
     ),
+    max_recovery_ratio: float | None = typer.Option(
+        None,
+        help="Maximum allowed Recovery Step Ratio (RSR) before regression "
+        "(candidate vs baseline post-error recovery effort; opt-in).",
+    ),
     baseline_store: str | None = typer.Option(
         None,
         "--baseline",
@@ -111,6 +116,7 @@ def diff(
         max_loops=max_loops,
         max_divergence=max_divergence,
         max_cost_delta=max_cost_delta,
+        max_recovery_ratio=max_recovery_ratio,
         baseline_store=baseline_store,
     )
     adapter = values["adapter"]
@@ -122,6 +128,7 @@ def diff(
     max_cost_delta = values["max_cost_delta"]
     if max_cost_delta is None:
         max_cost_delta = 10.0
+    max_recovery_ratio = values["max_recovery_ratio"]
     baseline_store = values["baseline_store"]
     detect_loops = cfg.compare.detect_loops
     strict_tool_signatures = cfg.compare.strict_tool_signatures
@@ -171,8 +178,12 @@ def diff(
         diverged = report.trajectory_divergence_index > max_divergence
         loop_failed = loop_count > max_loops
         cost_failed = report.cost_delta_percentage > max_cost_delta
+        recovery_failed = (
+            max_recovery_ratio is not None
+            and report.recovery_step_ratio > max_recovery_ratio
+        )
 
-        has_regression = diverged or loop_failed or cost_failed
+        has_regression = diverged or loop_failed or cost_failed or recovery_failed
 
         if has_regression:
             report.passed = False
@@ -200,6 +211,7 @@ def diff(
                 max_divergence=max_divergence,
                 max_loops=max_loops,
                 max_cost_delta=max_cost_delta,
+                max_recovery_ratio=max_recovery_ratio,
             )
             if not output_file:
                 typer.echo(output_content)
@@ -225,6 +237,7 @@ def diff(
                 max_divergence=max_divergence,
                 max_loops=max_loops,
                 max_cost_delta=max_cost_delta,
+                max_recovery_ratio=max_recovery_ratio,
             )
             comment = post_pr_comment(body, pr)
             url = comment.get("html_url")
