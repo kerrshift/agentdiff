@@ -5,62 +5,12 @@ All notable changes to **AgentDiff** (`agent-trajectory-diff`) are documented he
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2026-08-23
 
-### Added
-- **Performance benchmark suite** (`make bench`, `benchmarks/`): pytest-benchmark
-  coverage for alignment, end-to-end compare, loop detection, recovery metrics,
-  adapter parsing, and report serialization at 100/500/1000-step scales.
-  Baseline finding: LCS alignment dominates runtime (~1.6s at 1000 steps,
-  quadratic-ish growth); ingestion and metric computation are negligible.
-  Excluded from the regular test suite; results are local (`.benchmarks/` is
-  gitignored).
-- **A/B benchmark mode** (`agentdiff.run_benchmark`): head-to-head comparison
-  of two agents on the same task across frameworks. Each case is scored on
-  four deterministic efficiency dimensions (steps, wasted effort, tokens,
-  latency); majority wins with explicit ties, plus a per-case side-by-side
-  table (`summary()` / `to_markdown()`) and overall tally. Opt-in parallel
-  execution via `workers=N`. Verdicts are structural-efficiency only —
-  semantic quality remains a non-goal.
-- **CrewAI adapter** (`agentdiff.adapters.CrewAIAdapter`, name `"crewai"`):
-  direct ingestion of CrewAI kickoff output (`CrewOutput.model_dump()`) —
-  per-task message logs map to fine-grained routing/tool/response steps
-  prefixed by agent role, aggregate `token_usage` populates trace totals, and
-  simplified exports without logs degrade to one step per task. Participates
-  in `auto` detection; ships with a real captured fixture + offline cookbook.
-- **Shared role-message engine** (`adapters/_messages.py`): one interpretation
-  of OpenAI-style role conversations (all serialization shapes) powering the
-  LangGraph and CrewAI direct-ingestion adapters identically.
-- **LangGraph adapter** (`agentdiff.adapters.LangGraphAdapter`, name
-  `"langgraph"`): direct ingestion of native LangGraph artifacts — state
-  snapshots, checkpoint dumps (`channel_values`), and message lists — in all
-  three serialization shapes (`message_to_dict` dumps, LangChain constructor
-  dumps, plain OpenAI-style role dicts). Tool decisions map to routing steps,
-  tool results to tool_call steps (status from the message's own `status`
-  field), and the final AI answer to a response step; token usage is read from
-  `usage_metadata` / `response_metadata.token_usage`. Participates in `auto`
-  detection (conservative structural checks) and ships with a real captured
-  fixture + offline cookbook.
-- **Parallel scenario execution**: `run_scenarios(..., workers=N)` executes
-  scenarios on a thread pool (opt-in; sequential by default). Results are
-  always returned in input order, and per-scenario errors stay contained.
-- **Scenario runner** (`agentdiff.run_scenarios`): run multi-scenario
-  regression suites programmatically. Each `Scenario` pairs a baseline and a
-  candidate (trace objects or file paths) with its own `GateThresholds`; the
-  resulting `SuiteReport` aggregates pass/fail/error per scenario with a
-  CI-friendly `summary()` — one broken trace or failing scenario never aborts
-  the rest of the suite.
-- Gate semantics are now centralized in a pure `evaluate_report()` shared by
-  `assert_no_regressions` and the scenario runner (single source of truth for
-  current and future gates).
-
-### Added
-- **Adapter registry + plugin discovery** (`agentdiff.adapters.register_adapter` /
-  `available_adapters`): custom adapters can be registered at runtime or via
-  the standard `agentdiff.adapters` entry-point group, and resolved by name
-  through `load_trace(..., adapter_name=...)` / `[adapter] name = "..."`.
-  Custom adapters may implement a `detect(data) -> bool` classmethod to join
-  `auto` detection (built-ins always take priority).
+AgentDiff v0.3.0 — framework-native ingestion, suite-level gating, and
+recovery-effort metrics. Highlights: diff LangGraph and CrewAI artifacts
+natively (no OTel required), gate whole scenario suites in one call, benchmark
+two agents head-to-head, and gate on how expensive recovery from errors is.
 
 ### Added
 - **Recovery Step Ratio (RSR)** — new metric quantifying how expensive it is
@@ -72,18 +22,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is set), and `--explain` findings. Gateable via the opt-in
   `assert_no_regressions(..., max_recovery_step_ratio=...)` and CLI/config
   `--max-recovery-ratio` / `[cli] max_recovery_ratio`.
+- **LangGraph adapter** (`agentdiff.adapters.LangGraphAdapter`, name
+  `"langgraph"`): direct ingestion of native LangGraph artifacts — state
+  snapshots, checkpoint dumps (`channel_values`), and message lists — in all
+  three serialization shapes (`message_to_dict` dumps, LangChain constructor
+  dumps, plain OpenAI-style role dicts). Tool decisions map to routing steps,
+  tool results to tool_call steps (status honored), and the final AI answer to
+  a response step; token usage read from `usage_metadata` /
+  `response_metadata.token_usage`. Participates in `auto` detection.
+- **CrewAI adapter** (`agentdiff.adapters.CrewAIAdapter`, name `"crewai"`):
+  direct ingestion of CrewAI kickoff output (`CrewOutput.model_dump()`) —
+  per-task message logs map to fine-grained routing/tool/response steps
+  prefixed by agent role, aggregate `token_usage` populates trace totals, and
+  simplified exports without logs degrade to one step per task. Participates
+  in `auto` detection.
+- **Shared role-message engine** (`adapters/_messages.py`): one interpretation
+  of OpenAI-style role conversations across all serialization shapes,
+  powering the LangGraph and CrewAI adapters identically.
+- **Adapter registry + plugin discovery** (`agentdiff.adapters.register_adapter`
+  / `available_adapters`): custom adapters can be registered at runtime or via
+  the standard `agentdiff.adapters` entry-point group, and resolved by name
+  through `load_trace(..., adapter_name=...)` / `[adapter] name = "..."`.
+  Custom adapters may implement a `detect(data) -> bool` classmethod to join
+  `auto` detection (built-ins always take priority).
+- **Scenario runner** (`agentdiff.run_scenarios`): run multi-scenario
+  regression suites programmatically. Each `Scenario` pairs a baseline and a
+  candidate (trace objects or file paths) with its own `GateThresholds`; the
+  resulting `SuiteReport` aggregates pass/fail/error per scenario with a
+  CI-friendly `summary()` — one broken trace or failing scenario never aborts
+  the rest of the suite.
+- **Parallel scenario execution**: `run_scenarios(..., workers=N)` executes
+  scenarios on a thread pool (opt-in; sequential by default). Results are
+  always returned in input order, and per-scenario errors stay contained.
+- **A/B benchmark mode** (`agentdiff.run_benchmark`): head-to-head comparison
+  of two agents on the same task across frameworks. Each case is scored on
+  four deterministic efficiency dimensions (steps, wasted effort, tokens,
+  latency); majority wins with explicit ties, plus a per-case side-by-side
+  table (`summary()` / `to_markdown()`) and overall tally. Opt-in parallel
+  execution via `workers=N`. Verdicts are structural-efficiency only —
+  semantic quality remains a non-goal.
+- **Performance benchmark suite** (`make bench`, `benchmarks/`): pytest-benchmark
+  coverage for alignment, end-to-end compare, loop detection, recovery metrics,
+  adapter parsing, and report serialization at 100/500/1000-step scales.
+  Baseline finding: LCS alignment dominates runtime (~1.6s at 1000 steps);
+  ingestion and metric computation are negligible. Excluded from the regular
+  test suite; results are local (`.benchmarks/` gitignored).
+- Gate semantics are centralized in a pure `evaluate_report()` shared by
+  `assert_no_regressions` and the scenario runner (single source of truth for
+  current and future gates).
 
 ### Cookbooks
-- Added `live_langgraph.py`: runs a real **LangGraph** ReAct agent
-  (`create_react_agent` + `gpt-4o-mini`), instruments it with OpenInference,
-  and diffs two live graph executions through the `openinference` adapter —
-  demonstrating end-to-end LangGraph regression testing (divergence, loop
-  flags, and gate blocking on real graph output).
-- Added `live_crewai.py`: runs a real **CrewAI** crew (custom `BaseTool` +
-  `gpt-4o-mini`) under OpenInference instrumentation and diffs two live crew
-  executions through the `openinference` adapter — CrewAI's product telemetry
-  is disabled; scope creep in the candidate run raises TDI, flags a loop, and
-  blocks the gate.
+- Added `live_langgraph.py` and `live_crewai.py`: real framework executions
+  instrumented with OpenInference, diffed through the `openinference` adapter
+  — divergence, loop flags, and gate blocking on genuine graph/crew output.
+- Added `ingestion_langgraph.py` and `ingestion_crewai.py`: offline direct-
+  ingestion recipes against real captured fixtures (no OTel, no API keys),
+  each diffing a regression variant of the fixture.
 
 ## [0.2.2] - 2026-08-19
 
@@ -123,6 +117,7 @@ natively (no caller-side reshaping).
 - README/cookbook guides updated for the live adapter recipes.
 
 [0.2.1]: https://github.com/lostmartian/agentdiff/releases/tag/v0.2.1
+[0.3.0]: https://github.com/lostmartian/agentdiff/releases/tag/v0.3.0
 [0.2.2]: https://github.com/lostmartian/agentdiff/releases/tag/v0.2.2
 
 ## [0.2.0] - 2026-08-19
