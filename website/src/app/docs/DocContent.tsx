@@ -2,7 +2,28 @@
 
 import React, { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
+// Register only the languages the docs actually use — pulls ~100KB of unused
+// grammars out of the docs bundle versus the full Prism build.
+import bash from "react-syntax-highlighter/dist/esm/languages/prism/bash";
+import diff from "react-syntax-highlighter/dist/esm/languages/prism/diff";
+import ini from "react-syntax-highlighter/dist/esm/languages/prism/ini";
+import json from "react-syntax-highlighter/dist/esm/languages/prism/json";
+import markdown from "react-syntax-highlighter/dist/esm/languages/prism/markdown";
+import python from "react-syntax-highlighter/dist/esm/languages/prism/python";
+import toml from "react-syntax-highlighter/dist/esm/languages/prism/toml";
+import yaml from "react-syntax-highlighter/dist/esm/languages/prism/yaml";
+
+SyntaxHighlighter.registerLanguage("bash", bash);
+SyntaxHighlighter.registerLanguage("shell", bash);
+SyntaxHighlighter.registerLanguage("diff", diff);
+SyntaxHighlighter.registerLanguage("ini", ini);
+SyntaxHighlighter.registerLanguage("json", json);
+SyntaxHighlighter.registerLanguage("markdown", markdown);
+SyntaxHighlighter.registerLanguage("md", markdown);
+SyntaxHighlighter.registerLanguage("python", python);
+SyntaxHighlighter.registerLanguage("toml", toml);
+SyntaxHighlighter.registerLanguage("yaml", yaml);
 import { oneLight, oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import remarkMath from "remark-math";
 import remarkGfm from "remark-gfm";
