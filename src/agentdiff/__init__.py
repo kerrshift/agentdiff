@@ -16,6 +16,9 @@ Public API
 - Adapters: ``GenericAdapter``, ``LangfuseAdapter``, ``LangSmithAdapter``,
     ``OpenInferenceAdapter``, ``OpenAIAgentsAdapter`` (all expose
     ``from_dict`` / ``from_file``).
+- ``register_adapter(name, cls)`` / ``available_adapters()``
+    Extend ingestion with custom or entry-point plugin adapters
+    (entry-point group ``agentdiff.adapters``).
 - ``load_config(path=None)`` -> ``AgentDiffConfig``
     Load defaults from ``agentdiff.toml`` (thresholds, adapter, baseline).
 - Models: ``AgentTrace`` (canonical, ``schema_version``-ed), ``DiffReport``,
@@ -38,6 +41,10 @@ from agentdiff.adapters import (
     LangSmithAdapter,
     OpenAIAgentsAdapter,
     OpenInferenceAdapter,
+)
+from agentdiff.adapters.registry import (
+    available_adapters,
+    register_adapter,
 )
 from agentdiff.ci.baseline import decide_rotation
 from agentdiff.config import AgentDiffConfig, load_config
@@ -80,6 +87,7 @@ __all__ = [
     "TraceStep",
     "__version__",
     "assert_no_regressions",
+    "available_adapters",
     "compare",
     "decide_rotation",
     "format_explanations",
@@ -89,5 +97,6 @@ __all__ = [
     "load_trace",
     "locate_culprit",
     "parse_trace_data",
+    "register_adapter",
     "render_tree",
 ]

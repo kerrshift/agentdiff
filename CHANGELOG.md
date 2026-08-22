@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Adapter registry + plugin discovery** (`agentdiff.adapters.register_adapter` /
+  `available_adapters`): custom adapters can be registered at runtime or via
+  the standard `agentdiff.adapters` entry-point group, and resolved by name
+  through `load_trace(..., adapter_name=...)` / `[adapter] name = "..."`.
+  Custom adapters may implement a `detect(data) -> bool` classmethod to join
+  `auto` detection (built-ins always take priority).
+
+### Added
 - **Recovery Step Ratio (RSR)** — new metric quantifying how expensive it is
   to get back on track after errors: the successful steps spent after each
   ERROR/RETRY/ABANDONED cluster until the trajectory re-aligns with the
