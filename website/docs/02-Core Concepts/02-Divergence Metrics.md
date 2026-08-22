@@ -32,7 +32,32 @@ stagnant inputs/outputs) - a sign of redundant tool calls or near-infinite
 retries. The report lists each detected loop; the pytest plugin and CLI gate
 fail when the loop count exceeds your threshold.
 
-## 4. Resource deltas
+## 4. Recovery Step Ratio (RSR)
+
+WEI tells you a run failed; RSR tells you how *expensive* it was to get back
+on track afterward.
+
+A **recovery window** opens at every step whose status is `error`, `retry`, or
+`abandoned`. Successful steps executed while the window is open count as
+recovery effort; the window closes at the first step that re-aligns with the
+other trace (the same matches TDI's LCS counts). If the run ends before it
+re-aligns, all remaining successful steps count as unrecovered effort.
+
+$$\text{RSR} = \frac{\text{Recovery}_{\text{Candidate}}}{\text{Recovery}_{\text{Baseline}}}$$
+
+- **Range:** `0.0` (no recovery needed anywhere) upward; `1.0` means the
+  candidate recovered in the same number of steps as the baseline, and values
+  above `1.0` mean recovery got more expensive.
+- When the baseline is clean but the candidate needed recovery, there is no
+  denominator — the raw candidate step count is reported instead, since every
+  recovery step is pure regression overhead.
+- The report includes both sides (`baseline_recovery_steps`,
+  `candidate_recovery_steps`) plus the ratio (`recovery_step_ratio`).
+- Gate on it with the opt-in `--max-recovery-ratio` CLI flag /
+  `[cli] max_recovery_ratio` config key, or
+  `assert_no_regressions(..., max_recovery_step_ratio=...)`.
+
+## 5. Resource deltas
 
 Percentage change in cost, tokens, and latency between candidate and baseline:
 

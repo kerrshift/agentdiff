@@ -15,15 +15,26 @@ You feed AgentDiff two runs of the same task - say, one from your `main` branch 
 
 - **Trajectory comparison (TDI).** A deterministic measure of how far the candidate's path diverged from the baseline's - independent of the exact words the model produced.
 - **Loop detection.** Flags redundant, repeating tool-calling sequences and wasteful retries.
+- **Recovery Step Ratio.** Measures how many steps a run spends getting back on track after errors, candidate versus baseline - so you catch agents that fail *cheaply* but limp back expensively.
 - **Resource deltas.** Quantifies changes in cost, token usage, and latency.
 - **Explanations & culprit location.** Human-readable "why" plus the specific step responsible.
-- **Bring-your-own-telemetry.** Native adapters for the Generic format, OpenInference/OTel, Langfuse, LangSmith, and the OpenAI Agents SDK.
+- **Bring-your-own-telemetry.** Native adapters for the Generic format, OpenInference/OTel, Langfuse, LangSmith, and the OpenAI Agents SDK. Frameworks including **LangGraph**, **CrewAI**, and OpenAI Agents SDK flow in through OpenInference instrumentation or their own tracing - see the live cookbooks for working examples.
 - **CI/CD native gates.** A CLI gate, a **pytest plugin**, baseline rotation, and one-command **PR comments**.
 
 ## What it is not
 
 - **Not an observability dashboard.** AgentDiff doesn't store logs or act as a real-time APM. It's a test-time comparison and regression engine.
 - **Not an LLM-as-a-judge framework.** It doesn't score semantic quality. It mathematically analyzes *how* the agent reached its answer - the structure, loops, and efficiency.
+- **Not an agent framework.** It doesn't orchestrate or run agents; it evaluates the trajectories your existing agents already produce.
+
+## Local-first by design
+
+Agent trajectories contain your prompts, tool outputs, and often customer data.
+AgentDiff makes **no network calls at diff time**, collects nothing, and needs
+no account: parsing, alignment, and scoring are pure local computation.
+Baselines are ordinary files committed to your repo, and CI runs entirely
+inside your own perimeter. Works on a plane, in air-gapped CI, behind strict
+egress firewalls.
 
 ## Where it fits
 

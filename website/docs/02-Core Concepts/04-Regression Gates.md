@@ -15,6 +15,7 @@ assert_no_regressions(
     max_cost_increase_pct=5.0,   # max cost increase %, default 5.0
     allow_loops=False,           # reject any detected loop
     max_wasted_effort=0.10,      # max WEI, default 0.10
+    max_recovery_step_ratio=1.5, # opt-in: max RSR (None = disabled)
 )
 ```
 
@@ -40,13 +41,15 @@ Exits with code `1` when a regression is detected. The default thresholds are:
 | `--max-divergence` | `0.3` | Max TDI before regression. |
 | `--max-loops` | `0` | Max loop count before regression. |
 | `--max-cost-delta` | `10.0` | Max cost increase % before regression. |
+| `--max-recovery-ratio` | *(off)* | Max Recovery Step Ratio before regression (opt-in — the gate is disabled unless set). |
 
 ```bash
 agentdiff baseline.json candidate.json \
   --fail-on-regression \
   --max-divergence 0.2 \
   --max-loops 1 \
-  --max-cost-delta 5.0
+  --max-cost-delta 5.0 \
+  --max-recovery-ratio 1.5
 ```
 
 These defaults can also be committed in an `agentdiff.toml` (see

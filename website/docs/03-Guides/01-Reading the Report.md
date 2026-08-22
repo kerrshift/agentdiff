@@ -9,9 +9,14 @@ them. AgentDiff ships three views that turn the metrics into an answer.
 Trajectory Divergence Index (TDI):  0.33
 Loops Detected:                     1
 Candidate Wasted Effort (WEI):      0.00
+Recovery Steps (base/cand):         0 / 2 (RSR 2.00)
 Cost Delta:                         +41.0%
 Status:                             REGRESSION
 ```
+
+The recovery line shows how many successful steps each run spent getting back
+on track after errors - see [Divergence Metrics](../02-Core%20Concepts/02-Divergence-Metrics.md)
+for the exact definition of RSR.
 
 ## `--explain` - why did it diverge?
 
@@ -25,6 +30,7 @@ agentdiff baseline.json candidate.json --explain
 ```text
 Finding: step "search_database" was added 2 times in the candidate run.
 Finding: a tool-calling loop of length 1 repeats 3 times.
+Finding: candidate needed 2 successful step(s) to recover from errors vs 0 in the baseline (Recovery Step Ratio 2.00).
 Finding: candidate cost increased by 41.0% over baseline.
 ```
 
