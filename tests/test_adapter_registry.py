@@ -52,6 +52,7 @@ def _clean_registry():
 
 def test_builtins_registered():
     assert available_adapters() == [
+        "crewai",
         "generic",
         "langfuse",
         "langgraph",

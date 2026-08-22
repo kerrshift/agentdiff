@@ -1,0 +1,63 @@
+{
+  "raw": "users=1250 for NY",
+  "pydantic": null,
+  "json_dict": null,
+  "tasks_output": [
+    {
+      "description": "Get active users for state NY using the tool.",
+      "name": "Get active users for state NY using the tool.",
+      "expected_output": "Short factual summary.",
+      "summary": "Get active users for state NY using the tool....",
+      "raw": "users=1250 for NY",
+      "pydantic": null,
+      "json_dict": null,
+      "agent": "Reporter",
+      "output_format": "raw",
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Reporter. Meticulous analyst.\nYour personal goal is: Report stats using db_stats."
+        },
+        {
+          "role": "user",
+          "content": "\nCurrent Task: Get active users for state NY using the tool.\n\nThis is the expected criteria for your final answer: Short factual summary.\nyou MUST return the actual complete content as the final answer, not a summary."
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "tool_calls": [
+            {
+              "id": "call_k34aXgxCVMr8TMxDGKwBlySm",
+              "type": "function",
+              "function": {
+                "name": "db_stats",
+                "arguments": "{\"state\":\"NY\"}"
+              }
+            }
+          ]
+        },
+        {
+          "role": "tool",
+          "content": "users=1250 for NY",
+          "tool_call_id": "call_k34aXgxCVMr8TMxDGKwBlySm",
+          "name": "db_stats"
+        },
+        {
+          "role": "user",
+          "content": "Analyze the tool result. If requirements are met, provide the Final Answer. Otherwise, call the next tool. Deliver only the answer without meta-commentary."
+        },
+        {
+          "role": "assistant",
+          "content": "users=1250 for NY"
+        }
+      ]
+    }
+  ],
+  "token_usage": {
+    "total_tokens": 298,
+    "prompt_tokens": 277,
+    "cached_prompt_tokens": 0,
+    "completion_tokens": 21,
+    "successful_requests": 2
+  }
+}
