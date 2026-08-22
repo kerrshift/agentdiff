@@ -4,6 +4,7 @@ from typing import Any
 from agentdiff.adapters import (
     GenericAdapter,
     LangfuseAdapter,
+    LangGraphAdapter,
     LangSmithAdapter,
     OpenAIAgentsAdapter,
     OpenInferenceAdapter,
@@ -92,6 +93,10 @@ def _detect_builtin_format(data: dict[str, Any]) -> type | None:
         first_span = data["spans"][0]
         if "context" in first_span or "attributes" in first_span:
             return OpenInferenceAdapter
+
+    # LangGraph check: native state / checkpoint / message-list artifacts
+    if LangGraphAdapter.detect(data):
+        return LangGraphAdapter
 
     return None
 

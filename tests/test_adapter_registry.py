@@ -54,6 +54,7 @@ def test_builtins_registered():
     assert available_adapters() == [
         "generic",
         "langfuse",
+        "langgraph",
         "langsmith",
         "openai_agents",
         "openinference",

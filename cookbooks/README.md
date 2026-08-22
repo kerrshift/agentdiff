@@ -20,6 +20,7 @@ These use the bundled traces in [`sample/`](sample) and need only AgentDiff inst
 | [`ingestion_openinference.py`](ingestion_openinference.py) | Ingest an OpenInference / OTel trace. |
 | [`ingestion_langfuse.py`](ingestion_langfuse.py) | Ingest a Langfuse trace. |
 | [`ingestion_langsmith.py`](ingestion_langsmith.py) | Ingest a LangSmith run tree (offline sample). |
+| [`ingestion_langgraph.py`](ingestion_langgraph.py) | Ingest a **native LangGraph state snapshot** through the `langgraph` adapter (real captured fixture; no OTel needed) and diff it against a loop variant. |
 | [`pytest_plugin_demo/`](pytest_plugin_demo) | A mini-project running the `--agentdiff` pytest plugin against a committed baseline. |
 
 Run any of them with `uv`:
@@ -74,6 +75,8 @@ uv run cookbooks/live_gemini_cases.py   # regression, prompt-change, loop, drift
   agent changed and what to fix.**
 - `sample/` traces are tiny synthetic fixtures for demonstration; bring your own
   real traces for actual regression gates.
+- Recipes that exercise adapters newer than the last PyPI release need the
+  local package: `uv run --with-editable . cookbooks/ingestion_langgraph.py`.
 
 > **See it in CI:** the
 > [`agentdiff-demo`](https://github.com/lostmartian/agentdiff-demo) repository

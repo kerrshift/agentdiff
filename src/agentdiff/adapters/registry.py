@@ -29,6 +29,7 @@ from collections.abc import Callable
 from agentdiff.adapters.base import BaseAdapter
 from agentdiff.adapters.generic import GenericAdapter
 from agentdiff.adapters.langfuse import LangfuseAdapter
+from agentdiff.adapters.langgraph import LangGraphAdapter
 from agentdiff.adapters.langsmith import LangSmithAdapter
 from agentdiff.adapters.openai_agents import OpenAIAgentsAdapter
 from agentdiff.adapters.openinference import OpenInferenceAdapter
@@ -40,6 +41,7 @@ BUILTIN_ADAPTERS: dict[str, type[BaseAdapter]] = {
     "generic": GenericAdapter,
     "openinference": OpenInferenceAdapter,
     "langfuse": LangfuseAdapter,
+    "langgraph": LangGraphAdapter,
     "langsmith": LangSmithAdapter,
     "openai_agents": OpenAIAgentsAdapter,
 }

@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **LangGraph adapter** (`agentdiff.adapters.LangGraphAdapter`, name
+  `"langgraph"`): direct ingestion of native LangGraph artifacts — state
+  snapshots, checkpoint dumps (`channel_values`), and message lists — in all
+  three serialization shapes (`message_to_dict` dumps, LangChain constructor
+  dumps, plain OpenAI-style role dicts). Tool decisions map to routing steps,
+  tool results to tool_call steps (status from the message's own `status`
+  field), and the final AI answer to a response step; token usage is read from
+  `usage_metadata` / `response_metadata.token_usage`. Participates in `auto`
+  detection (conservative structural checks) and ships with a real captured
+  fixture + offline cookbook.
 - **Parallel scenario execution**: `run_scenarios(..., workers=N)` executes
   scenarios on a thread pool (opt-in; sequential by default). Results are
   always returned in input order, and per-scenario errors stay contained.
