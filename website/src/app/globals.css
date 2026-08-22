@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Class-based dark variant: `dark:` utilities follow the `.dark` class on
+   <html> that ThemeToggle/layout script control, not the OS media query. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ==========================================
    THEME TOKENS - landing page palette, with a
    dark variant flipped via a `.dark` class.
@@ -16,6 +20,8 @@
   --accent: #0fa47f;
   --accent-strong: #0a7a5e;
   --code-bg: #fbfbfc;
+  --danger: #e5484d;
+  --danger-soft: #fdf2f2;
 }
 
 .dark {
@@ -30,6 +36,8 @@
   --accent: #34d399;
   --accent-strong: #6ee7b7;
   --code-bg: #0d0e10;
+  --danger: #e5484d;
+  --danger-soft: rgba(229, 72, 77, 0.14);
 }
 
 /* Flipped on during a theme toggle so elements swap instantly instead of
@@ -45,6 +53,16 @@
   --color-foreground: var(--fg);
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+/* Anchor navigation: glide instead of jump, and never hide a section
+   title behind the sticky bar. */
+html {
+  scroll-behavior: smooth;
+}
+
+section[id] {
+  scroll-margin-top: 4.5rem;
 }
 
 body {

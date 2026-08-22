@@ -61,8 +61,8 @@ const PRS = [
     pr: "#2 · fix/prompt-regression",
     label: "A real run that regressed",
     status: "⛔ BLOCKED",
-    color: "text-[#E5484D]",
-    dot: "bg-[#E5484D]",
+    color: "text-(--danger)",
+    dot: "bg-(--danger)",
     comment: FAILED,
     note: "The live Gemini agent looped get_user_database_stats twice. AgentDiff blocked the job and posted this comment.",
   },
@@ -71,8 +71,8 @@ const PRS = [
     pr: "#3 · feat/pr-comment",
     label: "A clean run that passed",
     status: "✅ PASSED",
-    color: "text-[#0FA47F]",
-    dot: "bg-[#0FA47F]",
+    color: "text-(--accent)",
+    dot: "bg-(--accent)",
     comment: PASSED,
     note: "A normal run matches the baseline. AgentDiff auto-posted the report onto the PR that triggered it.",
   },
@@ -87,16 +87,16 @@ export default function PRCommentShowcase() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Reveal>
           <div className="max-w-3xl mb-10">
-            <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-4">
+            <span className="text-xs font-medium uppercase tracking-[0.18em] text-(--faint) block mb-4">
               In CI, for real
             </span>
-            <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
+            <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-(--fg) leading-tight">
               The report shows up on the pull request.
             </h2>
-            <p className="mt-4 text-base text-[#52525B] leading-relaxed font-normal">
+            <p className="mt-4 text-base text-(--muted) leading-relaxed font-normal">
               These are genuine AgentDiff comments, posted automatically onto
               live pull requests of a real Gemini agent by the{" "}
-              <code className="text-[#18181B] font-mono text-sm">agentdiff-check</code>{" "}
+              <code className="text-(--fg) font-mono text-sm">agentdiff-check</code>{" "}
               GitHub Action. No manual PR number - it posts to the PR that
               triggered the run.
             </p>
@@ -113,8 +113,8 @@ export default function PRCommentShowcase() {
                   onClick={() => setActive(p.id)}
                   className={`inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg border transition-colors duration-150 ${
                     activeBtn
-                      ? "border-[#18181B] bg-[#18181B] text-white"
-                      : "border-[#E4E4E7] bg-white text-[#52525B] hover:border-[#18181B] hover:text-[#18181B]"
+                      ? "border-(--fg) bg-(--fg) text-(--bg)"
+                      : "border-(--border) bg-(--surface) text-(--muted) hover:border-(--fg) hover:text-(--fg)"
                   }`}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${p.dot}`} />
@@ -126,20 +126,20 @@ export default function PRCommentShowcase() {
 
           <div className="grid lg:grid-cols-5 gap-8">
             {/* PR comment card */}
-            <div className="lg:col-span-3 min-w-0 bg-white border border-[#E4E4E7] rounded-xl overflow-hidden shadow-[0_1px_0_0_rgba(0,0,0,0.02),0_12px_32px_-16px_rgba(0,0,0,0.1)]">
-              <div className="border-b border-[#E4E4E7] px-5 py-3 flex items-center justify-between">
+            <div className="lg:col-span-3 min-w-0 bg-(--surface) border border-(--border) rounded-xl overflow-hidden shadow-[0_1px_0_0_rgba(0,0,0,0.02),0_12px_32px_-16px_rgba(0,0,0,0.1)]">
+              <div className="border-b border-(--border) px-5 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-7 h-7 rounded-full bg-[#E4E4E7] flex items-center justify-center text-[10px] font-bold text-[#52525B]">
+                  <span className="w-7 h-7 rounded-full bg-(--border) flex items-center justify-center text-[10px] font-bold text-(--muted)">
                     AD
                   </span>
                   <div className="text-left leading-tight">
-                    <span className="block text-xs font-semibold text-[#18181B]">AgentDiff bot</span>
-                    <span className="block text-[11px] text-[#A1A1AA]">
+                    <span className="block text-xs font-semibold text-(--fg)">AgentDiff bot</span>
+                    <span className="block text-[11px] text-(--faint)">
                       commented on {current.pr}
                     </span>
                   </div>
                 </div>
-                <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md bg-[#18181B]/5 ${current.color}`}>
+                <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md bg-(--fg)/5 ${current.color}`}>
                   {current.status}
                 </span>
               </div>
@@ -167,26 +167,26 @@ export default function PRCommentShowcase() {
 
             {/* Annotation rail */}
             <div className="lg:col-span-2 min-w-0 flex flex-col justify-center gap-4">
-              <p className="text-sm text-[#52525B] leading-relaxed">{current.note}</p>
-              <ul className="text-sm text-[#52525B] leading-relaxed space-y-2.5">
+              <p className="text-sm text-(--muted) leading-relaxed">{current.note}</p>
+              <ul className="text-sm text-(--muted) leading-relaxed space-y-2.5">
                 <li className="flex gap-2.5">
-                  <span className="text-[#0FA47F] mt-0.5">✓</span>
+                  <span className="text-(--accent) mt-0.5">✓</span>
                   <span>
-                    <strong className="text-[#18181B] font-semibold">Status</strong> and the gate
+                    <strong className="text-(--fg) font-semibold">Status</strong> and the gate
                     table - TDI, loops, and cost against your thresholds.
                   </span>
                 </li>
                 <li className="flex gap-2.5">
-                  <span className="text-[#0FA47F] mt-0.5">✓</span>
+                  <span className="text-(--accent) mt-0.5">✓</span>
                   <span>
-                    <strong className="text-[#18181B] font-semibold">Root cause</strong> - the
+                    <strong className="text-(--fg) font-semibold">Root cause</strong> - the
                     culprit step and why it changed.
                   </span>
                 </li>
                 <li className="flex gap-2.5">
-                  <span className="text-[#0FA47F] mt-0.5">✓</span>
+                  <span className="text-(--accent) mt-0.5">✓</span>
                   <span>
-                    <strong className="text-[#18181B] font-semibold">Collapsed divergence tree</strong>{" "}
+                    <strong className="text-(--fg) font-semibold">Collapsed divergence tree</strong>{" "}
                     - matched steps folded into <code className="font-mono text-xs">· · · N · · ·</code>,
                     only divergent steps shown.
                   </span>
@@ -196,7 +196,7 @@ export default function PRCommentShowcase() {
                 href="https://github.com/lostmartian/agentdiff-demo"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-[#18181B] hover:text-[#52525B] transition-colors duration-150 mt-2"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-(--fg) hover:text-(--muted) transition-colors duration-150 mt-2"
               >
                 See the full repo →  agentdiff-demo
               </a>

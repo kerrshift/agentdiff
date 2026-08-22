@@ -24,18 +24,18 @@ export default function LogoMark({
       viewBox="0 0 16 16"
       fill="none"
       stroke={color}
-      strokeWidth="1.6"
+      strokeWidth="2.1"
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
       aria-hidden="true"
     >
-      <circle cx="3" cy="8" r="1.2" fill={color} stroke="none" />
-      <path d="M3 8 L8.5 8" />
-      <path d="M8.5 8 L13.5 5" />
-      <path d="M8.5 8 L13.5 11" />
-      <circle cx="13.5" cy="5" r="0.8" fill={color} stroke="none" />
-      <circle cx="13.5" cy="11" r="0.8" fill={color} stroke="none" />
+      <circle cx="2.9" cy="8" r="1.5" fill={color} stroke="none" />
+      <path d="M3.4 8 L8.25 8" />
+      <path d="M8.25 8 L13.4 5" />
+      <path d="M8.25 8 L13.4 11" />
+      <circle cx="13.5" cy="5" r="1.05" fill={color} stroke="none" />
+      <circle cx="13.5" cy="11" r="1.05" fill={color} stroke="none" />
     </svg>
   );
 }
