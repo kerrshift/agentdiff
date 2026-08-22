@@ -52,14 +52,14 @@ function ScenarioDropdown({
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((prev) => !prev)}
-        className="flex w-full items-center justify-between gap-3 rounded-xl border border-[#E4E4E7] bg-white px-4 py-3 text-sm font-medium text-[#18181B] outline-none transition-colors focus:border-[#18181B]"
+        className="flex w-full items-center justify-between gap-3 rounded-xl border border-(--border) bg-(--surface) px-4 py-3 text-sm font-medium text-(--fg) outline-none transition-colors focus:border-(--fg)"
       >
         <span className="flex min-w-0 items-center gap-2">
-          <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${fail ? "bg-[#E5484D]" : "bg-[#0FA47F]"}`} />
+          <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${fail ? "bg-(--danger)" : "bg-(--accent)"}`} />
           <span className="truncate">{value.name}</span>
         </span>
         <svg
-          className={`h-4 w-4 shrink-0 text-[#A1A1AA] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`h-4 w-4 shrink-0 text-(--faint) transition-transform duration-200 ${open ? "rotate-180" : ""}`}
           viewBox="0 0 20 20"
           fill="none"
           aria-hidden="true"
@@ -71,7 +71,7 @@ function ScenarioDropdown({
       {open && (
         <ul
           role="listbox"
-          className="absolute left-0 right-0 z-20 mt-2 overflow-hidden rounded-xl border border-[#E4E4E7] bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
+          className="absolute left-0 right-0 z-20 mt-2 overflow-hidden rounded-xl border border-(--border) bg-(--surface) shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
         >
           {SCENARIOS.map((s) => {
             const active = s.code === value.code;
@@ -85,12 +85,12 @@ function ScenarioDropdown({
                     setOpen(false);
                   }}
                   className={`flex w-full items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
-                    active ? "bg-[#F4F4F5] text-[#18181B]" : "text-[#52525B] hover:bg-[#FAFAFA]"
+                    active ? "bg-(--surface-2) text-(--fg)" : "text-(--muted) hover:bg-(--surface-2)"
                   }`}
                 >
-                  <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${optionFail ? "bg-[#E5484D]" : "bg-[#0FA47F]"}`} />
+                  <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${optionFail ? "bg-(--danger)" : "bg-(--accent)"}`} />
                   <span className="flex-1 truncate text-left">{s.name}</span>
-                  {active && <span className="text-[#A1A1AA]">✓</span>}
+                  {active && <span className="text-(--faint)">✓</span>}
                 </button>
               </li>
             );
@@ -145,13 +145,13 @@ export default function BlueprintWorkspace() {
         {/* Section Header - left rail */}
         <div className="max-w-2xl mb-10 lg:mb-12">
           <div className="flex items-center gap-3 mb-4">
-            <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA]">Workspace</span>
-            <span className="text-[11px] text-[#A1A1AA]">3 diagnostic scenarios</span>
+            <span className="text-xs font-medium uppercase tracking-[0.18em] text-(--faint)">Workspace</span>
+            <span className="text-[11px] text-(--faint)">3 diagnostic scenarios</span>
           </div>
-          <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
+          <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-(--fg) leading-tight">
             A diff you can read.
           </h2>
-          <p className="mt-4 text-base text-[#52525B] leading-relaxed font-normal">
+          <p className="mt-4 text-base text-(--muted) leading-relaxed font-normal">
             Drop in two traces — baseline and candidate. AgentDiff aligns them step-by-step and shows you exactly where the run changed.
           </p>
         </div>
@@ -171,11 +171,11 @@ export default function BlueprintWorkspace() {
                   aria-pressed={active}
                   className={`flex shrink-0 snap-start items-center gap-2 px-3.5 py-2.5 rounded-full text-[13px] font-medium transition-colors duration-150 ${
                     active
-                      ? "bg-[#18181B] text-white"
-                      : "bg-transparent text-[#52525B] border border-[#E4E4E7] hover:border-[#D4D4D8] hover:text-[#18181B]"
+                      ? "bg-(--fg) text-(--bg)"
+                      : "bg-transparent text-(--muted) border border-(--border) hover:border-(--border-strong) hover:text-(--fg)"
                   }`}
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full ${fail ? "bg-[#E5484D]" : "bg-[#0FA47F]"}`} />
+                  <span className={`w-1.5 h-1.5 rounded-full ${fail ? "bg-(--danger)" : "bg-(--accent)"}`} />
                   {s.name}
                 </button>
               );
@@ -193,12 +193,12 @@ export default function BlueprintWorkspace() {
               />
               <span
                 className={`flex shrink-0 items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest ${
-                  activeScenario.status === "FAIL" ? "text-[#E5484D]" : "text-[#0FA47F]"
+                  activeScenario.status === "FAIL" ? "text-(--danger)" : "text-(--accent)"
                 }`}
               >
                 <span
                   className={`h-1.5 w-1.5 rounded-full ${
-                    activeScenario.status === "FAIL" ? "bg-[#E5484D]" : "bg-[#0FA47F]"
+                    activeScenario.status === "FAIL" ? "bg-(--danger)" : "bg-(--accent)"
                   }`}
                 />
                 {activeScenario.status}
@@ -210,16 +210,16 @@ export default function BlueprintWorkspace() {
         {/* The diff - single-column trajectory, no boxes */}
         <div className="mx-auto w-full">
           {/* Frame caption */}
-          <div className="flex items-center justify-between mb-4 text-[11px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA]">
+          <div className="flex items-center justify-between mb-4 text-[11px] font-medium uppercase tracking-[0.14em] text-(--faint)">
             <span className="flex items-center gap-2">
               Baseline
-              <span className="text-[#D4D4D8]">→</span>
+              <span className="text-(--border-strong)">→</span>
               Candidate
             </span>
             <span className="tabular-nums">{rows.length} trace steps</span>
           </div>
 
-          <p className="mb-6 max-w-2xl text-sm leading-relaxed text-[#52525B]">
+          <p className="mb-6 max-w-2xl text-sm leading-relaxed text-(--muted)">
             {activeScenario.description}
           </p>
 
@@ -239,14 +239,14 @@ export default function BlueprintWorkspace() {
                       className={`font-mono text-[11px] leading-4 ${
                         changed
                           ? isAdded
-                            ? "text-[#0FA47F] font-semibold"
-                            : "text-[#E5484D] font-semibold"
-                          : "text-[#A1A1AA]"
+                            ? "text-(--accent) font-semibold"
+                            : "text-(--danger) font-semibold"
+                          : "text-(--faint)"
                       }`}
                     >
                       {String(row.index).padStart(2, "0")}
                     </span>
-                    {!isLast && <span className="mt-1 w-px flex-1 bg-[#E4E4E7]" />}
+                    {!isLast && <span className="mt-1 w-px flex-1 bg-(--border)" />}
                   </div>
 
                   {/* Content */}
@@ -254,10 +254,10 @@ export default function BlueprintWorkspace() {
                     {isAligned ? (
                       /* Aligned: one quiet node */
                       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                        <span className="text-sm font-medium text-[#18181B]">
+                        <span className="text-sm font-medium text-(--fg)">
                           {row.baselineNode?.label}
                         </span>
-                        <span className="text-[11px] text-[#A1A1AA] tabular-nums">
+                        <span className="text-[11px] text-(--faint) tabular-nums">
                           {row.baselineNode?.tokens} tok · ${row.baselineNode?.cost.toFixed(4)}
                         </span>
                       </div>
@@ -265,20 +265,20 @@ export default function BlueprintWorkspace() {
                       /* Changed: baseline → candidate, softly tinted */
                       <div
                         className={`flex flex-wrap items-center gap-x-3 gap-y-1.5 border-l-2 px-3 py-2 ${
-                          isAdded ? "border-[#0FA47F] bg-[#F2FBF7]/70" : "border-[#E5484D] bg-[#FDF2F2]/70"
+                          isAdded ? "border-(--accent) bg-(--accent)/10" : "border-(--danger) bg-(--danger-soft)/70"
                         }`}
                       >
                         {row.baselineNode ? (
-                          <span className="text-[13px] font-medium text-[#A1A1AA] line-through">
+                          <span className="text-[13px] font-medium text-(--faint) line-through">
                             {row.baselineNode.label}
                           </span>
                         ) : (
-                          <span className="text-[13px] text-[#A1A1AA]">—</span>
+                          <span className="text-[13px] text-(--faint)">—</span>
                         )}
-                        <span className="text-[#C4C4C8]">→</span>
+                        <span className="text-(--faint)">→</span>
                         <span
                           className={`flex items-center gap-2 text-[13px] font-semibold ${
-                            isAdded ? "text-[#0FA47F]" : "text-[#E5484D]"
+                            isAdded ? "text-(--accent)" : "text-(--danger)"
                           }`}
                         >
                           {row.candidateNode?.label ?? "—"}
@@ -295,16 +295,16 @@ export default function BlueprintWorkspace() {
           </div>
 
           {/* Verdict - one quiet line, no box */}
-          <div className="mt-8 pt-6 border-t border-[#E4E4E7] flex items-center justify-center gap-3">
+          <div className="mt-8 pt-6 border-t border-(--border) flex items-center justify-center gap-3">
             <span
               className={`flex items-center gap-2 text-sm font-semibold ${
-                isFail ? "text-[#E5484D]" : "text-[#0FA47F]"
+                isFail ? "text-(--danger)" : "text-(--accent)"
               }`}
             >
-              <span className={`w-2 h-2 rounded-full ${isFail ? "bg-[#E5484D]" : "bg-[#0FA47F]"}`} />
+              <span className={`w-2 h-2 rounded-full ${isFail ? "bg-(--danger)" : "bg-(--accent)"}`} />
               {isFail ? "FAIL" : "PASS"}
             </span>
-            <span className="text-sm text-[#52525B] font-normal">
+            <span className="text-sm text-(--muted) font-normal">
               {isFail ? "blocks this change until fixed" : "mergeable"}
             </span>
           </div>

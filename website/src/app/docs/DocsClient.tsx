@@ -39,15 +39,10 @@ export default function DocsClient({ docs, version }: DocsClientProps) {
     return () => cancelAnimationFrame(id);
   }, []);
 
-  // The docs page owns the global `.dark` class. Restore the light root
-  // when we leave docs so the landing page never inherits dark tokens.
-  useEffect(() => {
-    return () => {
-      const html = document.documentElement;
-      html.classList.remove("dark");
-      html.style.colorScheme = "light";
-    };
-  }, []);
+  // Theme is owned globally: the root-layout script applies the persisted
+  // (or system) theme before paint, and ThemeToggle persists changes. The
+  // docs page no longer strips `.dark` on unmount so the landing page
+  // inherits the visitor's choice.
 
   useEffect(() => {
     const handleHashChange = () => {

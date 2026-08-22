@@ -8,7 +8,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Reveal from "./Reveal";
 
-const FORMATS = ["Generic JSON", "OpenInference", "Langfuse", "LangSmith", "OpenAI Agents"];
+const FORMATS = ["Generic JSON", "OpenInference", "LangGraph (native)", "CrewAI (native)", "OpenAI Agents", "Langfuse", "LangSmith"];
 
 export default function IntegrationShowcase() {
   const [activeCodeTab, setActiveCodeTab] = useState<"pytest" | "cli" | "config" | "report">("pytest");
@@ -130,34 +130,34 @@ tool loop and a 148% cost increase over baseline.`;
         <Reveal>
         {/* Section Header - left rail */}
         <div className="max-w-3xl mb-12">
-          <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-4">Developer integration</span>
-          <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
+          <span className="text-xs font-medium uppercase tracking-[0.18em] text-(--faint) block mb-4">Developer integration</span>
+          <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-(--fg) leading-tight">
             Zero boilerplate DX.
           </h2>
-          <p className="mt-4 text-base text-[#52525B] leading-relaxed font-normal">
+          <p className="mt-4 text-base text-(--muted) leading-relaxed font-normal">
             A thin Python SDK for pytest, a strict CLI runner, and a one-step
-            GitHub Action - with your gates committed once in <code className="text-[#18181B] font-mono">agentdiff.toml</code>.
+            GitHub Action - with your gates committed once in <code className="text-(--fg) font-mono">agentdiff.toml</code>.
           </p>
         </div>
         </Reveal>
 
         <Reveal delay={140}>
         {/* Formats - mono readout, left rail */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#52525B] mb-10">
-          <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-[#A1A1AA] mr-3">Formats</span>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-(--muted) mb-10">
+          <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-(--faint) mr-3">Formats</span>
           {FORMATS.map((fmt, i) => (
             <React.Fragment key={fmt}>
-              {i > 0 && <span className="text-[#E4E4E7]">·</span>}
+              {i > 0 && <span className="text-(--border)">·</span>}
               <span>{fmt}</span>
             </React.Fragment>
           ))}
         </div>
 
         {/* Code panel - clean light surface */}
-        <div className="bg-white border border-[#E4E4E7] rounded-xl overflow-hidden">
+        <div className="bg-(--surface) border border-(--border) rounded-xl overflow-hidden">
 
           {/* Panel header */}
-          <div className="border-b border-[#E4E4E7] px-4 sm:px-5 py-0 flex items-center justify-between gap-2">
+          <div className="border-b border-(--border) px-4 sm:px-5 py-0 flex items-center justify-between gap-2">
             <div className="flex items-center gap-5 sm:gap-7 -mb-px overflow-x-auto no-scrollbar">
               {TABS.map((tab) => {
                 const active = activeCodeTab === tab.id;
@@ -166,12 +166,12 @@ tool loop and a 148% cost increase over baseline.`;
                     key={tab.id}
                     onClick={() => setActiveCodeTab(tab.id)}
                     className={`relative text-xs font-semibold py-3.5 whitespace-nowrap transition-colors duration-150 ${
-                      active ? "text-[#18181B]" : "text-[#A1A1AA] hover:text-[#18181B]"
+                      active ? "text-(--fg)" : "text-(--faint) hover:text-(--fg)"
                     }`}
                   >
                     {tab.name}
                     <span
-                      className={`absolute left-0 bottom-0 h-0.5 bg-[#18181B] transition-all duration-200 ${
+                      className={`absolute left-0 bottom-0 h-0.5 bg-(--fg) transition-all duration-200 ${
                         active ? "w-full" : "w-0"
                       }`}
                     />
@@ -182,19 +182,19 @@ tool loop and a 148% cost increase over baseline.`;
 
             <button
               onClick={() => copyToClipboard(activeCode)}
-              className="flex items-center gap-1.5 text-xs font-semibold text-[#A1A1AA] hover:text-[#18181B] transition-colors duration-150 py-3.5 shrink-0"
+              className="flex items-center gap-1.5 text-xs font-semibold text-(--faint) hover:text-(--fg) transition-colors duration-150 py-3.5 shrink-0"
             >
-              {copiedCode ? <Check className="w-3.5 h-3.5 text-[#0FA47F]" /> : <Copy className="w-3.5 h-3.5" />}
+              {copiedCode ? <Check className="w-3.5 h-3.5 text-(--accent)" /> : <Copy className="w-3.5 h-3.5" />}
               <span className="hidden sm:inline">{copiedCode ? "Copied" : "Copy"}</span>
             </button>
           </div>
 
           {/* Code field */}
-          <div className="bg-[#FBFBFC] font-mono leading-relaxed">
+          <div className="bg-(--bg) font-mono leading-relaxed">
             <div className="h-[340px] overflow-auto no-scrollbar">
               {activeCodeTab === "report" ? (
                 /* Render the PR report as a real preview, not raw markdown */
-                <div className="markdown-content bg-white px-6 py-6">
+                <div className="markdown-content bg-(--surface) px-6 py-6">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{reportCode}</ReactMarkdown>
                 </div>
               ) : (
@@ -227,12 +227,12 @@ tool loop and a 148% cost increase over baseline.`;
             href="https://github.com/lostmartian/agentdiff/tree/main/cookbooks"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-[#18181B] hover:text-[#52525B] transition-colors duration-150"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-(--fg) hover:text-(--muted) transition-colors duration-150"
           >
             Try the live cookbooks
             <ArrowUpRight className="w-4 h-4" />
           </a>
-          <span className="text-[11px] text-[#A1A1AA]">Gemini · OpenAI Agents · OTel · Langfuse · LangSmith</span>
+          <span className="text-[11px] text-(--faint)">Gemini · OpenAI Agents · OTel · Langfuse · LangSmith</span>
         </div>
         </Reveal>
 

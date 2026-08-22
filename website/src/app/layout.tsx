@@ -17,7 +17,6 @@ const jetBrainsMono = JetBrains_Mono({
 const themeScript = `
 (function () {
   try {
-    if (!location.pathname.startsWith("/docs")) return;
     var root = document.documentElement;
     var stored = localStorage.getItem("agentdiff-theme");
     var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;

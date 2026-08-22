@@ -29,56 +29,56 @@ export default function ProblemSolution() {
         <Reveal>
         {/* Section Header - left rail */}
         <div className="max-w-3xl mb-12">
-          <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-4">The problem</span>
-          <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
+          <span className="text-xs font-medium uppercase tracking-[0.18em] text-(--faint) block mb-4">The problem</span>
+          <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-(--fg) leading-tight">
             Agents fail silently. Tests can&apos;t see it.
           </h2>
-          <p className="mt-4 text-base text-[#52525B] leading-relaxed font-normal">
-            Assertions pass because the agent returned an answer. But the <span className="font-medium text-[#18181B]">trajectory</span> it took - the tools, the loops, the token spend - drifts underneath.
+          <p className="mt-4 text-base text-(--muted) leading-relaxed font-normal">
+            Assertions pass because the agent returned an answer. But the <span className="font-medium text-(--fg)">trajectory</span> it took - the tools, the loops, the token spend - drifts underneath.
           </p>
         </div>
         </Reveal>
 
         <Reveal delay={140}>
         {/* Before / after - chips tell the drift story in one glance on mobile */}
-        <div className="grid grid-cols-1 md:grid-cols-2 md:divide-x divide-[#E4E4E7] gap-10 md:gap-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 md:divide-x divide-(--border) gap-10 md:gap-0">
 
           {/* Baseline */}
           <div className="flex flex-col md:pr-12">
             <div className="flex items-center justify-between mb-4">
-              <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-[#0FA47F]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#0FA47F]" />
+              <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-(--accent)">
+                <span className="w-1.5 h-1.5 rounded-full bg-(--accent)" />
                 Baseline
               </span>
-              <span className="text-[11px] text-[#A1A1AA]">6 steps</span>
+              <span className="text-[11px] text-(--faint)">6 steps</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {BASELINE.filter((s) => s.name).map((s, i) => (
                 <span
                   key={i}
-                  className="px-2 py-1 rounded-md bg-[#F4F4F5] border border-[#E4E4E7] font-mono text-[12px] text-[#18181B] tracking-tight"
+                  className="px-2 py-1 rounded-md bg-(--surface-2) border border-(--border) font-mono text-[12px] text-(--fg) tracking-tight"
                 >
                   {s.name}
                 </span>
               ))}
             </div>
-            <div className="mt-5 flex items-end justify-between border-t border-[#E4E4E7] pt-4">
+            <div className="mt-5 flex items-end justify-between border-t border-(--border) pt-4">
               <div>
-                <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-1">Tokens</div>
-                <div className="text-2xl font-semibold text-[#18181B] tracking-tight tabular-nums">1,204</div>
+                <div className="text-[10px] font-medium uppercase tracking-widest text-(--faint) mb-1">Tokens</div>
+                <div className="text-2xl font-semibold text-(--fg) tracking-tight tabular-nums">1,204</div>
               </div>
-              <div className="text-sm font-semibold text-[#0FA47F] tabular-nums">−62.5% cost</div>
+              <div className="text-sm font-semibold text-(--accent) tabular-nums">−62.5% cost</div>
             </div>
           </div>
 
           {/* Candidate - loop steps pop in red */}
           <div className="flex flex-col md:pl-12">
             <div className="flex items-center justify-between mb-4">
-              <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-[#E5484D]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#E5484D]" />
+              <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-(--danger)">
+                <span className="w-1.5 h-1.5 rounded-full bg-(--danger)" />
                 Candidate
               </span>
-              <span className="text-[11px] font-semibold text-[#E5484D]">loop ×3</span>
+              <span className="text-[11px] font-semibold text-(--danger)">loop ×3</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {CANDIDATE.map((s, i) => (
@@ -86,20 +86,20 @@ export default function ProblemSolution() {
                   key={i}
                   className={`px-2 py-1 rounded-md border font-mono text-[12px] tracking-tight ${
                     s.loop
-                      ? "bg-[#FDF2F2] border-[#E5484D]/40 text-[#E5484D] font-semibold"
-                      : "bg-[#F4F4F5] border-[#E4E4E7] text-[#18181B]"
+                      ? "bg-(--danger-soft) border-(--danger)/40 text-(--danger) font-semibold"
+                      : "bg-(--surface-2) border-(--border) text-(--fg)"
                   }`}
                 >
                   {s.name}
                 </span>
               ))}
             </div>
-            <div className="mt-5 flex items-end justify-between border-t border-[#E4E4E7] pt-4">
+            <div className="mt-5 flex items-end justify-between border-t border-(--border) pt-4">
               <div>
-                <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-1">Tokens</div>
-                <div className="text-2xl font-semibold text-[#18181B] tracking-tight tabular-nums">2,986</div>
+                <div className="text-[10px] font-medium uppercase tracking-widest text-(--faint) mb-1">Tokens</div>
+                <div className="text-2xl font-semibold text-(--fg) tracking-tight tabular-nums">2,986</div>
               </div>
-              <div className="text-sm font-semibold text-[#E5484D] tabular-nums">+148% cost</div>
+              <div className="text-sm font-semibold text-(--danger) tabular-nums">+148% cost</div>
             </div>
           </div>
 
@@ -107,24 +107,24 @@ export default function ProblemSolution() {
 
         {/* The fix - continues the same left rail as the header */}
         <div className="max-w-2xl mt-10 md:mt-14">
-          <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-3">The fix</span>
-          <h3 className="text-2xl font-semibold text-[#18181B] mb-3 leading-snug">
+          <span className="text-xs font-medium uppercase tracking-[0.18em] text-(--faint) block mb-3">The fix</span>
+          <h3 className="text-2xl font-semibold text-(--fg) mb-3 leading-snug">
             Catch it in CI, before it ships.
           </h3>
-          <p className="text-sm text-[#52525B] leading-relaxed font-normal mb-8">
+          <p className="text-sm text-(--muted) leading-relaxed font-normal mb-8">
             AgentDiff diffs this run against the golden baseline as a DAG - and turns the drift into a hard gate failure in the PR. The loop, the wasted tokens, the cost spike: explicit, and blocking.
           </p>
           <div className="flex items-center gap-6">
             <div>
-              <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-2">Baseline</div>
-              <div className="text-xl font-semibold text-[#18181B] tracking-tight">PASS</div>
-              <div className="text-[11px] text-[#0FA47F] mt-1">6 steps · −62.5%</div>
+              <div className="text-[10px] font-medium uppercase tracking-widest text-(--faint) mb-2">Baseline</div>
+              <div className="text-xl font-semibold text-(--fg) tracking-tight">PASS</div>
+              <div className="text-[11px] text-(--accent) mt-1">6 steps · −62.5%</div>
             </div>
-            <div className="h-10 w-px bg-[#E4E4E7]"></div>
+            <div className="h-10 w-px bg-(--border)"></div>
             <div>
-              <div className="text-[10px] font-medium uppercase tracking-widest text-[#A1A1AA] mb-2">Regression</div>
-              <div className="text-xl font-semibold text-[#E5484D] tracking-tight">FAIL</div>
-              <div className="text-[11px] text-[#E5484D] mt-1">loop ×3 · +148%</div>
+              <div className="text-[10px] font-medium uppercase tracking-widest text-(--faint) mb-2">Regression</div>
+              <div className="text-xl font-semibold text-(--danger) tracking-tight">FAIL</div>
+              <div className="text-[11px] text-(--danger) mt-1">loop ×3 · +148%</div>
             </div>
           </div>
         </div>

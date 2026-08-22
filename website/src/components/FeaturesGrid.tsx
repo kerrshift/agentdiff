@@ -12,20 +12,20 @@ const FEATURES = [
     example: (
       <div className="font-mono text-[12px]">
         <div className="flex items-center gap-1.5">
-          <span className="text-[#A1A1AA] w-16 text-[11px]">baseline</span>
-          <span className="w-4 h-4 rounded bg-[#0FA47F]" />
-          <span className="w-4 h-4 rounded bg-[#0FA47F]" />
-          <span className="w-4 h-4 rounded bg-[#0FA47F]" />
-          <span className="w-4 h-4 rounded bg-[#0FA47F]" />
+          <span className="text-(--faint) w-16 text-[11px]">baseline</span>
+          <span className="w-4 h-4 rounded bg-(--accent)" />
+          <span className="w-4 h-4 rounded bg-(--accent)" />
+          <span className="w-4 h-4 rounded bg-(--accent)" />
+          <span className="w-4 h-4 rounded bg-(--accent)" />
         </div>
         <div className="flex items-center gap-1.5 mt-1.5">
-          <span className="text-[#A1A1AA] w-16 text-[11px]">candidate</span>
-          <span className="w-4 h-4 rounded bg-[#0FA47F]" />
-          <span className="w-4 h-4 rounded bg-[#0FA47F]" />
-          <span className="w-4 h-4 rounded bg-[#0FA47F]" />
-          <span className="w-4 h-4 rounded bg-[#E5484D] ring-2 ring-[#E5484D]/20" />
+          <span className="text-(--faint) w-16 text-[11px]">candidate</span>
+          <span className="w-4 h-4 rounded bg-(--accent)" />
+          <span className="w-4 h-4 rounded bg-(--accent)" />
+          <span className="w-4 h-4 rounded bg-(--accent)" />
+          <span className="w-4 h-4 rounded bg-(--danger) ring-2 ring-(--danger)/20" />
         </div>
-        <div className="text-[#A1A1AA] text-[11px] mt-2">diverged at step 4</div>
+        <div className="text-(--faint) text-[11px] mt-2">diverged at step 4</div>
       </div>
     ),
     formula: "TDI = 1 − 2·|LCS(A,B)| / (|A|+|B|)",
@@ -39,13 +39,13 @@ const FEATURES = [
     body: "The share of steps spent on failures, retries, and abandoned work - the tokens you pay for and get nothing back from.",
     example: (
       <div>
-        <div className="h-2 w-full rounded-full bg-[#E4E4E7] overflow-hidden flex">
-          <span className="bg-[#0FA47F]" style={{ width: "78%" }} />
-          <span className="bg-[#E5484D]" style={{ width: "22%" }} />
+        <div className="h-2 w-full rounded-full bg-(--border) overflow-hidden flex">
+          <span className="bg-(--accent)" style={{ width: "78%" }} />
+          <span className="bg-(--danger)" style={{ width: "22%" }} />
         </div>
         <div className="mt-2.5 font-mono text-[11px] flex items-center justify-between">
-          <span className="text-[#A1A1AA]">6 of 7 steps wasted</span>
-          <span className="text-[#E5484D] font-semibold">0.22</span>
+          <span className="text-(--faint)">6 of 7 steps wasted</span>
+          <span className="text-(--danger) font-semibold">0.22</span>
         </div>
       </div>
     ),
@@ -61,15 +61,15 @@ const FEATURES = [
     example: (
       <div className="flex items-center gap-4 font-mono text-[12px]">
         <div className="flex flex-col items-center">
-          <span className="rounded-md border border-[#E5484D]/30 bg-[#E5484D]/5 px-2 py-1 text-[#E5484D]">
+          <span className="rounded-md border border-(--danger)/30 bg-(--danger)/5 px-2 py-1 text-(--danger)">
             execute_sql
           </span>
-          <span className="text-[#A1A1AA] text-[11px] py-1">↻ retry</span>
-          <span className="rounded-md border border-[#E5484D]/30 bg-[#E5484D]/5 px-2 py-1 text-[#E5484D]">
+          <span className="text-(--faint) text-[11px] py-1">↻ retry</span>
+          <span className="rounded-md border border-(--danger)/30 bg-(--danger)/5 px-2 py-1 text-(--danger)">
             sql_error
           </span>
         </div>
-        <div className="text-[#A1A1AA] text-[11px] max-w-[120px] leading-snug">
+        <div className="text-(--faint) text-[11px] max-w-[120px] leading-snug">
           same endpoint, same params — no state progress
         </div>
       </div>
@@ -86,18 +86,18 @@ const FEATURES = [
     example: (
       <div className="font-mono text-[11px]">
         <div className="flex items-center gap-3">
-          <span className="text-[#A1A1AA] w-16">baseline</span>
-          <div className="flex-1 h-2.5 rounded-full bg-[#E4E4E7] overflow-hidden">
-            <div className="h-full bg-[#0FA47F] w-[40%]" />
+          <span className="text-(--faint) w-16">baseline</span>
+          <div className="flex-1 h-2.5 rounded-full bg-(--border) overflow-hidden">
+            <div className="h-full bg-(--accent) w-[40%]" />
           </div>
-          <span className="text-[#18181B] w-16 text-right">$0.012</span>
+          <span className="text-(--fg) w-16 text-right">$0.012</span>
         </div>
         <div className="flex items-center gap-3 mt-2">
-          <span className="text-[#A1A1AA] w-16">candidate</span>
-          <div className="flex-1 h-2.5 rounded-full bg-[#E4E4E7] overflow-hidden">
-            <div className="h-full bg-[#E5484D] w-[95%]" />
+          <span className="text-(--faint) w-16">candidate</span>
+          <div className="flex-1 h-2.5 rounded-full bg-(--border) overflow-hidden">
+            <div className="h-full bg-(--danger) w-[95%]" />
           </div>
-          <span className="text-[#E5484D] w-16 text-right font-semibold">$0.030</span>
+          <span className="text-(--danger) w-16 text-right font-semibold">$0.030</span>
         </div>
       </div>
     ),
@@ -113,20 +113,20 @@ const FEATURES = [
     example: (
       <div className="font-mono text-[12px]">
         <div className="flex items-center gap-1.5">
-          <span className="text-[#A1A1AA] w-16 text-[11px]">baseline</span>
-          <span className="w-4 h-4 rounded bg-[#E5484D]/60" />
-          <span className="w-4 h-4 rounded bg-[#0FA47F]" />
-          <span className="text-[#A1A1AA] text-[11px] ml-2">1 step back</span>
+          <span className="text-(--faint) w-16 text-[11px]">baseline</span>
+          <span className="w-4 h-4 rounded bg-(--danger)/60" />
+          <span className="w-4 h-4 rounded bg-(--accent)" />
+          <span className="text-(--faint) text-[11px] ml-2">1 step back</span>
         </div>
         <div className="flex items-center gap-1.5 mt-1.5">
-          <span className="text-[#A1A1AA] w-16 text-[11px]">candidate</span>
-          <span className="w-4 h-4 rounded bg-[#E5484D]" />
-          <span className="w-4 h-4 rounded bg-[#0FA47F]/40" />
-          <span className="w-4 h-4 rounded bg-[#0FA47F]/40" />
-          <span className="w-4 h-4 rounded bg-[#0FA47F]" />
-          <span className="text-[#E5484D] text-[11px] ml-2 font-semibold">3 steps back</span>
+          <span className="text-(--faint) w-16 text-[11px]">candidate</span>
+          <span className="w-4 h-4 rounded bg-(--danger)" />
+          <span className="w-4 h-4 rounded bg-(--accent)/40" />
+          <span className="w-4 h-4 rounded bg-(--accent)/40" />
+          <span className="w-4 h-4 rounded bg-(--accent)" />
+          <span className="text-(--danger) text-[11px] ml-2 font-semibold">3 steps back</span>
         </div>
-        <div className="text-[#A1A1AA] text-[11px] mt-2">recovery got 3× more expensive</div>
+        <div className="text-(--faint) text-[11px] mt-2">recovery got 3× more expensive</div>
       </div>
     ),
     formula: "RSR = recovery(candidate) / recovery(baseline)",
@@ -141,58 +141,61 @@ export default function FeaturesGrid() {
         <Reveal>
         {/* Section Header - left rail */}
         <div className="max-w-3xl mb-12">
-          <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-4">Capabilities</span>
-          <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
+          <span className="text-xs font-medium uppercase tracking-[0.18em] text-(--faint) block mb-4">Capabilities</span>
+          <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-(--fg) leading-tight">
             Five metrics that explain how the agent really ran.
           </h2>
-          <p className="mt-4 text-base text-[#52525B] leading-relaxed font-normal">
+          <p className="mt-4 text-base text-(--muted) leading-relaxed font-normal">
             Every trace reduces to a few computed indices. Exposed as a JSON report, they become hard gates in CI - no more guessing whether a run drifted.
           </p>
         </div>
         </Reveal>
 
         <Reveal delay={140}>
-        {/* Engine spec grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 items-stretch">
+        {/* Engine spec sheet - five metrics as full-width horizontal rows:
+            num/label | hero stat | title+body | visualization+formula.
+            Equal weight for every metric, hairline separators instead of
+            floating cards; stacks cleanly to a single column on mobile. */}
+        <div className="border border-(--border) rounded-2xl bg-(--surface) shadow-[0_1px_2px_rgba(0,0,0,0.04)] divide-y divide-(--border) overflow-hidden">
           {FEATURES.map((f) => (
             <div
               key={f.num}
-              className="flex flex-col border border-[#E4E4E7] rounded-2xl bg-white p-5 sm:p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+              className="grid grid-cols-1 lg:grid-cols-[minmax(0,6.5rem)_minmax(0,8.5rem)_minmax(0,1fr)_minmax(0,24rem)] gap-x-10 gap-y-5 px-5 sm:px-6 py-6 lg:py-7 items-center"
             >
-              {/* Index + label header */}
-              <div className="flex items-baseline justify-between mb-5">
-                <span className="font-mono text-xs text-[#A1A1AA]">{f.num}</span>
-                <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-[#A1A1AA]">
+              {/* Index + label */}
+              <div className="flex lg:flex-col items-baseline lg:items-start justify-between gap-1">
+                <span className="font-mono text-xs text-(--faint)">{f.num}</span>
+                <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-(--faint)">
                   {f.label}
                 </span>
               </div>
 
               {/* Hero stat - immediate scannability */}
-              <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-3xl font-semibold tracking-[-0.02em] text-[#E5484D]">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-semibold tracking-[-0.02em] text-(--danger)">
                   {f.stat}
                 </span>
-                <span className="text-xs font-medium uppercase tracking-wider text-[#E5484D]">
+                <span className="text-xs font-medium uppercase tracking-wider text-(--danger)">
                   {f.statLabel}
                 </span>
               </div>
 
-              {/* Title */}
-              <h3 className="text-lg font-semibold text-[#18181B] mb-2 leading-snug tracking-[-0.01em]">
-                {f.title}
-              </h3>
+              {/* Title + body */}
+              <div>
+                <h3 className="text-lg font-semibold text-(--fg) mb-2 leading-snug tracking-[-0.01em]">
+                  {f.title}
+                </h3>
+                <p className="text-sm text-(--muted) leading-relaxed font-normal max-w-prose">
+                  {f.body}
+                </p>
+              </div>
 
-              {/* Body - flexes; absorbs differing prose length */}
-              <p className="text-sm text-[#52525B] leading-relaxed font-normal flex-1 mb-6">
-                {f.body}
-              </p>
-
-              {/* Visualization + formula - pinned to bottom */}
-              <div className="mt-auto">
-                <div className="border border-[#E4E4E7] rounded-xl bg-[#FAFAFA] p-3.5">
+              {/* Visualization + formula */}
+              <div>
+                <div className="border border-(--border) rounded-xl bg-(--surface-2) p-3.5">
                   {f.example}
                 </div>
-                <div className="font-mono text-[11px] text-[#A1A1AA] leading-relaxed pt-3">
+                <div className="font-mono text-[11px] text-(--faint) leading-relaxed pt-3">
                   {f.formula}
                 </div>
               </div>
