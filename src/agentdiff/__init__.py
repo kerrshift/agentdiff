@@ -54,6 +54,14 @@ from agentdiff.engine.explanations import (
     generate_explanations,
     locate_culprit,
 )
+from agentdiff.engine.suite import (
+    GateThresholds,
+    Scenario,
+    ScenarioResult,
+    SuiteReport,
+    run_scenario,
+    run_scenarios,
+)
 from agentdiff.engine.tree import render_tree
 from agentdiff.loader import load_trace, parse_trace_data
 from agentdiff.models import (
@@ -74,15 +82,19 @@ __all__ = [
     "AgentTrace",
     "BaseAdapter",
     "DiffReport",
+    "GateThresholds",
     "GenericAdapter",
     "LangSmithAdapter",
     "LangfuseAdapter",
     "OpenAIAgentsAdapter",
     "OpenInferenceAdapter",
+    "Scenario",
+    "ScenarioResult",
     "StepDiff",
     "StepDiffStatus",
     "StepStatus",
     "StepType",
+    "SuiteReport",
     "TokenUsage",
     "TraceStep",
     "__version__",
@@ -99,4 +111,6 @@ __all__ = [
     "parse_trace_data",
     "register_adapter",
     "render_tree",
+    "run_scenario",
+    "run_scenarios",
 ]

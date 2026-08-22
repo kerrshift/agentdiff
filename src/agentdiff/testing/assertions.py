@@ -1,28 +1,20 @@
 from agentdiff.models.report import DiffReport
 
 
-def assert_no_regressions(
+def evaluate_report(
     report: DiffReport,
     max_divergence: float = 0.25,
     max_cost_increase_pct: float = 5.0,
     allow_loops: bool = False,
     max_wasted_effort: float = 0.10,
     max_recovery_step_ratio: float | None = None,
-):
-    """Regression assertion helper for pytest suites.
+) -> list[str]:
+    """Pure gate evaluation shared by every AgentDiff gate consumer.
 
-    Raises an :class:`AssertionError` (with a descriptive message) if any gate
-    is violated.
-
-    Args:
-        report: The :class:`DiffReport` produced by :func:`compare`.
-        max_divergence: Maximum allowed Trajectory Divergence Index (TDI).
-        max_cost_increase_pct: Maximum allowed cost increase, in percent.
-        allow_loops: If True, detected loops do not fail the assertion.
-        max_wasted_effort: Maximum allowed candidate Wasted Effort Index (WEI).
-        max_recovery_step_ratio: Maximum allowed Recovery Step Ratio (RSR) —
-            candidate vs baseline post-error recovery effort. Opt-in: when
-            ``None`` (default) the gate is disabled.
+    Returns a list of human-readable violation messages; empty means clean.
+    This is the single source of truth for gate semantics —
+    :func:`assert_no_regressions` raises on it, the scenario runner collects
+    it, and future gates must be added here so they apply everywhere at once.
     """
     errors = []
 
@@ -65,6 +57,41 @@ def assert_no_regressions(
             f"baseline {report.baseline_recovery_steps}) exceeded threshold of "
             f"{max_recovery_step_ratio:.4f}."
         )
+
+    return errors
+
+
+def assert_no_regressions(
+    report: DiffReport,
+    max_divergence: float = 0.25,
+    max_cost_increase_pct: float = 5.0,
+    allow_loops: bool = False,
+    max_wasted_effort: float = 0.10,
+    max_recovery_step_ratio: float | None = None,
+):
+    """Regression assertion helper for pytest suites.
+
+    Raises an :class:`AssertionError` (with a descriptive message) if any gate
+    is violated.
+
+    Args:
+        report: The :class:`DiffReport` produced by :func:`compare`.
+        max_divergence: Maximum allowed Trajectory Divergence Index (TDI).
+        max_cost_increase_pct: Maximum allowed cost increase, in percent.
+        allow_loops: If True, detected loops do not fail the assertion.
+        max_wasted_effort: Maximum allowed candidate Wasted Effort Index (WEI).
+        max_recovery_step_ratio: Maximum allowed Recovery Step Ratio (RSR) —
+            candidate vs baseline post-error recovery effort. Opt-in: when
+            ``None`` (default) the gate is disabled.
+    """
+    errors = evaluate_report(
+        report,
+        max_divergence=max_divergence,
+        max_cost_increase_pct=max_cost_increase_pct,
+        allow_loops=allow_loops,
+        max_wasted_effort=max_wasted_effort,
+        max_recovery_step_ratio=max_recovery_step_ratio,
+    )
 
     if errors:
         report.passed = False
