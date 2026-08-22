@@ -96,14 +96,41 @@ def run_scenarios(
     *,
     detect_loops: bool = True,
     strict_tool_signatures: bool = False,
+    workers: int | None = None,
 ) -> SuiteReport:
-    """Runs every scenario sequentially; nothing aborts the suite."""
-    results = [
-        run_scenario(
-            s, detect_loops=detect_loops, strict_tool_signatures=strict_tool_signatures
-        )
-        for s in scenarios
-    ]
+    """Runs every scenario; nothing aborts the suite.
+
+    Args:
+        scenarios: The scenarios to execute, in order.
+        detect_loops: Forwarded to :func:`compare` for every scenario.
+        strict_tool_signatures: Forwarded to :func:`compare`.
+        workers: ``None`` (default) runs sequentially. An integer ``>= 2``
+            executes scenarios on a thread pool (capped at the number of
+            scenarios). Results are always returned in input order,
+            regardless of completion order. Threads (not processes) keep
+            trace objects in memory without pickling; gains are largest when
+            scenarios load many or large trace files from disk.
+    """
+    if workers is not None and workers < 1:
+        raise ValueError("workers must be >= 1, or None for sequential execution")
+    if not scenarios:
+        return SuiteReport(results=[])
+
+    kwargs = dict(
+        detect_loops=detect_loops, strict_tool_signatures=strict_tool_signatures
+    )
+
+    if workers is None or workers == 1 or len(scenarios) == 1:
+        results = [run_scenario(s, **kwargs) for s in scenarios]
+    else:
+        from concurrent.futures import ThreadPoolExecutor
+
+        max_workers = min(workers, len(scenarios))
+        with ThreadPoolExecutor(max_workers=max_workers) as pool:
+            futures = [
+                pool.submit(run_scenario, scenario, **kwargs) for scenario in scenarios
+            ]
+            results = [future.result() for future in futures]
     return SuiteReport(results=results)
 
 

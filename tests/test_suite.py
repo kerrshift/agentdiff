@@ -1,5 +1,8 @@
 import json
+import threading
+import time
 
+import pytest
 from conftest import make_step, make_trace
 
 from agentdiff.engine.suite import (
@@ -155,3 +158,69 @@ def test_empty_suite_passes_trivially():
     suite = run_scenarios([])
     assert suite.passed is True
     assert suite.summary().count("[") == 0
+
+
+# --- D4: parallel workers -------------------------------------------------------
+
+
+def _numbered_scenarios(n):
+    b, c = _trace_pair()
+    return [Scenario(f"s{i}", b, c) for i in range(n)]
+
+
+def test_parallel_results_match_sequential_results():
+    scenarios = _numbered_scenarios(6)
+    sequential = run_scenarios(scenarios)
+    parallel = run_scenarios(scenarios, workers=3)
+
+    assert [r.name for r in parallel.results] == [r.name for r in sequential.results]
+    assert [r.passed for r in parallel.results] == [
+        r.passed for r in sequential.results
+    ]
+    assert [r.report.model_dump() for r in parallel.results] == [
+        r.report.model_dump() for r in sequential.results
+    ]
+
+
+def test_parallel_preserves_input_order_despite_completion_order(monkeypatch):
+    import agentdiff.engine.suite as suite_mod
+
+    real_run = suite_mod.run_scenario
+    lock = threading.Lock()
+
+    def slow_first(scenario, **kwargs):
+        result = real_run(scenario, **kwargs)
+        # The first scenario sleeps longest yet must still be reported first.
+        if scenario.name == "s0":
+            time.sleep(0.15)
+        with lock:
+            pass
+        return result
+
+    monkeypatch.setattr(suite_mod, "run_scenario", slow_first)
+    suite = suite_mod.run_scenarios(_numbered_scenarios(4), workers=4)
+    assert [r.name for r in suite.results] == ["s0", "s1", "s2", "s3"]
+
+
+def test_parallel_errors_are_contained():
+    b, c = _trace_pair()
+    scenarios = [
+        Scenario("ok", b, c),
+        Scenario("bad", "/does/not/exist.json", "/nor/does/this.json"),
+        Scenario("ok2", b, c),
+    ]
+    suite = run_scenarios(scenarios, workers=2)
+    assert suite.counts == {"passed": 2, "failed": 0, "errors": 1}
+    assert suite.results[1].status == "ERROR"
+    assert suite.passed is False
+
+
+def test_invalid_workers_raises():
+    with pytest.raises(ValueError, match="workers"):
+        run_scenarios(_numbered_scenarios(2), workers=0)
+
+
+def test_single_scenario_with_many_workers_is_sequential_path():
+    b, c = _trace_pair()
+    suite = run_scenarios([Scenario("solo", b, c)], workers=8)
+    assert suite.passed is True
