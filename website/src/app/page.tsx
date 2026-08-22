@@ -10,6 +10,7 @@ import IntegrationShowcase from "../components/IntegrationShowcase";
 import ProofBand from "../components/ProofBand";
 import ScaleSection from "../components/ScaleSection";
 import PRCommentShowcase from "../components/PRCommentShowcase";
+import FAQSection from "../components/FAQSection";
 import ClosingCTA from "../components/ClosingCTA";
 import Footer from "../components/Footer";
 
@@ -46,6 +47,7 @@ export default function Home() {
           <IntegrationShowcase />
           <ScaleSection />
           <PRCommentShowcase />
+          <FAQSection />
           <ClosingCTA />
         </main>
         <Footer version={readPackageVersion()} />
