@@ -1,4 +1,5 @@
 from agentdiff.adapters.base import BaseAdapter
+from agentdiff.adapters.crewai import CrewAIAdapter
 from agentdiff.adapters.generic import GenericAdapter
 from agentdiff.adapters.langfuse import LangfuseAdapter
 from agentdiff.adapters.langgraph import LangGraphAdapter
@@ -15,6 +16,7 @@ from agentdiff.adapters.registry import (
 
 __all__ = [
     "BaseAdapter",
+    "CrewAIAdapter",
     "GenericAdapter",
     "LangGraphAdapter",
     "LangSmithAdapter",

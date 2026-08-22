@@ -2,6 +2,7 @@ import json
 from typing import Any
 
 from agentdiff.adapters import (
+    CrewAIAdapter,
     GenericAdapter,
     LangfuseAdapter,
     LangGraphAdapter,
@@ -97,6 +98,10 @@ def _detect_builtin_format(data: dict[str, Any]) -> type | None:
     # LangGraph check: native state / checkpoint / message-list artifacts
     if LangGraphAdapter.detect(data):
         return LangGraphAdapter
+
+    # CrewAI check: kickoff output with task logs or raw+agent fields
+    if CrewAIAdapter.detect(data):
+        return CrewAIAdapter
 
     return None
 

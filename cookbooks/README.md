@@ -21,6 +21,7 @@ These use the bundled traces in [`sample/`](sample) and need only AgentDiff inst
 | [`ingestion_langfuse.py`](ingestion_langfuse.py) | Ingest a Langfuse trace. |
 | [`ingestion_langsmith.py`](ingestion_langsmith.py) | Ingest a LangSmith run tree (offline sample). |
 | [`ingestion_langgraph.py`](ingestion_langgraph.py) | Ingest a **native LangGraph state snapshot** through the `langgraph` adapter (real captured fixture; no OTel needed) and diff it against a loop variant. |
+| [`ingestion_crewai.py`](ingestion_crewai.py) | Ingest **native CrewAI kickoff output** through the `crewai` adapter (real captured `CrewOutput` dump; no OTel needed) and diff it against a two-task variant. |
 | [`pytest_plugin_demo/`](pytest_plugin_demo) | A mini-project running the `--agentdiff` pytest plugin against a committed baseline. |
 
 Run any of them with `uv`:

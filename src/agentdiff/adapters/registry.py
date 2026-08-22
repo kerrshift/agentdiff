@@ -27,6 +27,7 @@ import importlib.metadata
 from collections.abc import Callable
 
 from agentdiff.adapters.base import BaseAdapter
+from agentdiff.adapters.crewai import CrewAIAdapter
 from agentdiff.adapters.generic import GenericAdapter
 from agentdiff.adapters.langfuse import LangfuseAdapter
 from agentdiff.adapters.langgraph import LangGraphAdapter
@@ -38,6 +39,7 @@ from agentdiff.adapters.openinference import OpenInferenceAdapter
 ENTRY_POINT_GROUP = "agentdiff.adapters"
 
 BUILTIN_ADAPTERS: dict[str, type[BaseAdapter]] = {
+    "crewai": CrewAIAdapter,
     "generic": GenericAdapter,
     "openinference": OpenInferenceAdapter,
     "langfuse": LangfuseAdapter,

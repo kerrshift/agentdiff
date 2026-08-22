@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **CrewAI adapter** (`agentdiff.adapters.CrewAIAdapter`, name `"crewai"`):
+  direct ingestion of CrewAI kickoff output (`CrewOutput.model_dump()`) —
+  per-task message logs map to fine-grained routing/tool/response steps
+  prefixed by agent role, aggregate `token_usage` populates trace totals, and
+  simplified exports without logs degrade to one step per task. Participates
+  in `auto` detection; ships with a real captured fixture + offline cookbook.
+- **Shared role-message engine** (`adapters/_messages.py`): one interpretation
+  of OpenAI-style role conversations (all serialization shapes) powering the
+  LangGraph and CrewAI direct-ingestion adapters identically.
 - **LangGraph adapter** (`agentdiff.adapters.LangGraphAdapter`, name
   `"langgraph"`): direct ingestion of native LangGraph artifacts — state
   snapshots, checkpoint dumps (`channel_values`), and message lists — in all
