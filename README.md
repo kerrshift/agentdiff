@@ -11,6 +11,12 @@
 * **A Local-First CI/CD Gate:** Runs locally in your terminal or inside `pytest` and GitHub Actions, raising errors or exit codes on regression violations.
 * **A Universal Comparator:** Ingests telemetry run files from **OpenInference/OTel**, **Langfuse**, **LangSmith**, **OpenAI Agents SDK**, or raw/custom JSON.
 
+### What AgentDiff Is Not
+
+* **Not an observability backend.** No hosted tracing, no APM, no log storage — AgentDiff works on trace files you already have, at test time.
+* **Not an LLM-as-a-judge scorer.** Semantic answer quality is DeepEval/Ragas territory; AgentDiff measures *how* your agent got there — structurally and deterministically.
+* **Not an agent framework.** It doesn't orchestrate or run agents; it evaluates the trajectories your existing agents (LangGraph, CrewAI, OpenAI Agents SDK, custom loops) already produce.
+
 ## Installation
 
 Install the PyPI package:
@@ -183,6 +189,32 @@ for a working, live example (real Gemini agent + auto PR comments).
 | **Wasted Effort Index (WEI)** | `0.0` (Optimal) to `1.0` (Total Waste) | $$\frac{\text{Count}(\text{Steps with status} \in \{\text{ERROR, RETRY, ABANDONED}\})}{\text{Total Execution Steps}}$$ |
 | **Loop Buster Index (LBI)** | Integer ($\ge 0$) | Detects consecutive repeating sequences of tools with stagnant state changes. |
 | **Resource Deltas ($\Delta\text{Res}$)** | Percentage ($\pm\%$) | Standard deltas for $\Delta\text{Tokens}$, $\Delta\text{Cost}$, and $\Delta\text{Latency}$. |
+
+## FAQ
+
+**How is AgentDiff different from DeepEval or Ragas?**
+They score *what* the agent said (semantic quality, via LLM judges). AgentDiff measures *how* the agent got there — step order, tool loops, wasted effort, cost/latency deltas — using deterministic graph algorithms. They complement each other; AgentDiff adds no LLM calls and is fully deterministic.
+
+**Do I need API keys to run a diff?**
+No. AgentDiff is pure math over trace files you already have. Keys are only needed by your own agent when it produces traces, or by the optional live cookbooks that generate them.
+
+**Where do trace files come from?**
+Export them from whatever already records your runs: Langfuse or LangSmith exports, OpenTelemetry/OpenInference span dumps, the OpenAI Agents SDK tracing processor, or hand-rolled JSON matching the generic schema. See [`cookbooks/`](cookbooks/) for working recipes per source.
+
+**Can I compare runs from different frameworks?**
+Yes. Traces are normalized to one canonical `AgentTrace` schema before comparison, so an OpenInference baseline can be diffed against a Langfuse candidate (or any other pairing).
+
+**What do TDI / WEI / LBI mean in one line each?**
+TDI: fraction of trajectory structure that changed (0 = identical). WEI: share of steps that were errors/retries/abandonments. LBI: count of repeating tool sequences with no state progress. Definitions above.
+
+**How does the pytest plugin know which baseline belongs to a test?**
+Mark tests with the `agentdiff` marker and use the `agentdiff_trace` fixture; a committed baseline file per test is compared automatically (`--agentdiff-update-baselines` advances baselines on clean runs). See the docs for setup.
+
+**Which Python versions are supported?**
+Python 3.10 through 3.13, tested in CI on every PR.
+
+**Is it production-safe to gate merges on this?**
+That's the point — exit codes 0/1 make it a drop-in CI gate, and the GitHub Action posts the culprit + divergence tree right onto the PR so reviewers see *why* a gate blocked.
 
 ## Development & Operations
 
