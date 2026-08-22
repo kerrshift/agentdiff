@@ -21,12 +21,14 @@ baseline = "baselines/current.json"
 max_loops = 0
 max_divergence = 0.3
 max_cost_delta = 10.0
+max_recovery_ratio = 1.5 # opt-in Recovery Step Ratio gate (omit to disable)
 
 [assertions]             # defaults used by assert_no_regressions / pytest plugin
 max_divergence = 0.25
 max_cost_increase_pct = 5.0
 allow_loops = false
 max_wasted_effort = 0.1
+max_recovery_step_ratio = 1.5
 ```
 
 ## Precedence
