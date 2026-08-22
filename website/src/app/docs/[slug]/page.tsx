@@ -16,6 +16,12 @@ const SITE_URL = "https://agentdiff.lostmartian.in";
  * every page of the docs is individually crawlable and rankable.
  */
 
+/**
+ * Unknown slugs 404 cleanly. Also required in dev: without this, Next 16
+ * surfaces a missing-param runtime error instead for unmatched params.
+ */
+export const dynamicParams = false;
+
 export function generateStaticParams(): { slug: string }[] {
   return getAllDocs().map((d) => ({ slug: d.slug }));
 }
