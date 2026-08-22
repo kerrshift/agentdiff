@@ -103,6 +103,34 @@ const FEATURES = [
     ),
     formula: "Δcost = (candidate − baseline) / baseline × 100",
   },
+  {
+    num: "05",
+    label: "Recovery",
+    stat: "2.0×",
+    statLabel: "RSR",
+    title: "Recovery step ratio",
+    body: "How many steps a run spends getting back on track after errors, versus the baseline. Catches agents that fail cheaply but limp back expensively.",
+    example: (
+      <div className="font-mono text-[12px]">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[#A1A1AA] w-16 text-[11px]">baseline</span>
+          <span className="w-4 h-4 rounded bg-[#E5484D]/60" />
+          <span className="w-4 h-4 rounded bg-[#0FA47F]" />
+          <span className="text-[#A1A1AA] text-[11px] ml-2">1 step back</span>
+        </div>
+        <div className="flex items-center gap-1.5 mt-1.5">
+          <span className="text-[#A1A1AA] w-16 text-[11px]">candidate</span>
+          <span className="w-4 h-4 rounded bg-[#E5484D]" />
+          <span className="w-4 h-4 rounded bg-[#0FA47F]/40" />
+          <span className="w-4 h-4 rounded bg-[#0FA47F]/40" />
+          <span className="w-4 h-4 rounded bg-[#0FA47F]" />
+          <span className="text-[#E5484D] text-[11px] ml-2 font-semibold">3 steps back</span>
+        </div>
+        <div className="text-[#A1A1AA] text-[11px] mt-2">recovery got 3× more expensive</div>
+      </div>
+    ),
+    formula: "RSR = recovery(candidate) / recovery(baseline)",
+  },
 ];
 
 export default function FeaturesGrid() {
@@ -115,7 +143,7 @@ export default function FeaturesGrid() {
         <div className="max-w-3xl mb-12">
           <span className="text-xs font-medium uppercase tracking-[0.18em] text-[#A1A1AA] block mb-4">Capabilities</span>
           <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-[#18181B] leading-tight">
-            Four metrics that explain how the agent really ran.
+            Five metrics that explain how the agent really ran.
           </h2>
           <p className="mt-4 text-base text-[#52525B] leading-relaxed font-normal">
             Every trace reduces to a few computed indices. Exposed as a JSON report, they become hard gates in CI - no more guessing whether a run drifted.

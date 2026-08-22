@@ -39,6 +39,7 @@ def test_agent_refactor_efficiency():
         max_cost_increase_pct=5.0,  # Max LLM cost increase allowed
         allow_loops=False,           # Fail if tool loops detected
         max_wasted_effort=0.10,     # Max WEI (failed/retry steps ratio)
+        max_recovery_step_ratio=1.5 # Opt-in: max RSR vs baseline
     )`;
 
   const cliCode = `# Install via pip or uv
@@ -67,7 +68,7 @@ $ agentdiff baseline.json candidate.json \\
 # Explicit CLI flags still win over these defaults.
 
 [adapter]
-name = "auto"   # auto, generic, langfuse, langsmith, openai_agents
+name = "auto"   # auto, generic, openinference, langfuse, langsmith, openai_agents
 
 [cli]
 baseline = "baselines/current.json"
@@ -77,7 +78,8 @@ max_cost_delta = 10.0
 
 [assertions]
 max_divergence = 0.25
-allow_loops = false`;
+allow_loops = false
+max_recovery_step_ratio = 1.5`;
 
   const reportCode = `# AgentDiff · Regression Report
 > baseline: sql_agent_v1.json · candidate: sql_agent_v2.json
