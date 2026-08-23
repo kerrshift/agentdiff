@@ -48,7 +48,32 @@ export default function DocContent({ content }: { content: string }) {
 
   const dark = theme === "dark";
 
+  function slugifyHeading(text: string): string {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+  }
+  function textFromChildren(c: React.ReactNode): string {
+    if (typeof c === "string") return c;
+    if (typeof c === "number") return String(c);
+    if (Array.isArray(c)) return (c as React.ReactNode[]).map(textFromChildren).join("");
+    if (c && typeof c === "object" && (c as any).props !== undefined) {
+      const p = (c as { props: { children?: React.ReactNode } }).props;
+      return p.children ? textFromChildren(p.children) : "";
+    }
+    return "";
+  }
+
   const markdownComponents = {
+    h2: ({ children }: any) => {
+      const id = slugifyHeading(textFromChildren(children));
+      return <h2 id={id}>{children}</h2>;
+    },
+    h3: ({ children }: any) => {
+      const id = slugifyHeading(textFromChildren(children));
+      return <h3 id={id}>{children}</h3>;
+    },
     pre: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
     code: ({
       node,

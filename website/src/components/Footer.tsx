@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import LogoMark from "./LogoMark";
 
 export default function Footer({ version = "0.2.1" }: { version?: string }) {
@@ -29,14 +30,15 @@ export default function Footer({ version = "0.2.1" }: { version?: string }) {
           <div className="flex justify-between gap-8 sm:gap-12 lg:gap-24 w-full lg:w-auto">
             <div className="flex flex-col gap-2.5">
               <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-(--faint) mb-1">Product</span>
-              <a href="#workspace-section" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Workspace</a>
-              <a href="#features-section" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Features</a>
-              <a href="#action-section" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Action</a>
-              <a href="#integration-section" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Integration</a>
+              <Link href="/#workspace-section" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Workspace</Link>
+              <Link href="/#features-section" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Features</Link>
+              <Link href="/#action-section" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Action</Link>
+              <Link href="/#integration-section" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Integration</Link>
             </div>
             <div className="flex flex-col gap-2.5">
               <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-(--faint) mb-1">Resources</span>
-              <a href="/docs" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Docs</a>
+              <Link href="/docs" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Docs</Link>
+              <Link href="/blog" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Blog</Link>
               <a href="https://github.com/lostmartian/agentdiff/tree/main/cookbooks" target="_blank" rel="noopener noreferrer" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Cookbooks</a>
               <a href="https://github.com/lostmartian/agentdiff" target="_blank" rel="noopener noreferrer" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">GitHub</a>
               <a href="https://pypi.org/project/agent-trajectory-diff" target="_blank" rel="noopener noreferrer" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">PyPI</a>
