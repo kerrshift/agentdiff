@@ -42,6 +42,18 @@ uv add agent-trajectory-diff
 
 ## Quickstart
 
+### 0. No trace yet? Record one.
+
+Point `record` at any callable (your agent's entry function) and it captures a canonical trace:
+
+```bash
+agentdiff record my_agent:run --input '{"question": "What is AgentDiff?"}' --out traces/run.json
+```
+
+- `--input` takes a JSON object (passed as kwargs) or `@file.json`
+- A failed run is still recorded — diff it to see exactly what broke
+- Then compare: `agentdiff traces/baseline.json traces/run.json`
+
 ### 1. CLI Usage
 
 Compare two trajectory JSON traces from your terminal:
