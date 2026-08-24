@@ -205,3 +205,69 @@ class TestCLIBaselineConfig:
             ],
         )
         assert result.exit_code == 2
+
+
+class TestGateProvenance:
+    """G7 — every report self-describes its active thresholds + source."""
+
+    def test_provenance_line_defaults(self):
+        from agentdiff.governance import provenance_line
+
+        line = provenance_line(AgentDiffConfig(), None)
+        assert "max_divergence=0.3" in line
+        assert "max_loops=0" in line
+        assert "max_cost_delta=10.0%" in line
+        assert "source: defaults (no agentdiff.toml found)" in line
+
+    def test_provenance_line_with_path(self, tmp_path):
+        from agentdiff.governance import provenance_line
+
+        cfg_file = tmp_path / "agentdiff.toml"
+        cfg_file.write_text("[cli]\nmax_divergence = 0.4\nmax_recovery_ratio = 1.5\n")
+        line = provenance_line(load_config(cfg_file), str(cfg_file))
+        assert "max_divergence=0.4" in line
+        assert "max_recovery_ratio=1.5" in line  # opt-in gate appears when set
+        assert f"source: agentdiff.toml ({cfg_file})" in line
+
+    def test_terminal_format_includes_provenance(self, tmp_path):
+        base, cand = TestCLIBaselineConfig()._traces(tmp_path)
+        result = runner.invoke(
+            __import__("agentdiff.cli", fromlist=["app"]).app,
+            ["diff", str(base), str(cand)],
+        )
+        assert result.exit_code == 0
+        assert "Gate: max_divergence=0.3" in result.output
+        assert (
+            "defaults" in result.output
+        )  # rich wraps long lines; assert words, not phrases
+
+    def test_json_format_includes_provenance(self, tmp_path):
+        base, cand = TestCLIBaselineConfig()._traces(tmp_path)
+        result = runner.invoke(
+            __import__("agentdiff.cli", fromlist=["app"]).app,
+            ["diff", str(base), str(cand), "--format", "json"],
+        )
+        assert result.exit_code == 0
+        data = json.loads(result.output)
+        assert "Gate: max_divergence=0.3" in data["gate_provenance"]
+
+    def test_pr_format_includes_provenance_footer(self, tmp_path):
+        base, cand = TestCLIBaselineConfig()._traces(tmp_path)
+        result = runner.invoke(
+            __import__("agentdiff.cli", fromlist=["app"]).app,
+            ["diff", str(base), str(cand), "--format", "pr"],
+        )
+        assert result.exit_code == 0
+        assert "<sub>Gate: max_divergence=0.3" in result.output
+
+    def test_explicit_config_path_shown_as_source(self, tmp_path):
+        base, cand = TestCLIBaselineConfig()._traces(tmp_path)
+        cfg_file = tmp_path / "agentdiff.toml"
+        cfg_file.write_text("[cli]\nmax_divergence = 0.45\n")
+        result = runner.invoke(
+            __import__("agentdiff.cli", fromlist=["app"]).app,
+            ["diff", str(base), str(cand), "--config", str(cfg_file)],
+        )
+        assert result.exit_code == 0
+        assert "max_divergence=0.45" in result.output
+        assert "agentdiff.toml" in result.output  # path may wrap; filename stays whole

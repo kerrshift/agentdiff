@@ -66,6 +66,11 @@ The PR comment renders a warning block above the gate table:
 The same summary prints with `--explain`. Loosening a gate is now as
 visible in review as the code it guards.
 
+Every report also self-describes its rules: a one-line gate provenance
+(`Gate: max_divergence=0.3, max_loops=0, ... - source: agentdiff.toml`)
+appears in the terminal summary, the JSON (`gate_provenance` field), and
+the PR comment footer - so a diff always answers "what rules judged me?".
+
 ## From the SDK
 
 You can load config programmatically with `load_config()`, which returns an

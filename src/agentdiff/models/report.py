@@ -37,6 +37,11 @@ class DiffReport(BaseModel):
     recovery_step_ratio: float = 0.0
     step_diffs: list[StepDiff] = Field(default_factory=list)
     passed: bool = True
+    gate_provenance: str | None = Field(
+        default=None,
+        description="G7: one-line summary of active gate thresholds and their "
+        "source (agentdiff.toml path or defaults). Populated by the CLI.",
+    )
 
     def summary(self) -> str:
         """Returns a string summarizing the comparison report."""
