@@ -39,6 +39,10 @@ inputs:
     description: "GitHub pull request number to post the PR-ready report comment to."
     required: false
     default: ""
+  baseline-config:
+    description: "Path to the agentdiff.toml the BASELINE was recorded with. When gate values differ from this run's config, the PR report flags the change (Goodhart guard)."
+    required: false
+    default: ""
   github-token:
     description: "GitHub token used to post the PR comment (e.g. secrets.GITHUB_TOKEN). Required when pr is set."
     required: false
@@ -70,6 +74,9 @@ runs:
         fi
         if [[ -n "${{ inputs.pr }}" ]]; then
           args+=(--pr "${{ inputs.pr }}")
+        fi
+        if [[ -n "${{ inputs.baseline-config }}" ]]; then
+          args+=(--baseline-config "${{ inputs.baseline-config }}")
         fi
         agentdiff "${{ inputs.baseline }}" "${{ inputs.candidate }}" \
           --baseline "${{ inputs.baseline }}" \

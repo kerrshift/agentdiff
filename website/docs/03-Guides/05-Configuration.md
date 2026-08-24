@@ -41,6 +41,31 @@ overriding them for a one-off run:
 agentdiff baseline.json candidate.json --max-divergence 0.5
 ```
 
+## Gate governance (Goodhart guard)
+
+A threshold tuned until CI goes green stops being a control. Pass
+`--baseline-config` to compare the gate values the *baseline* was recorded
+with against the ones this run uses — any change is flagged right next to
+the diff it let through:
+
+```bash
+# In CI: fetch the config the baseline was recorded against, then diff
+git show origin/main:agentdiff.toml > /tmp/baseline-agentdiff.toml
+agentdiff baseline.json candidate.json --baseline-config /tmp/baseline-agentdiff.toml --format pr
+```
+
+The PR comment renders a warning block above the gate table:
+
+```text
+> [!WARNING]
+> Gate thresholds changed in this PR — the diff below was judged
+> against this PR's rules, not the baseline's.
+> - max_divergence: `0.25` → `0.4`
+```
+
+The same summary prints with `--explain`. Loosening a gate is now as
+visible in review as the code it guards.
+
 ## From the SDK
 
 You can load config programmatically with `load_config()`, which returns an

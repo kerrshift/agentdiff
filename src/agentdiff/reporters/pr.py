@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from agentdiff.engine.explanations import locate_culprit
 from agentdiff.engine.tree import render_tree
+from agentdiff.governance import ThresholdChange
 from agentdiff.models.report import DiffReport
 
 DEFAULT_MAX_DIVERGENCE = 0.3
@@ -14,12 +15,17 @@ def generate_pr_markdown(
     max_loops: int = 0,
     max_cost_delta: float = DEFAULT_MAX_COST_DELTA,
     max_recovery_ratio: float | None = None,
+    threshold_changes: list[ThresholdChange] | None = None,
 ) -> str:
     """Renders a compact, PR-ready markdown comment.
 
     Summary status + gate thresholds, the collapsed divergence tree, and the
     root-cause step — everything a reviewer needs without the full diff.
     The Recovery Step Ratio row only appears when a threshold is provided.
+
+    When ``threshold_changes`` is non-empty (G6), a warning block renders
+    above the gate table: the gate itself moved in this PR, so the diff
+    above was judged against looser/tighter rules than the baseline had.
     """
     status = "⛔ **FAILED**" if not report.passed else "✅ **PASSED**"
 
@@ -28,12 +34,27 @@ def generate_pr_markdown(
         "",
         f"**Status:** {status}",
         "",
-        "| Gate | Value | Threshold |",
-        "| :--- | :--- | :--- |",
-        f"| TDI | `{report.trajectory_divergence_index:.4f}` | ≤ `{max_divergence}` |",
-        f"| Loops | `{len(report.loops_detected)}` | ≤ `{max_loops}` |",
-        f"| Cost delta | `{report.cost_delta_percentage:+.2f}%` | ≤ `{max_cost_delta}%` |",
     ]
+
+    if threshold_changes:
+        lines.append("> [!WARNING]")
+        lines.append(
+            "> **Gate thresholds changed in this PR** — the diff below was judged against this PR's rules, not the baseline's."
+        )
+        lines.append(">")
+        for change in threshold_changes:
+            lines.append(f"> - {change.render()}")
+        lines.append("")
+
+    lines.extend(
+        [
+            "| Gate | Value | Threshold |",
+            "| :--- | :--- | :--- |",
+            f"| TDI | `{report.trajectory_divergence_index:.4f}` | ≤ `{max_divergence}` |",
+            f"| Loops | `{len(report.loops_detected)}` | ≤ `{max_loops}` |",
+            f"| Cost delta | `{report.cost_delta_percentage:+.2f}%` | ≤ `{max_cost_delta}%` |",
+        ]
+    )
     if max_recovery_ratio is not None:
         lines.append(
             f"| Recovery Step Ratio | `{report.recovery_step_ratio:.2f} "
