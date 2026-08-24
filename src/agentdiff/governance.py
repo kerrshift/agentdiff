@@ -62,3 +62,25 @@ def diff_gate_thresholds(
         for key in _GATED_KEYS
         if old_gates[key] != new_gates[key]
     ]
+
+
+def provenance_line(cfg: AgentDiffConfig, config_path: str | None) -> str:
+    """G7 — one-line, self-describing gate summary for any report.
+
+    Names the active thresholds and where they came from, so every diff
+    answers "what rules judged me?" without opening the config.
+    """
+    gates = effective_gates(cfg)
+    source = (
+        f"agentdiff.toml ({config_path})"
+        if config_path
+        else "defaults (no agentdiff.toml found)"
+    )
+    parts = [
+        f"max_divergence={gates['max_divergence']}",
+        f"max_loops={gates['max_loops']}",
+        f"max_cost_delta={gates['max_cost_delta']}%",
+    ]
+    if gates["max_recovery_ratio"] is not None:
+        parts.append(f"max_recovery_ratio={gates['max_recovery_ratio']}")
+    return f"Gate: {', '.join(parts)} — source: {source}"

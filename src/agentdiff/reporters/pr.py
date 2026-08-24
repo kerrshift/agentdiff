@@ -16,6 +16,7 @@ def generate_pr_markdown(
     max_cost_delta: float = DEFAULT_MAX_COST_DELTA,
     max_recovery_ratio: float | None = None,
     threshold_changes: list[ThresholdChange] | None = None,
+    gate_provenance: str | None = None,
 ) -> str:
     """Renders a compact, PR-ready markdown comment.
 
@@ -92,5 +93,8 @@ def generate_pr_markdown(
                 f"`{loop.get('iterations', 0)}` times{stagnant}"
             )
         lines.append("")
+
+    if gate_provenance:
+        lines.append(f"<sub>{gate_provenance}</sub>")
 
     return "\n".join(lines)

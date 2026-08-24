@@ -63,8 +63,13 @@ def render_diff_table(report: DiffReport) -> Table:
     return table
 
 
-def print_report(report: DiffReport):
-    """Outputs the complete DiffReport to the terminal."""
+def print_report(report: DiffReport, gate_provenance: str | None = None):
+    """Outputs the complete DiffReport to the terminal.
+
+    ``gate_provenance`` (G7) appends a one-line, self-describing gate summary
+    — active thresholds and their source — so the report answers "what rules
+    judged me?" without opening the config.
+    """
     console = Console()
 
     status_str = (
@@ -87,6 +92,8 @@ def print_report(report: DiffReport):
         f"  • Token Delta:   {report.token_delta_percentage:+.2f}%\n"
         f"  • Cost Delta:    {report.cost_delta_percentage:+.2f}%"
     )
+    if gate_provenance:
+        summary_text += f"\n\n[dim]{gate_provenance}[/dim]"
 
     panel = Panel(
         summary_text,

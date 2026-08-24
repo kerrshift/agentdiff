@@ -8,11 +8,11 @@ import typer
 
 from agentdiff.ci.baseline import decide_rotation
 from agentdiff.ci.github import post_pr_comment
-from agentdiff.config import AgentDiffConfig, load_config
+from agentdiff.config import AgentDiffConfig, find_config_file, load_config
 from agentdiff.engine.comparator import compare
 from agentdiff.engine.explanations import format_explanations, locate_culprit
 from agentdiff.engine.tree import render_tree
-from agentdiff.governance import diff_gate_thresholds
+from agentdiff.governance import diff_gate_thresholds, provenance_line
 from agentdiff.loader import load_trace
 from agentdiff.models.step import StepStatus
 from agentdiff.recorder import record_run, save_trace
@@ -189,6 +189,7 @@ def diff(
 ):
     """Compares baseline and candidate agent trajectories."""
     cfg = load_config(config)
+    config_source = config or (str(find_config_file()) if find_config_file() else None)
     threshold_changes: list = []
     if baseline_config:
         try:
@@ -197,6 +198,7 @@ def diff(
             typer.echo(f"Baseline config not found: {e}", err=True)
             sys.exit(2)
         threshold_changes = diff_gate_thresholds(baseline_cfg, cfg)
+    gate_provenance = provenance_line(cfg, config_source)
     values = _resolve_cli(
         cfg,
         adapter=adapter,
@@ -282,10 +284,11 @@ def diff(
             # For console printing we write directly, but we can capture it or format differently if output_file is active
             if output_file:
                 # If writing terminal format to file, output the text summary representation
-                output_content = report.summary()
+                output_content = report.summary() + f"\n{gate_provenance}\n"
             else:
-                print_report(report)
+                print_report(report, gate_provenance=gate_provenance)
         elif format.lower() == "json":
+            report.gate_provenance = gate_provenance
             output_content = report.model_dump_json(indent=2)
             if not output_file:
                 typer.echo(output_content)
@@ -301,6 +304,7 @@ def diff(
                 max_cost_delta=max_cost_delta,
                 max_recovery_ratio=max_recovery_ratio,
                 threshold_changes=threshold_changes,
+                gate_provenance=gate_provenance,
             )
             if not output_file:
                 typer.echo(output_content)
@@ -332,6 +336,7 @@ def diff(
                 max_cost_delta=max_cost_delta,
                 max_recovery_ratio=max_recovery_ratio,
                 threshold_changes=threshold_changes,
+                gate_provenance=gate_provenance,
             )
             comment = post_pr_comment(body, pr)
             url = comment.get("html_url")
