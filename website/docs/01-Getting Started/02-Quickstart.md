@@ -12,7 +12,19 @@ uv add agent-trajectory-diff
 
 This installs the `agentdiff` CLI and the `agentdiff` Python package.
 
-## 2. Compare two traces
+## 2. No trace yet? Record one
+
+Point `record` at any callable (your agent's entry function) and AgentDiff runs
+it once and captures a canonical trace — no telemetry or framework needed:
+
+```bash
+agentdiff record my_agent:run --input '{"question": "What is AgentDiff?"}' --out traces/run.json
+```
+
+- `--input` takes a JSON object (passed to the callable as kwargs) or `@file.json`
+- A failed run is still recorded — diff it to see exactly what broke
+
+## 3. Compare two traces
 
 The CLI takes a baseline trace and a candidate trace. Run the same task twice
 (e.g. on `main` and on your branch), export the traces, then:
@@ -50,7 +62,7 @@ agentdiff baseline.json candidate.json --fail-on-regression
 The full CLI surface - including baseline rotation and PR comments - is covered
 in the Guides.
 
-## 3. Gate it in pytest
+## 4. Gate it in pytest
 
 The pytest plugin compares each test's run against a committed baseline and
 fails the test on regression:

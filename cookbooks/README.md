@@ -13,6 +13,7 @@ These use the bundled traces in [`sample/`](sample) and need only AgentDiff inst
 
 | Recipe | What it shows |
 | --- | --- |
+| [`record_callable.py`](record_callable.py) | **`agentdiff record`** — capture a trace from any callable with zero telemetry: baseline → changed candidate → diff blocks the gate. |
 | [`moat_diff_workflow.py`](moat_diff_workflow.py) | The core story: `compare` → **why** (`--explain`) → **where** (`--tree` + culprit step). |
 | [`baseline_rotation.py`](baseline_rotation.py) | Baseline rotation policies (manual / auto / staged) + the drift-creep guard. |
 | [`pr_markdown.py`](pr_markdown.py) | Paste-ready PR comment (gate, divergence tree, culprit) + how `--pr` posts it. |

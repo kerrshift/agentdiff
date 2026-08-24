@@ -82,3 +82,4 @@ website/.env.production.local
 
 # pytest-benchmark local results
 .benchmarks/
+_record_demo/

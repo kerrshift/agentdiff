@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 import sys
+from pathlib import Path
 
 import typer
 
@@ -12,6 +13,8 @@ from agentdiff.engine.comparator import compare
 from agentdiff.engine.explanations import format_explanations, locate_culprit
 from agentdiff.engine.tree import render_tree
 from agentdiff.loader import load_trace
+from agentdiff.models.step import StepStatus
+from agentdiff.recorder import record_run, save_trace
 from agentdiff.reporters.markdown import generate_markdown
 from agentdiff.reporters.pr import generate_pr_markdown
 from agentdiff.reporters.terminal import print_report
@@ -19,6 +22,77 @@ from agentdiff.reporters.terminal import print_report
 app = typer.Typer(
     help="AgentDiff CLI - Compare multi-turn agent execution trajectories."
 )
+
+
+@app.command(name="record")
+def record(
+    target: str = typer.Argument(
+        ...,
+        help="Callable to run, as 'module:function' or 'module:Class.method'.",
+    ),
+    out: str = typer.Option(
+        ...,
+        "--out",
+        "-o",
+        help="Path to write the captured trace JSON (e.g. traces/run.json).",
+    ),
+    input_json: str | None = typer.Option(
+        None,
+        "--input",
+        "-i",
+        help="JSON object passed to the callable as kwargs (or a single positional arg if not an object). Use '@file.json' to read from a file.",
+    ),
+    name: str | None = typer.Option(
+        None,
+        "--name",
+        help="Agent name recorded in the trace (default: function name).",
+    ),
+):
+    """Runs an agent callable once and captures its trajectory as a trace.
+
+    Example:
+        agentdiff record my_agent:run --input '{"question": "hi"}' --out traces/run.json
+
+    The captured trace is a canonical AgentDiff JSON, ready for:
+
+        agentdiff diff traces/baseline.json traces/run.json
+    """
+    task_input: dict | None = None
+    if input_json:
+        try:
+            if input_json.startswith("@"):
+                task_input = json.loads(
+                    Path(input_json[1:]).read_text(encoding="utf-8")
+                )
+            else:
+                task_input = json.loads(input_json)
+        except (json.JSONDecodeError, FileNotFoundError) as e:
+            typer.echo(f"Invalid --input: {e}", err=True)
+            sys.exit(2)
+        if not isinstance(task_input, dict):
+            task_input = {"input": task_input}
+
+    try:
+        trace = record_run(target, task_input=task_input, agent_name=name)
+    except ValueError as e:
+        typer.echo(f"Error: {e}", err=True)
+        sys.exit(2)
+    except Exception as e:
+        typer.echo(f"Recording failed: {e}", err=True)
+        sys.exit(3)
+
+    path = save_trace(trace, out)
+
+    if trace.steps[0].status == StepStatus.ERROR:
+        typer.echo(
+            f"Recorded FAILED run → {path}\n  error: {trace.steps[0].error_message}",
+            err=True,
+        )
+        sys.exit(1)
+
+    typer.echo(f"Recorded run → {path}")
+    typer.echo(f"  agent: {trace.agent_name} · latency: {trace.total_latency_ms:.0f}ms")
+    typer.echo(f"Next: agentdiff diff <baseline> {path}")
 
 
 def _resolve_cli(cfg: AgentDiffConfig, **values):
@@ -283,6 +357,47 @@ def main():
     except Exception as e:
         print(f"Unhandled error: {e}", file=sys.stderr)
         sys.exit(3)
+
+
+def _install_diff_default() -> None:
+    """E1 compat: `agentdiff base.json cand.json` (no subcommand) means `diff`.
+
+    With two commands registered, Typer requires an explicit subcommand. We
+    patch the built click.Group so a leading positional that isn't a known
+    command is treated as `diff ...`. Works for the real CLI and CliRunner.
+    """
+    import typer.main
+
+    original_get_command = typer.main.get_command
+
+    def get_command_with_default(typer_app):
+        group = original_get_command(typer_app)
+        if not getattr(group, "_diff_default", False):
+            original_parse_args = group.parse_args
+
+            def parse_args(ctx, args):
+                if (
+                    args
+                    and args[0] not in group.commands
+                    and not args[0].startswith("-")
+                ):
+                    args = ["diff", *args]
+                original_parse_args(ctx, args)
+
+            group.parse_args = parse_args
+            group._diff_default = True
+        return group
+
+    typer.main.get_command = get_command_with_default
+
+    # typer.testing binds get_command at import time — patch its reference too
+    import typer.testing as testing_module
+
+    if getattr(testing_module, "_get_command", None) is original_get_command:
+        testing_module._get_command = get_command_with_default
+
+
+_install_diff_default()
 
 
 if __name__ == "__main__":
