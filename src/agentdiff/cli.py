@@ -12,6 +12,7 @@ from agentdiff.config import AgentDiffConfig, load_config
 from agentdiff.engine.comparator import compare
 from agentdiff.engine.explanations import format_explanations, locate_culprit
 from agentdiff.engine.tree import render_tree
+from agentdiff.governance import diff_gate_thresholds
 from agentdiff.loader import load_trace
 from agentdiff.models.step import StepStatus
 from agentdiff.recorder import record_run, save_trace
@@ -180,9 +181,22 @@ def diff(
     max_drift: float = typer.Option(
         0.05, help="Max TDI a clean run may have for staged auto-rotation."
     ),
+    baseline_config: str | None = typer.Option(
+        None,
+        "--baseline-config",
+        help="Path to the agentdiff.toml the BASELINE was recorded with. When gate values differ from this run's config, the report flags the change (Goodhart guard).",
+    ),
 ):
     """Compares baseline and candidate agent trajectories."""
     cfg = load_config(config)
+    threshold_changes: list = []
+    if baseline_config:
+        try:
+            baseline_cfg = load_config(baseline_config)
+        except FileNotFoundError as e:
+            typer.echo(f"Baseline config not found: {e}", err=True)
+            sys.exit(2)
+        threshold_changes = diff_gate_thresholds(baseline_cfg, cfg)
     values = _resolve_cli(
         cfg,
         adapter=adapter,
@@ -286,6 +300,7 @@ def diff(
                 max_loops=max_loops,
                 max_cost_delta=max_cost_delta,
                 max_recovery_ratio=max_recovery_ratio,
+                threshold_changes=threshold_changes,
             )
             if not output_file:
                 typer.echo(output_content)
@@ -299,6 +314,10 @@ def diff(
             culprit = locate_culprit(report)
             if culprit:
                 typer.echo("\n" + culprit.render())
+            if threshold_changes:
+                typer.echo("\nGate thresholds changed vs baseline config:")
+                for change in threshold_changes:
+                    typer.echo(f"  ! {change.render()}")
 
         # Print the collapsed divergence tree when requested
         if tree:
@@ -312,6 +331,7 @@ def diff(
                 max_loops=max_loops,
                 max_cost_delta=max_cost_delta,
                 max_recovery_ratio=max_recovery_ratio,
+                threshold_changes=threshold_changes,
             )
             comment = post_pr_comment(body, pr)
             url = comment.get("html_url")
