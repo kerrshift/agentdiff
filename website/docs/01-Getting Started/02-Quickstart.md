@@ -82,6 +82,12 @@ directory for runnable end-to-end examples.
 
 ## Next steps
 
+Tip: enable tab-completion for the CLI:
+
+```bash
+agentdiff --install-completion
+```
+
 - **Reading the Report** - what the metrics mean.
 - **Regression Gates** - thresholds.
 - **Ingestion Adapters** - formats you can load.
