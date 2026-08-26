@@ -40,6 +40,12 @@ Or using `uv`:
 uv add agent-trajectory-diff
 ```
 
+Enable tab-completion for the CLI (bash/zsh/fish/powershell):
+```bash
+agentdiff --install-completion
+```
+> Tip: for a global `agentdiff` command without activating a venv, use `uv tool install agent-trajectory-diff` — then completion works anywhere.
+
 ## Quickstart
 
 ### 0. No trace yet? Record one.
