@@ -71,6 +71,7 @@ Options:
 - `--baseline, -b PATH`: Compare against a persistent baseline trace file (see [Baseline workflow](#baseline-workflow)).
 - `--update-baseline`: Overwrite the persistent baseline with the candidate after a clean diff.
 - `--baseline-config PATH`: The `agentdiff.toml` the **baseline** was recorded with. When gate values differ from this run's config, the report flags the change (Goodhart guard — see [Gate governance](https://agentdiff.lostmartian.in/docs/configuration#gate-governance-goodhart-guard)).
+- `--stale-days N`: Warn via `--explain` when the baseline file is older than N days (default: config `stale_baseline_days` or 30 — advisory only).
 - `--config PATH`: Load defaults from an `agentdiff.toml` (auto-discovered if not given).
 
 #### Config-as-code (`agentdiff.toml`)

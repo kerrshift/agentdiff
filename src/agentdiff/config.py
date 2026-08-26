@@ -69,6 +69,7 @@ class CliConfig:
     max_cost_delta: float = 10.0
     max_wasted_effort: float = 0.1
     max_recovery_ratio: float | None = None
+    stale_baseline_days: int = 30
 
 
 @dataclass

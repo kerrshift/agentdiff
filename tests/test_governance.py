@@ -271,3 +271,90 @@ class TestGateProvenance:
         assert result.exit_code == 0
         assert "max_divergence=0.45" in result.output
         assert "agentdiff.toml" in result.output  # path may wrap; filename stays whole
+
+
+class TestStaleBaseline:
+    """F7 — baselines age silently; --explain surfaces the age."""
+
+    def test_old_baseline_warns_in_explain(self, tmp_path, monkeypatch):
+        import os
+        import time
+
+        from agentdiff.cli import app as cli_app
+
+        base = tmp_path / "base.json"
+        cand = tmp_path / "cand.json"
+        base.write_text(
+            json.dumps(record_run("json:loads", task_input={"s": "{}"}).model_dump())
+        )
+        cand.write_text(
+            json.dumps(record_run("json:loads", task_input={"s": "{}"}).model_dump())
+        )
+        old = time.time() - 47 * 86400
+        os.utime(base, (old, old))
+
+        result = runner.invoke(
+            cli_app, ["diff", str(base), str(cand), "--explain", "--stale-days", "30"]
+        )
+        assert result.exit_code == 0
+        assert "Baseline is 47 days old" in result.output
+        assert "consider re-recording" in result.output
+
+    def test_fresh_baseline_no_warning(self, tmp_path):
+        from agentdiff.cli import app as cli_app
+
+        base = tmp_path / "base.json"
+        cand = tmp_path / "cand.json"
+        base.write_text(
+            json.dumps(record_run("json:loads", task_input={"s": "{}"}).model_dump())
+        )
+        cand.write_text(
+            json.dumps(record_run("json:loads", task_input={"s": "{}"}).model_dump())
+        )
+
+        result = runner.invoke(cli_app, ["diff", str(base), str(cand), "--explain"])
+        assert result.exit_code == 0
+        assert "consider re-recording" not in result.output
+
+    def test_stale_days_config_respected(self, tmp_path):
+        import os
+        import time
+
+        from agentdiff.cli import app as cli_app
+
+        base = tmp_path / "base.json"
+        cand = tmp_path / "cand.json"
+        base.write_text(
+            json.dumps(record_run("json:loads", task_input={"s": "{}"}).model_dump())
+        )
+        cand.write_text(
+            json.dumps(record_run("json:loads", task_input={"s": "{}"}).model_dump())
+        )
+        old = time.time() - 5 * 86400
+        os.utime(base, (old, old))
+        cfg = tmp_path / "agentdiff.toml"
+        cfg.write_text("[cli]\nstale_baseline_days = 3\n")
+
+        result = runner.invoke(
+            cli_app,
+            ["diff", str(base), str(cand), "--explain", "--config", str(cfg)],
+        )
+        assert result.exit_code == 0
+        assert "Baseline is 5 days old" in result.output
+
+    def test_staleness_missing_file_not_stale(self):
+        from agentdiff.staleness import check_baseline_staleness
+
+        s = check_baseline_staleness("/nonexistent/baseline.json")
+        assert s.missing is True
+        assert s.is_stale is False
+        assert s.render() == ""
+
+    def test_staleness_render_fresh(self, tmp_path):
+        from agentdiff.staleness import check_baseline_staleness
+
+        f = tmp_path / "fresh.json"
+        f.write_text("{}")
+        s = check_baseline_staleness(f)
+        assert s.is_stale is False
+        assert "less than a day old" in s.render()

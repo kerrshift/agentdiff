@@ -71,6 +71,26 @@ Every report also self-describes its rules: a one-line gate provenance
 appears in the terminal summary, the JSON (`gate_provenance` field), and
 the PR comment footer - so a diff always answers "what rules judged me?".
 
+### Stale baselines
+
+Thresholds aren't the only thing that drifts - baselines age too. A golden
+trace from three sprints ago still anchors every diff, but the behavior it
+represents may be long gone. With `--explain`, AgentDiff warns when the
+baseline file is older than `stale_baseline_days` (default 30):
+
+```text
+! Baseline is 47 days old (last modified 2026-07-10). Stale threshold is
+  30 days - consider re-recording it if the agent's expected behavior has
+  legitimately changed (agentdiff record ... --update-baseline).
+```
+
+Tune or disable per project:
+
+```toml
+[cli]
+stale_baseline_days = 14   # any positive number; advisory only, never blocks
+```
+
 ## From the SDK
 
 You can load config programmatically with `load_config()`, which returns an

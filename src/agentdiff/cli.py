@@ -19,6 +19,7 @@ from agentdiff.recorder import record_run, save_trace
 from agentdiff.reporters.markdown import generate_markdown
 from agentdiff.reporters.pr import generate_pr_markdown
 from agentdiff.reporters.terminal import print_report
+from agentdiff.staleness import check_baseline_staleness
 
 app = typer.Typer(
     help="AgentDiff CLI - Compare multi-turn agent execution trajectories."
@@ -186,6 +187,11 @@ def diff(
         "--baseline-config",
         help="Path to the agentdiff.toml the BASELINE was recorded with. When gate values differ from this run's config, the report flags the change (Goodhart guard).",
     ),
+    stale_days: int | None = typer.Option(
+        None,
+        "--stale-days",
+        help="Warn (with --explain) when the baseline file is older than this many days (default: config or 30).",
+    ),
 ):
     """Compares baseline and candidate agent trajectories."""
     cfg = load_config(config)
@@ -199,6 +205,11 @@ def diff(
             sys.exit(2)
         threshold_changes = diff_gate_thresholds(baseline_cfg, cfg)
     gate_provenance = provenance_line(cfg, config_source)
+    stale_days = (
+        stale_days
+        if stale_days is not None
+        else getattr(cfg.cli, "stale_baseline_days", 30)
+    )
     values = _resolve_cli(
         cfg,
         adapter=adapter,
@@ -245,6 +256,11 @@ def diff(
             actual_baseline = baseline_store
         else:
             actual_baseline = baseline_path
+
+        # F7 — surface baseline age so stale baselines are re-recorded deliberately
+        staleness = check_baseline_staleness(
+            actual_baseline, stale_after_days=stale_days
+        )
 
         baseline = load_trace(actual_baseline, adapter)
     except (json.JSONDecodeError, ValueError, FileNotFoundError) as e:
@@ -318,6 +334,8 @@ def diff(
             culprit = locate_culprit(report)
             if culprit:
                 typer.echo("\n" + culprit.render())
+            if staleness.is_stale:
+                typer.echo(f"\n! {staleness.render()}")
             if threshold_changes:
                 typer.echo("\nGate thresholds changed vs baseline config:")
                 for change in threshold_changes:
