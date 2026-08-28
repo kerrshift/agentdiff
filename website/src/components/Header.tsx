@@ -22,10 +22,10 @@ export default function Header({ version = "0.2.1" }: { version?: string }) {
     "px-3.5 py-2 rounded-full text-[13px] font-medium text-(--muted) hover:text-(--fg) hover:bg-(--surface-2) transition-colors duration-150";
 
   return (
-    <header className="sticky top-0 z-40 font-sans">
-      {/* Normal full-width sticky bar: brand left, nav + actions right. */}
-      <div className="mx-auto max-w-7xl px-4">
-        <div className="flex items-center justify-between gap-2 border-b border-(--border) bg-(--bg)/85 backdrop-blur-md pl-4 pr-4 py-0 h-16">
+    <header className="sticky top-0 z-40 font-sans border-b border-(--border) bg-(--bg)/85 backdrop-blur-md">
+      {/* Full-width container perfectly aligned with site grid */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-2 h-16">
           {/* Branding */}
           <Link
             href="/"
@@ -44,7 +44,22 @@ export default function Header({ version = "0.2.1" }: { version?: string }) {
           </Link>
 
           {/* Right cluster: page links + actions */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-1">
+            <Link href="/quickstart" className={linkClass}>
+              Quickstart
+            </Link>
+            <Link href="/features" className={linkClass}>
+              Features
+            </Link>
+            <Link href="/adapters" className={linkClass}>
+              Adapters
+            </Link>
+            <Link href="/action" className={linkClass}>
+              GitHub Action
+            </Link>
+            <Link href="/compare" className={linkClass}>
+              Compare
+            </Link>
             <Link href="/docs" className={linkClass}>
               Docs
             </Link>
@@ -66,7 +81,7 @@ export default function Header({ version = "0.2.1" }: { version?: string }) {
           {/* Mobile toggle */}
           <button
             onClick={() => setOpen((o) => !o)}
-            className="md:hidden p-1.5 -mr-0.5 text-(--fg) hover:bg-(--surface-2) rounded-full transition-colors duration-150"
+            className="lg:hidden p-1.5 -mr-0.5 text-(--fg) hover:bg-(--surface-2) rounded-full transition-colors duration-150"
             aria-label="Toggle menu"
             aria-expanded={open}
           >
@@ -77,7 +92,7 @@ export default function Header({ version = "0.2.1" }: { version?: string }) {
 
       {/* Full-screen mobile overlay */}
       {open && (
-        <div className="fixed inset-0 z-50 md:hidden menu-in">
+        <div className="fixed inset-0 z-50 lg:hidden menu-in">
           <div
             className="absolute inset-0 bg-(--bg)/98 backdrop-blur-xl"
             onClick={() => setOpen(false)}
@@ -101,8 +116,13 @@ export default function Header({ version = "0.2.1" }: { version?: string }) {
               </button>
             </div>
 
-            <nav className="flex-1 flex flex-col justify-center gap-1 mt-8">
+            <nav className="flex-1 flex flex-col justify-center gap-1 my-6">
               {[
+                { href: "/quickstart", label: "Quickstart" },
+                { href: "/features", label: "Features" },
+                { href: "/adapters", label: "Adapters" },
+                { href: "/action", label: "GitHub Action" },
+                { href: "/compare", label: "Compare" },
                 { href: "/docs", label: "Docs" },
                 { href: "/blog", label: "Blog" },
                 {
@@ -114,7 +134,7 @@ export default function Header({ version = "0.2.1" }: { version?: string }) {
                   key={item.href}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="group flex items-center justify-between px-4 py-3.5 rounded-2xl text-2xl font-semibold tracking-tight text-(--muted) hover:bg-(--surface-2) hover:text-(--fg) transition-colors duration-150"
+                  className="group flex items-center justify-between px-4 py-2.5 rounded-2xl text-xl font-semibold tracking-tight text-(--muted) hover:bg-(--surface-2) hover:text-(--fg) transition-colors duration-150"
                 >
                   {item.label}
                   <span className="text-(--faint) opacity-0 group-hover:opacity-100 transition-opacity duration-150">
@@ -134,11 +154,11 @@ export default function Header({ version = "0.2.1" }: { version?: string }) {
                 Docs
               </Link>
               <Link
-                href="/blog"
+                href="/quickstart"
                 onClick={() => setOpen(false)}
-                className="flex-1 text-center text-[15px] font-semibold text-(--bg) bg-(--fg) hover:opacity-90 px-4 py-3 rounded-full transition-opacity duration-150"
+                className="flex-1 text-center text-[15px] font-semibold text-(--fg) border border-(--border) hover:bg-(--surface-2) px-4 py-3 rounded-full transition-colors duration-150"
               >
-                Blog
+                Quickstart
               </Link>
             </div>
           </div>

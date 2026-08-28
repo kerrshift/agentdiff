@@ -27,13 +27,14 @@ export default function Footer({ version = "0.2.1" }: { version?: string }) {
           </div>
 
           {/* Link columns */}
-          <div className="flex justify-between gap-8 sm:gap-12 lg:gap-24 w-full lg:w-auto">
+          <div className="flex flex-wrap justify-between gap-8 sm:gap-12 lg:gap-20 w-full lg:w-auto">
             <div className="flex flex-col gap-2.5">
               <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-(--faint) mb-1">Product</span>
-              <Link href="/#workspace-section" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Workspace</Link>
-              <Link href="/#features-section" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Features</Link>
-              <Link href="/#action-section" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Action</Link>
-              <Link href="/#integration-section" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Integration</Link>
+              <Link href="/quickstart" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Quickstart</Link>
+              <Link href="/features" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Features</Link>
+              <Link href="/adapters" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Adapters</Link>
+              <Link href="/action" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">GitHub Action</Link>
+              <Link href="/compare" className="text-sm text-(--muted) hover:text-(--fg) transition-colors duration-150 font-medium">Compare</Link>
             </div>
             <div className="flex flex-col gap-2.5">
               <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-(--faint) mb-1">Resources</span>

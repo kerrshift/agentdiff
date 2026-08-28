@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { getAllPosts, getPost, formatDate } from "../../../lib/blog";
+import { getAllPosts, getPost, formatDate } from "../../../../lib/blog";
 
 /**
  * Branded social card prerendered per blog post at build time. Same brand

@@ -1,248 +1,167 @@
 "use client";
 
 import React, { useState } from "react";
-import { Copy, Check, ArrowUpRight } from "lucide-react";
-import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
-import bash from "react-syntax-highlighter/dist/esm/languages/prism/bash";
-import markdown from "react-syntax-highlighter/dist/esm/languages/prism/markdown";
-import python from "react-syntax-highlighter/dist/esm/languages/prism/python";
-
-SyntaxHighlighter.registerLanguage("bash", bash);
-SyntaxHighlighter.registerLanguage("markdown", markdown);
-SyntaxHighlighter.registerLanguage("python", python);
-import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import Link from "next/link";
+import { ArrowRight, Copy, Check, ExternalLink } from "lucide-react";
+import { OpenAI, Langfuse, LangSmith, LangGraph, CrewAI } from "@lobehub/icons";
+import OpenTelemetry from "./OpenTelemetry";
 import Reveal from "./Reveal";
+import CodeBlock from "./CodeBlock";
 
-const FORMATS = ["Generic JSON", "OpenInference", "LangGraph (native)", "CrewAI (native)", "OpenAI Agents", "Langfuse", "LangSmith"];
+const ADAPTER_BADGES = [
+  { name: "LangGraph", icon: LangGraph, desc: "State Checkpoint DAGs" },
+  { name: "OpenAI Agents", icon: OpenAI, desc: "Run Trees & Function Calls" },
+  { name: "CrewAI", icon: CrewAI, desc: "Multi-Agent Delegation" },
+  { name: "OpenTelemetry", icon: OpenTelemetry, desc: "Standard GenAI Spans" },
+  { name: "Langfuse", icon: Langfuse, desc: "Trace Ingestion JSON" },
+  { name: "LangSmith", icon: LangSmith, desc: "Run Trees & Tool Spans" },
+];
 
-export default function IntegrationShowcase() {
-  const [activeCodeTab, setActiveCodeTab] = useState<"pytest" | "cli" | "config" | "report">("pytest");
-  const [copiedCode, setCopiedCode] = useState(false);
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 2000);
-  };
-
-  const pytestCode = `import pytest
+const CODE_TABS = [
+  {
+    id: "pytest",
+    label: "pytest_test.py",
+    lang: "python",
+    code: `import pytest
 from agentdiff import load_trace, compare
 from agentdiff.testing import assert_no_regressions
 
 def test_agent_refactor_efficiency():
-    # load_trace() auto-detects format: generic, openinference, langfuse, langsmith, openai_agents
-    baseline  = load_trace("tests/traces/baseline.json")
-    candidate = load_trace("tests/traces/candidate.json")
+    # load_trace() auto-detects: langgraph, openai_agents, crewai, otel, langfuse, langsmith
+    baseline  = load_trace("tests/traces/golden_baseline.json")
+    candidate = load_trace("tests/traces/candidate_run.json")
 
-    # Run the DAG-LCS comparison engine
+    # Run sub-10ms DAG graph alignment
     report = compare(baseline, candidate)
 
-    # Expressive assertions - raises AssertionError with full report on failure
+    # Expressive assertion - fails test with full CLI diagnostic diff
     assert_no_regressions(
         report,
         max_divergence=0.25,        # TDI threshold [0.0 - 1.0]
-        max_cost_increase_pct=5.0,  # Max LLM cost increase allowed
-        allow_loops=False,           # Fail if tool loops detected
-        max_wasted_effort=0.10,     # Max WEI (failed/retry steps ratio)
-        max_recovery_step_ratio=1.5 # Opt-in: max RSR vs baseline
-    )`;
+        max_cost_increase_pct=5.0,  # Max allowable cost delta
+        allow_loops=False           # Strict loop prohibition
+    )`,
+  },
+  {
+    id: "cli",
+    label: "agentdiff_cli.sh",
+    lang: "bash",
+    code: `# Install CLI & SDK via pip or uv
+pip install agent-trajectory-diff
 
-  const cliCode = `# Install via pip or uv
-$ pip install agent-trajectory-diff
-$ uv add agent-trajectory-diff
+# Record a golden baseline trace once
+agentdiff record my_agent_module:run --output baseline.json
 
-# Compare two traces in the terminal
-$ agentdiff baseline.json candidate.json
+# Diff candidate against baseline with tree explanation
+agentdiff baseline.json candidate.json --explain --tree
 
-# CI/CD gate: exit code 1 if thresholds are breached
-$ agentdiff baseline.json candidate.json \\
-    --fail-on-regression \\
-    --max-divergence 0.25 \\
-    --max-cost-delta 10.0 \\
-    --format markdown \\
-    --output-file pr_comment.md
-
-# ...or run the same gate as a one-step GitHub Action
-- uses: lostmartian/agentdiff/.github/actions/agentdiff-check@main
-  with:
-    baseline: baselines/current.json
-    candidate: trace.json
-    max-divergence: 0.25`;
-
-  const configCode = `# Commit your gates once, next to your traces.
-# Explicit CLI flags still win over these defaults.
-
+# Exit code 1 regression gate for CI
+agentdiff baseline.json candidate.json --fail-on-regression --max-divergence 0.25`,
+  },
+  {
+    id: "config",
+    label: "agentdiff.toml",
+    lang: "toml",
+    code: `# Commit regression thresholds once in your repository root
 [adapter]
-name = "auto"   # auto, generic, openinference, langfuse, langsmith, openai_agents
-
-[cli]
-baseline = "baselines/current.json"
-max_divergence = 0.3
-max_loops = 0
-max_cost_delta = 10.0
+name = "auto"   # auto, langgraph, openai_agents, crewai, otel, langfuse, langsmith
 
 [assertions]
 max_divergence = 0.25
+max_cost_increase_pct = 5.0
 allow_loops = false
-max_recovery_step_ratio = 1.5`;
+max_wasted_effort = 0.10
+max_recovery_step_ratio = 1.5`,
+  },
+];
 
-  const reportCode = `# AgentDiff · Regression Report
-> baseline: sql_agent_v1.json · candidate: sql_agent_v2.json
-
-## Status: FAIL
-
-| Metric           | Value    | Threshold |
-|------------------|----------|-----------|
-| Divergence (TDI) | 0.15     | <= 0.25   |
-| Wasted Effort    | 0.57     | <= 0.15   |
-| Cost Delta       | +148.2%  | <= 10.0%  |
-
-## Loops detected
-- execute_sql -> sql_error (iterations: 3, args identical)
-
-## Recommendation
-Block this change: candidate introduces a
-tool loop and a 148% cost increase over baseline.`;
-
-  const TABS = [
-    { id: "pytest", name: "pytest_test.py" },
-    { id: "cli", name: "agentdiff_cli.sh" },
-    { id: "config", name: "agentdiff.toml" },
-    { id: "report", name: "pr_comment.md" },
-  ] as const;
-
-  const activeCode =
-    activeCodeTab === "pytest"
-      ? pytestCode
-      : activeCodeTab === "cli"
-      ? cliCode
-      : activeCodeTab === "config"
-      ? configCode
-      : reportCode;
-  const activeLanguage =
-    activeCodeTab === "report"
-      ? "markdown"
-      : activeCodeTab === "config"
-      ? "ini"
-      : activeCodeTab === "cli"
-      ? "bash"
-      : "python";
+export default function IntegrationShowcase() {
+  const [activeTab, setActiveTab] = useState("pytest");
+  const activeSnippet = CODE_TABS.find((t) => t.id === activeTab) || CODE_TABS[0];
 
   return (
-<section id="integration-section" className="py-20 lg:py-28 bg-transparent font-sans">
+    <section id="integration-section" className="py-20 lg:py-28 bg-transparent font-sans border-t border-(--border)">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
         <Reveal>
-        {/* Section Header - left rail */}
-        <div className="max-w-3xl mb-12">
-          <span className="text-xs font-medium uppercase tracking-[0.18em] text-(--faint) block mb-4">Developer integration</span>
-          <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-(--fg) leading-tight">
-            Zero boilerplate DX.
-          </h2>
-          <p className="mt-4 text-base text-(--muted) leading-relaxed font-normal">
-            A thin Python SDK for pytest, a strict CLI runner, and a one-step
-            GitHub Action - with your gates committed once in <code className="text-(--fg) font-mono">agentdiff.toml</code>.
-          </p>
-        </div>
+          {/* Section Header */}
+          <div className="max-w-3xl mb-12">
+            <span className="text-xs font-mono uppercase tracking-[0.18em] text-(--faint) block mb-4">
+              Universal Ecosystem Ingestion
+            </span>
+            <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-(--fg) leading-tight">
+              Bring your own telemetry. We normalize the rest.
+            </h2>
+            <p className="mt-4 text-base sm:text-lg text-(--muted) leading-relaxed font-normal">
+              AgentDiff connects to your existing agent stack with zero SDK locks. Ingest trace trees directly from any major runtime or exporter into normalized DAGs.
+            </p>
+          </div>
+        </Reveal>
+
+        <Reveal delay={100}>
+          {/* Ecosystem Grid Preview */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-10">
+            {ADAPTER_BADGES.map((b) => {
+              const Icon = b.icon;
+              return (
+                <Link
+                  key={b.name}
+                  href="/adapters"
+                  className="p-4 rounded-2xl bg-(--surface) border border-(--border) hover:border-(--border-strong) hover:bg-(--surface-2) transition-all flex flex-col items-start justify-between min-h-[5.5rem] group"
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <Icon size={20} className="text-(--fg)" />
+                    <ArrowRight className="w-3.5 h-3.5 text-(--faint) group-hover:text-(--fg) group-hover:translate-x-0.5 transition-all" />
+                  </div>
+                  <div className="mt-3">
+                    <span className="block text-xs font-semibold text-(--fg)">{b.name}</span>
+                    <span className="block text-[10px] font-mono text-(--faint)">{b.desc}</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </Reveal>
 
         <Reveal delay={140}>
-        {/* Formats - mono readout, left rail */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-(--muted) mb-10">
-          <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-(--faint) mr-3">Formats</span>
-          {FORMATS.map((fmt, i) => (
-            <React.Fragment key={fmt}>
-              {i > 0 && <span className="text-(--border)">·</span>}
-              <span>{fmt}</span>
-            </React.Fragment>
-          ))}
-        </div>
-
-        {/* Code panel - clean light surface */}
-        <div className="bg-(--surface) border border-(--border) rounded-xl overflow-hidden">
-
-          {/* Panel header */}
-          <div className="border-b border-(--border) px-4 sm:px-5 py-0 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-5 sm:gap-7 -mb-px overflow-x-auto no-scrollbar">
-              {TABS.map((tab) => {
-                const active = activeCodeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveCodeTab(tab.id)}
-                    className={`relative text-xs font-semibold py-3.5 whitespace-nowrap transition-colors duration-150 ${
-                      active ? "text-(--fg)" : "text-(--faint) hover:text-(--fg)"
-                    }`}
-                  >
-                    {tab.name}
-                    <span
-                      className={`absolute left-0 bottom-0 h-0.5 bg-(--fg) transition-all duration-200 ${
-                        active ? "w-full" : "w-0"
-                      }`}
-                    />
-                  </button>
-                );
-              })}
-            </div>
-
-            <button
-              onClick={() => copyToClipboard(activeCode)}
-              className="flex items-center gap-1.5 text-xs font-semibold text-(--faint) hover:text-(--fg) transition-colors duration-150 py-3.5 shrink-0"
-            >
-              {copiedCode ? <Check className="w-3.5 h-3.5 text-(--accent)" /> : <Copy className="w-3.5 h-3.5" />}
-              <span className="hidden sm:inline">{copiedCode ? "Copied" : "Copy"}</span>
-            </button>
-          </div>
-
-          {/* Code field */}
-          <div className="bg-(--bg) font-mono leading-relaxed">
-            <div className="h-[340px] overflow-auto no-scrollbar">
-              {activeCodeTab === "report" ? (
-                /* Render the PR report as a real preview, not raw markdown */
-                <div className="markdown-content bg-(--surface) px-6 py-6">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{reportCode}</ReactMarkdown>
-                </div>
-              ) : (
-                <SyntaxHighlighter
-                  style={oneLight}
-                  language={activeLanguage}
-                  PreTag="div"
-                  customStyle={{
-                    margin: 0,
-                    borderRadius: 0,
-                    border: "none",
-                    background: "transparent",
-                    padding: "1.5rem",
-                    fontSize: "0.8rem",
-                    lineHeight: "1.7",
-                  }}
-                  codeTagProps={{ style: { background: "transparent", fontFamily: "inherit" } }}
+          {/* Developer Integration Code Blocks */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-(--border) pb-2">
+              {CODE_TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`text-xs font-mono px-3 py-1.5 rounded-lg transition-colors ${
+                    activeTab === tab.id
+                      ? "bg-(--surface-2) font-semibold text-(--fg) border border-(--border)"
+                      : "text-(--muted) hover:text-(--fg)"
+                  }`}
                 >
-                  {activeCode}
-                </SyntaxHighlighter>
-              )}
+                  {tab.label}
+                </button>
+              ))}
             </div>
+
+            <CodeBlock
+              language={activeSnippet.lang}
+              filename={activeSnippet.label}
+              code={activeSnippet.code}
+            />
           </div>
 
-        </div>
-
-        {/* Cookbook + models - left rail, hairline top */}
-        <div className="mt-10 max-w-2xl flex flex-wrap items-center justify-between gap-4">
-          <a
-            href="https://github.com/lostmartian/agentdiff/tree/main/cookbooks"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-(--fg) hover:text-(--muted) transition-colors duration-150"
-          >
-            Try the live cookbooks
-            <ArrowUpRight className="w-4 h-4" />
-          </a>
-          <span className="text-[11px] text-(--faint)">Gemini · OpenAI Agents · OTel · Langfuse · LangSmith</span>
-        </div>
+          {/* Direct Portal Link */}
+          <div className="mt-8 flex items-center justify-between flex-wrap gap-4 pt-2">
+            <p className="text-xs font-mono text-(--faint)">
+              All adapters operate client-side in under 1.8ms with zero network requests.
+            </p>
+            <Link
+              href="/adapters"
+              className="inline-flex items-center gap-2 text-xs font-mono font-semibold text-(--fg) hover:text-emerald-400 transition-colors"
+            >
+              <span>Explore All 6 Adapters &amp; Custom Protocol Docs</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         </Reveal>
-
       </div>
     </section>
   );

@@ -66,10 +66,11 @@
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
-/* Anchor navigation: glide instead of jump, and never hide a section
-   title behind the sticky bar. */
-html {
-  scroll-behavior: smooth;
+/* Anchor navigation and scroll offsets */
+@media (prefers-reduced-motion: no-preference) {
+  :root:has(:target) {
+    scroll-behavior: smooth;
+  }
 }
 
 section[id] {
@@ -83,7 +84,6 @@ body {
   position: relative;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Custom scrollbars */
@@ -91,13 +91,16 @@ body {
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--border-strong);
   border-radius: 9999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--faint);
 }
@@ -108,8 +111,15 @@ body {
 }
 
 @keyframes canvas-fade {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-canvas-fade {
@@ -227,7 +237,7 @@ body {
 }
 
 /* Only style inline code - not code inside syntax highlighter blocks */
-.markdown-content :not(.relative) > code:not([class*="language-"]) {
+.markdown-content :not(.relative)>code:not([class*="language-"]) {
   font-family: var(--font-mono);
   background-color: var(--surface-2);
   border: 1px solid var(--border);
@@ -391,31 +401,52 @@ body {
   overflow-y: hidden;
 }
 
-.markdown-content .katex-display > .katex {
+.markdown-content .katex-display>.katex {
   display: block;
   text-align: center;
 }
 
-.markdown-content .katex-display > .katex > .katex-html {
+.markdown-content .katex-display>.katex>.katex-html {
   display: block;
 }
 
 .markdown-content .katex-display .katex-display {
   margin: 0;
 }
+
 /* Mobile nav overlay entrance */
 @keyframes menu-in {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.menu-in { animation: menu-in 0.24s ease-out both; }
+
+.menu-in {
+  animation: menu-in 0.24s ease-out both;
+}
 
 /* Demo screen transition */
 @keyframes fade-slide {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.fade-slide { animation: fade-slide 0.4s ease-out both; }
+
+.fade-slide {
+  animation: fade-slide 0.4s ease-out both;
+}
 
 /* Keep anchored sections clear of the sticky nav */
 section[id] {
