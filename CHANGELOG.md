@@ -5,6 +5,36 @@ All notable changes to **AgentDiff** (`agent-trajectory-diff`) are documented he
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-08-28
+
+AgentDiff v0.4.0 — trace capture, Goodhart-resistant gating, and a full docs
+site redesign. Highlights: capture traces directly from any callable with
+`agentdiff record`, every report self-describes its gate provenance, threshold
+changes are flagged in the PR comment, stale baselines warn on `--explain`, and
+the website gains a technical `/features` deep dive, `/adapters`, `/action`,
+`/compare`, and `/quickstart` pages.
+
+### Added
+- **`record` subcommand** (#23): capture execution traces from any Python
+  callable (`agentdiff record my_agent:run --input '{...}' --out
+  traces/run.json`), making baseline capture a one-liner instead of
+  hand-instrumented serialization.
+- **Gate provenance in every report** (#25): terminal, JSON, and PR report
+  formats self-describe the gate rules and their source, so a green check is
+  always auditable against the thresholds that produced it.
+- **Threshold-change flagging** (#24): when gate values in `agentdiff.toml`
+  differ from the baseline commit, the PR comment says so — above the diff —
+  closing the Goodhart loop where thresholds drift to keep CI green.
+- **Stale-baseline warning** (#26): `--explain` surfaces the baseline's age
+  past a configurable threshold, so re-recording is a deliberate act rather
+  than silent decay.
+- Shell completion install instructions for bash/zsh/fish (#27).
+
+### Changed
+- **Website redesign** (#28): new editorial `/features` page with engine and
+  metric diagrams, plus dedicated `/adapters`, `/action`, `/compare`, and
+  `/quickstart` pages; landing sections rebuilt under a `(site)` route group.
+
 ## [0.3.0] - 2026-08-23
 
 AgentDiff v0.3.0 — framework-native ingestion, suite-level gating, and
