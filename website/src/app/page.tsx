@@ -2,14 +2,14 @@ import fs from "fs";
 import path from "path";
 import Header from "../components/Header";
 import Hero from "../components/Hero";
-import BlueprintWorkspace from "../components/BlueprintWorkspace";
 import ProblemSolution from "../components/ProblemSolution";
+import BlueprintWorkspace from "../components/BlueprintWorkspace";
 import FeaturesGrid from "../components/FeaturesGrid";
-import ActionSection from "../components/ActionSection";
-import IntegrationShowcase from "../components/IntegrationShowcase";
-import ProofBand from "../components/ProofBand";
-import ScaleSection from "../components/ScaleSection";
 import PRCommentShowcase from "../components/PRCommentShowcase";
+import ProofBand from "../components/ProofBand";
+import IntegrationShowcase from "../components/IntegrationShowcase";
+import StackFitSection from "../components/StackFitSection";
+import ScaleSection from "../components/ScaleSection";
 import FAQSection from "../components/FAQSection";
 import ClosingCTA from "../components/ClosingCTA";
 import Footer from "../components/Footer";
@@ -42,11 +42,11 @@ export default function Home() {
           <ProblemSolution />
           <BlueprintWorkspace />
           <FeaturesGrid />
-          <ActionSection />
+          <PRCommentShowcase />
           <ProofBand />
           <IntegrationShowcase />
+          <StackFitSection />
           <ScaleSection />
-          <PRCommentShowcase />
           <FAQSection />
           <ClosingCTA />
         </main>

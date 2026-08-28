@@ -155,15 +155,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${manrope.variable} ${jetBrainsMono.variable} h-full antialiased`}
     >
       <head>
-        <Script id="agentdiff-theme" strategy="beforeInteractive">
-          {themeScript}
-        </Script>
-      </head>
-      <body className="min-h-full flex flex-col">
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: themeScript }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+      </head>
+      <body className="min-h-full flex flex-col">
         {children}
       </body>
     </html>

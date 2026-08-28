@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { getAllPosts } from "../../lib/blog";
-import BlogGrid from "../../components/BlogGrid";
+import { getAllPosts } from "../../../lib/blog";
+import BlogGrid from "../../../components/BlogGrid";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -14,13 +14,11 @@ export const metadata: Metadata = {
     url: "https://agentdiff.lostmartian.in/blog",
     siteName: "AgentDiff",
     type: "website",
-    images: [{ url: "https://agentdiff.lostmartian.in/blog/opengraph-image", width: 1200, height: 630, alt: "AgentDiff Blog" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Blog | AgentDiff",
     description: "Product news, engineering deep dives, and guides on agent reliability.",
-    images: ["https://agentdiff.lostmartian.in/blog/opengraph-image"],
   },
 };
 

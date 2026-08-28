@@ -1,19 +1,17 @@
-import type { Metadata } from "next";
 import fs from "fs";
 import path from "path";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
 /**
- * Shared shell for every /blog route: the same sticky Header, Footer, and
- * max-w-7xl grid container as the landing page, so the blog reads as part of
- * the site rather than a separate surface.
+ * Shared chrome for every marketing route in the (site) group — blog,
+ * features, action, quickstart, adapters, compare. Same sticky Header,
+ * Footer, and max-w-7xl grid container as the landing page, so every page
+ * reads as one site.
+ *
+ * Home (/) keeps its own wrapper (landing-specific layout classes); this
+ * group covers everything else.
  */
-
-export const metadata: Metadata = {
-  description:
-    "Product news, engineering deep dives, and guides on trajectory regression testing for AI agents.",
-};
 
 /** Read the version string from the package `__init__.py` at build time. */
 function readPackageVersion(): string {
@@ -33,7 +31,7 @@ function readPackageVersion(): string {
   }
 }
 
-export default function BlogLayout({
+export default function SiteLayout({
   children,
 }: {
   children: React.ReactNode;

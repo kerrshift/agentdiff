@@ -4,6 +4,14 @@ export const dynamic = "force-static";
 import { getDocMetas } from "../lib/docs";
 import { getPostMetas } from "../lib/blog";
 
+const MARKETING_PAGES = [
+  { path: "/features", priority: 0.9 },
+  { path: "/action", priority: 0.8 },
+  { path: "/quickstart", priority: 0.9 },
+  { path: "/adapters", priority: 0.8 },
+  { path: "/compare", priority: 0.8 },
+];
+
 const SITE_URL = "https://agentdiff.lostmartian.in";
 
 /**
@@ -46,6 +54,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.8,
     },
+    ...MARKETING_PAGES.map((p) => ({
+      url: `${SITE_URL}${p.path}`,
+      lastModified,
+      changeFrequency: "weekly" as const,
+      priority: p.priority,
+    })),
     ...docEntries,
     ...postEntries,
   ];

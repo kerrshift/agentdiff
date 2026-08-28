@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import DocContent from "../../docs/DocContent";
-import BlogGradient from "../../../components/BlogGradient";
-import BlogToc from "../../../components/BlogToc";
-import ScrollToTop from "../../../components/ScrollToTop";
-import { getAllPosts, getPost, formatDate, getHeadings } from "../../../lib/blog";
+import DocContent from "../../../docs/DocContent";
+import BlogGradient from "../../../../components/BlogGradient";
+import BlogToc from "../../../../components/BlogToc";
+import ScrollToTop from "../../../../components/ScrollToTop";
+import { getAllPosts, getPost, formatDate, getHeadings } from "../../../../lib/blog";
 
 const SITE_URL = "https://agentdiff.lostmartian.in";
 
@@ -25,7 +25,6 @@ export async function generateMetadata({
   if (!post) return {};
   const url = `${SITE_URL}/blog/${post.slug}`;
   const keywords = post.keywords ? post.keywords.split(",").map((s) => s.trim()) : [];
-  const ogImage = `${SITE_URL}/blog/${post.slug}/opengraph-image`;
   return {
     title: post.title,
     description: post.description,
@@ -44,13 +43,12 @@ export async function generateMetadata({
       publishedTime: post.date,
       authors: ["AgentDiff"],
       tags: keywords,
-      images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
+      // og:image auto-wired from the per-slug opengraph-image route
     },
     twitter: {
       card: "summary_large_image",
       title: `${post.title} | AgentDiff Blog`,
       description: post.description,
-      images: [ogImage],
       creator: "@agentdiff",
     },
   };
