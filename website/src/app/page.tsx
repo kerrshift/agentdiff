@@ -6,10 +6,8 @@ import ProblemSolution from "../components/ProblemSolution";
 import BlueprintWorkspace from "../components/BlueprintWorkspace";
 import FeaturesGrid from "../components/FeaturesGrid";
 import PRCommentShowcase from "../components/PRCommentShowcase";
-import ProofBand from "../components/ProofBand";
 import IntegrationShowcase from "../components/IntegrationShowcase";
 import StackFitSection from "../components/StackFitSection";
-import ScaleSection from "../components/ScaleSection";
 import FAQSection from "../components/FAQSection";
 import ClosingCTA from "../components/ClosingCTA";
 import Footer from "../components/Footer";
@@ -35,18 +33,16 @@ function readPackageVersion(): string {
 export default function Home() {
   return (
     <div className="relative min-h-screen bg-(--bg) text-(--fg) font-sans flex flex-col justify-between selection:bg-(--border) selection:text-(--fg) no-scrollbar overflow-x-clip">
-      <div id="main-grid-container" className="max-w-7xl mx-auto w-full flex-1 flex flex-col bg-(--bg) relative">
+      <div id="main-grid-container" className="max-w-7xl mx-auto w-full flex-1 flex flex-col bg-(--bg) relative border-x border-(--border)">
         <Header version={readPackageVersion()} />
-        <main className="flex-1">
+        <main className="flex-1 divide-y divide-(--border)">
           <Hero />
           <ProblemSolution />
           <BlueprintWorkspace />
           <FeaturesGrid />
           <PRCommentShowcase />
-          <ProofBand />
           <IntegrationShowcase />
           <StackFitSection />
-          <ScaleSection />
           <FAQSection />
           <ClosingCTA />
         </main>

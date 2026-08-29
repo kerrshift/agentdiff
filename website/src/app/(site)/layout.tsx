@@ -40,7 +40,7 @@ export default function SiteLayout({
 
   return (
     <div className="relative min-h-screen bg-(--bg) text-(--fg) font-sans selection:bg-(--border) selection:text-(--fg) no-scrollbar overflow-x-clip">
-      <div className="max-w-7xl mx-auto w-full bg-(--bg) relative">
+      <div id="main-grid-container" className="max-w-7xl mx-auto w-full bg-(--bg) relative border-x border-(--border)">
         <Header version={version} />
         <main className="min-h-[90vh]">{children}</main>
         <Footer version={version} />

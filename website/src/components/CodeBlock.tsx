@@ -6,6 +6,7 @@ import toml from "react-syntax-highlighter/dist/esm/languages/prism/toml";
 import json from "react-syntax-highlighter/dist/esm/languages/prism/json";
 import bash from "react-syntax-highlighter/dist/esm/languages/prism/bash";
 import python from "react-syntax-highlighter/dist/esm/languages/prism/python";
+import yaml from "react-syntax-highlighter/dist/esm/languages/prism/yaml";
 import { oneLight, oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Check, Copy } from "lucide-react";
 
@@ -13,6 +14,8 @@ SyntaxHighlighter.registerLanguage("toml", toml);
 SyntaxHighlighter.registerLanguage("json", json);
 SyntaxHighlighter.registerLanguage("bash", bash);
 SyntaxHighlighter.registerLanguage("python", python);
+SyntaxHighlighter.registerLanguage("yaml", yaml);
+SyntaxHighlighter.registerLanguage("yml", yaml);
 
 interface CodeBlockProps {
   code: string;

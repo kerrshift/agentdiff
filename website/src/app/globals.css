@@ -67,6 +67,10 @@
 }
 
 /* Anchor navigation and scroll offsets */
+html {
+  scrollbar-gutter: stable;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   :root:has(:target) {
     scroll-behavior: smooth;
@@ -83,6 +87,7 @@ body {
   font-family: var(--font-sans);
   position: relative;
   overflow-x: hidden;
+  scrollbar-gutter: stable;
   -webkit-font-smoothing: antialiased;
 }
 

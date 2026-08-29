@@ -1,169 +1,208 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { Github } from "@lobehub/icons";
 import LogoMark from "./LogoMark";
 import ThemeToggle from "./ThemeToggle";
 
+const NAV_ITEMS = [
+  { href: "/quickstart", label: "Quickstart" },
+  { href: "/features", label: "Features" },
+  { href: "/adapters", label: "Adapters" },
+  { href: "/action", label: "GitHub Action" },
+  { href: "/compare", label: "Compare" },
+  { href: "/docs", label: "Docs" },
+  { href: "/blog", label: "Blog" },
+];
+
 export default function Header({ version = "0.2.1" }: { version?: string }) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Lock page scroll while the mobile overlay is open.
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
     return () => {
       document.body.style.overflow = "";
     };
   }, [open]);
 
-  const linkClass =
-    "px-3.5 py-2 rounded-full text-[13px] font-medium text-(--muted) hover:text-(--fg) hover:bg-(--surface-2) transition-colors duration-150";
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
 
-  return (
-    <header className="sticky top-0 z-40 font-sans border-b border-(--border) bg-(--bg)/85 backdrop-blur-md">
-      {/* Full-width container perfectly aligned with site grid */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-2 h-16">
-          {/* Branding */}
-          <Link
-            href="/"
-            className="flex items-center gap-2.5 group cursor-pointer shrink-0"
-            aria-label="AgentDiff home"
-          >
-            <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-(--fg) text-(--bg)">
-              <LogoMark size={13} />
-            </span>
-            <span className="font-semibold text-(--fg) tracking-tight text-[15px] group-hover:opacity-80 transition-opacity duration-150">
-              agentdiff
-            </span>
-            <span className="hidden sm:inline text-[10px] text-(--faint) border border-(--border) rounded-full px-1.5 py-0.5">
-              v{version}
-            </span>
-          </Link>
+  // Find active page for mobile breadcrumb display
+  const currentItem = NAV_ITEMS.find((item) => isActive(item.href));
 
-          {/* Right cluster: page links + actions */}
-          <div className="hidden lg:flex items-center gap-1">
-            <Link href="/quickstart" className={linkClass}>
-              Quickstart
-            </Link>
-            <Link href="/features" className={linkClass}>
-              Features
-            </Link>
-            <Link href="/adapters" className={linkClass}>
-              Adapters
-            </Link>
-            <Link href="/action" className={linkClass}>
-              GitHub Action
-            </Link>
-            <Link href="/compare" className={linkClass}>
-              Compare
-            </Link>
-            <Link href="/docs" className={linkClass}>
-              Docs
-            </Link>
-            <Link href="/blog" className={linkClass}>
-              Blog
-            </Link>
-            <a
-              href="https://github.com/lostmartian/agentdiff"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center w-9 h-9 rounded-full text-(--muted) border border-(--border) bg-(--surface) hover:text-(--fg) hover:border-(--border-strong) transition-colors duration-150 ml-1"
-              aria-label="GitHub"
-            >
-              <Github size={17} />
-            </a>
-            <ThemeToggle />
-          </div>
-
-          {/* Mobile toggle */}
-          <button
-            onClick={() => setOpen((o) => !o)}
-            className="lg:hidden p-1.5 -mr-0.5 text-(--fg) hover:bg-(--surface-2) rounded-full transition-colors duration-150"
-            aria-label="Toggle menu"
-            aria-expanded={open}
-          >
-            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Full-screen mobile overlay */}
-      {open && (
-        <div className="fixed inset-0 z-50 lg:hidden menu-in">
+  const mobileDrawer = mounted && open
+    ? createPortal(
+        <div
+          className="fixed inset-0 lg:hidden flex justify-end"
+          style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 999999 }}
+        >
+          {/* Dimmed Backdrop Overlay (Click to close) */}
           <div
-            className="absolute inset-0 bg-(--bg)/98 backdrop-blur-xl"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
             onClick={() => setOpen(false)}
+            aria-hidden="true"
           />
-          <div className="relative h-full flex flex-col px-6 pt-4 pb-8 overflow-y-auto">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-(--fg) text-(--bg)">
-                  <LogoMark size={13} />
-                </span>
-                <span className="font-semibold text-(--fg) tracking-tight text-[15px]">
-                  agentdiff
-                </span>
-              </div>
+
+          {/* Slide-in Drawer Panel from Right (Menu Options Only) */}
+          <div className="relative w-72 max-w-[80vw] h-full bg-(--surface) border-l border-(--border) shadow-2xl flex flex-col justify-between p-6 z-10 overflow-y-auto">
+            {/* Header: Title & Close Button */}
+            <div className="flex items-center justify-between pb-4 border-b border-(--border)">
+              <span className="text-xs uppercase tracking-wider font-semibold text-(--muted)">
+                Navigation
+              </span>
               <button
                 onClick={() => setOpen(false)}
-                className="p-2 text-(--fg) hover:bg-(--surface-2) rounded-full transition-colors duration-150"
+                className="p-1.5 text-(--muted) hover:text-(--fg) hover:bg-(--surface-2) rounded-lg transition-colors cursor-pointer"
                 aria-label="Close menu"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <nav className="flex-1 flex flex-col justify-center gap-1 my-6">
-              {[
-                { href: "/quickstart", label: "Quickstart" },
-                { href: "/features", label: "Features" },
-                { href: "/adapters", label: "Adapters" },
-                { href: "/action", label: "GitHub Action" },
-                { href: "/compare", label: "Compare" },
-                { href: "/docs", label: "Docs" },
-                { href: "/blog", label: "Blog" },
-                {
-                  href: "https://github.com/lostmartian/agentdiff",
-                  label: "GitHub",
-                },
-              ].map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  className="group flex items-center justify-between px-4 py-2.5 rounded-2xl text-xl font-semibold tracking-tight text-(--muted) hover:bg-(--surface-2) hover:text-(--fg) transition-colors duration-150"
-                >
-                  {item.label}
-                  <span className="text-(--faint) opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                    ↗
-                  </span>
-                </a>
-              ))}
+            {/* Menu Options */}
+            <nav className="flex flex-col gap-1 py-4 my-auto">
+              {NAV_ITEMS.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-base font-semibold transition-all ${
+                      active
+                        ? "bg-(--surface-2) text-emerald-500 font-bold"
+                        : "text-(--muted) hover:bg-(--surface-2)/60 hover:text-(--fg)"
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    {active && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    )}
+                  </Link>
+                );
+              })}
             </nav>
 
-            <div className="flex items-center gap-2.5">
-              <ThemeToggle className="shrink-0" />
-              <Link
-                href="/docs"
-                onClick={() => setOpen(false)}
-                className="flex-1 text-center text-[15px] font-semibold text-(--bg) bg-(--fg) hover:opacity-90 px-4 py-3 rounded-full transition-opacity duration-150"
+            {/* Bottom Utilities */}
+            <div className="pt-4 border-t border-(--border) flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <span className="text-xs text-(--muted) font-medium">Theme</span>
+              </div>
+              <a
+                href="https://github.com/lostmartian/agentdiff"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-(--border) bg-(--surface) text-xs font-semibold text-(--fg) hover:bg-(--surface-2) transition-colors"
               >
-                Docs
-              </Link>
-              <Link
-                href="/quickstart"
-                onClick={() => setOpen(false)}
-                className="flex-1 text-center text-[15px] font-semibold text-(--fg) border border-(--border) hover:bg-(--surface-2) px-4 py-3 rounded-full transition-colors duration-150"
-              >
-                Quickstart
-              </Link>
+                <Github size={14} />
+                <span>GitHub</span>
+              </a>
             </div>
           </div>
+        </div>,
+        document.body
+      )
+    : null;
+
+  return (
+    <>
+      <header className="sticky top-0 z-40 font-sans border-b border-(--border) bg-(--bg)/85 backdrop-blur-md transition-colors">
+        {/* Full-width container perfectly aligned with content max-w-6xl */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between gap-4 h-16">
+            {/* Branding + Mobile Current Page Breadcrumb */}
+            <div className="flex items-center gap-2 shrink-0">
+              <Link
+                href="/"
+                className="flex items-center gap-2.5 group cursor-pointer"
+                aria-label="AgentDiff home"
+              >
+                <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-zinc-950 text-white border border-zinc-800 shadow-2xs group-hover:scale-105 transition-transform duration-150">
+                  <LogoMark size={13} />
+                </span>
+                <span className="font-bold text-(--fg) tracking-tight text-[15px] group-hover:opacity-85 transition-opacity duration-150">
+                  agent<span className="text-emerald-500">diff</span>
+                </span>
+                <span className="hidden sm:inline text-[10px] font-mono text-(--muted) border border-(--border) rounded-full px-2 py-0.5 bg-(--surface-2)/40">
+                  v{version}
+                </span>
+              </Link>
+
+              {/* Mobile Active Page Indicator */}
+              {currentItem && (
+                <div className="flex items-center gap-1.5 lg:hidden text-xs font-semibold text-(--muted)">
+                  <span className="text-(--border-strong)">/</span>
+                  <span className="text-(--fg) font-bold">{currentItem.label}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Center/Right cluster: page navigation links */}
+            <div className="hidden lg:flex items-center gap-0.5">
+              {NAV_ITEMS.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-150 ${
+                      active
+                        ? "text-(--fg) bg-(--surface-2) shadow-2xs"
+                        : "text-(--muted) hover:text-(--fg) hover:bg-(--surface-2)/50"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Right Action Utilities: Theme + GitHub */}
+            <div className="hidden lg:flex items-center gap-2">
+              <ThemeToggle />
+              <a
+                href="https://github.com/lostmartian/agentdiff"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center w-8 h-8 rounded-full text-(--muted) border border-(--border) bg-(--surface) hover:text-(--fg) hover:border-(--border-strong) transition-colors duration-150 shadow-2xs"
+                aria-label="GitHub"
+              >
+                <Github size={15} />
+              </a>
+            </div>
+
+            {/* Mobile toggle */}
+            <button
+              onClick={() => setOpen((o) => !o)}
+              className="lg:hidden p-2 -mr-1 text-(--fg) hover:bg-(--surface-2) rounded-xl transition-colors duration-150 cursor-pointer"
+              aria-label="Toggle menu"
+              aria-expanded={open}
+            >
+              {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
-      )}
-    </header>
+      </header>
+      {mobileDrawer}
+    </>
   );
 }
