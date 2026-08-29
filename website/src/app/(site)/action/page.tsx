@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Check, GitPullRequest, ShieldCheck, ShieldAlert, Sparkles, Terminal, FileCode2, ExternalLink, RotateCcw, AlertTriangle } from "lucide-react";
+import { ArrowRight, Check, Copy, ExternalLink, GitPullRequest, RotateCcw, ShieldCheck, Terminal, AlertTriangle, PlayCircle } from "lucide-react";
 import Reveal from "@/components/Reveal";
 import CodeBlock from "@/components/CodeBlock";
 
 const SITE_URL = "https://agentdiff.lostmartian.in";
 
 export const metadata: Metadata = {
-  title: "GitHub Action — Automated Trajectory Regression Gate",
+  title: "GitHub Action — Automated Agent Trajectory Regression Gate",
   description:
-    "Gate AI agent regressions on every pull request with the official agentdiff-check GitHub Action. Real-time PR commentary, threshold governance, and automated baseline rotation.",
+    "Block agent trajectory regressions in CI on every PR. Automated diffing against golden baselines, real-time PR comments, root cause blame trees, and Goodhart threshold protection.",
   keywords: [
     "agentdiff-check GitHub Action",
     "CI/CD agent testing",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "GitHub Action | AgentDiff",
     description:
-      "Gate AI agent regressions on every pull request with agentdiff-check — automated PR commentary, threshold governance, and baseline rotation.",
+      "Block agent trajectory regressions in CI on every PR with automated PR commentary, threshold governance, and baseline rotation.",
     url: `${SITE_URL}/action`,
     siteName: "AgentDiff",
     type: "website",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "GitHub Action | AgentDiff",
     description:
-      "Gate AI agent regressions on every pull request with agentdiff-check — automated PR commentary, threshold governance, and baseline rotation.",
+      "Block agent trajectory regressions in CI on every PR with automated PR commentary, threshold governance, and baseline rotation.",
   },
 };
 
@@ -42,7 +42,7 @@ const ACTION_INPUTS = [
   {
     name: "baseline",
     req: true,
-    desc: "Path to the committed golden baseline trace JSON. When update-baseline is active, establishing this on clean runs is automatic.",
+    desc: "Path to the committed golden baseline trace JSON in your repository.",
   },
   {
     name: "candidate",
@@ -52,101 +52,111 @@ const ACTION_INPUTS = [
   {
     name: "pr",
     req: false,
-    desc: "Pull request number (e.g. ${{ github.event.number }}) to post the formatted divergence report and culprit explanation to.",
+    desc: "Pull request number (e.g. ${{ github.event.number }}) to post the formatted divergence report and culprit blame tree to.",
   },
   {
     name: "baseline-config",
     req: false,
-    desc: "Path to the baseline's agentdiff.toml. Enables the Goodhart guard to detect if PR authors silently loosened test thresholds.",
+    desc: "Path to the main branch agentdiff.toml. Enables the Goodhart guard to detect if PR authors silently weakened tolerance thresholds.",
   },
   {
     name: "adapter",
     req: false,
-    desc: "Telemetry parser adapter: auto (default), generic, openinference, langfuse, langsmith, openai_agents, langgraph, crewai.",
+    desc: "Telemetry parser: auto (default), langgraph, crewai, openai_agents, openinference, langfuse, langsmith, generic.",
   },
   {
     name: "update-baseline",
     req: false,
-    desc: "Set to true to automatically advance the golden baseline trace when the PR verdict is completely clean.",
+    desc: "When true, automatically advances the stored golden baseline trace if the PR trajectory verdict passes all quality gates.",
   },
   {
-    name: "max-divergence / max-cost-delta / max-loops",
+    name: "github-token",
     req: false,
-    desc: "Explicit override thresholds for TDI divergence [0.0-1.0], max cost delta percentage, and loop count allowances.",
+    desc: "GitHub secret token (e.g. ${{ secrets.GITHUB_TOKEN }}) with pull-requests: write permission for automated commentary.",
   },
 ];
 
 export default function ActionPage() {
   return (
-    <div className="w-full font-sans pb-32">
+    <div className="w-full font-sans divide-y divide-(--border)">
+      
       {/* 1. MARKETING HERO */}
-      <section className="pt-24 pb-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Reveal>
-          <div className="max-w-5xl">
-            <span className="text-xs font-mono uppercase tracking-[0.18em] text-(--faint) block mb-4">
-              Continuous Integration
-            </span>
-            <h1
-              className="font-semibold tracking-[-0.035em] text-(--fg) leading-[1.04]"
-              style={{ fontSize: "var(--text-display)" }}
-            >
-              Gate agent regressions on every PR.
-            </h1>
-            <p
-              className="mt-6 text-base sm:text-lg text-(--muted) leading-relaxed max-w-4xl font-normal"
-              style={{ lineHeight: "var(--leading-subtitle)" }}
-            >
-              The <code className="font-mono text-xs text-(--fg) bg-(--surface-2) px-1.5 py-0.5 rounded border border-(--border)">agentdiff-check</code> GitHub Action diffs candidate agent trajectories against your committed golden baselines, posts an interactive diagnostic report directly to the PR, and blocks the merge if regressions occur.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-6 text-sm font-mono">
-              <span className="text-(--fg) font-semibold">1-Step Action Workflow</span>
-              <span className="text-(--border-strong)">•</span>
-              <span className="text-(--muted)">Automated PR Comment Verdicts</span>
-              <span className="text-(--border-strong)">•</span>
-              <span className="text-(--muted)">Goodhart Threshold Guard</span>
+      <section className="relative overflow-hidden pt-20 pb-20 sm:pt-24 sm:pb-28 bg-transparent w-full">
+        {/* Subtle top spotlight glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-[300px] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-emerald-500/15 via-emerald-500/5 to-transparent blur-3xl pointer-events-none -z-10" />
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <Reveal>
+            <div className="max-w-4xl">
+              <span className="text-xs uppercase tracking-[0.18em] text-(--faint) block mb-4 font-medium">
+                Official GitHub Action
+              </span>
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-[-0.035em] text-(--fg) leading-[1.08]">
+                Gate AI agent regressions <span className="text-emerald-500/90 dark:text-emerald-400">on every pull request.</span>
+              </h1>
+              <p className="mt-6 text-base sm:text-lg lg:text-xl text-(--muted) leading-relaxed max-w-3xl font-normal">
+                Drop <code className="text-xs sm:text-sm font-mono text-(--fg) bg-(--surface-2) px-2 py-0.5 rounded border border-(--border)">agentdiff-check</code> into your CI pipeline. Diff candidate execution graphs against golden baselines, post rich diagnostic blame trees to PR comments, and lock the merge button if thresholds fail.
+              </p>
+
+              {/* High-Impact Proof Points */}
+              <div className="mt-8 flex flex-wrap items-center gap-6 text-xs text-(--muted)">
+                <span className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span className="text-(--fg) font-semibold">30-Second Setup</span>
+                </span>
+                <span className="text-(--border) select-none">•</span>
+                <span className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span>Automated PR Comment Diagnostic</span>
+                </span>
+                <span className="text-(--border) select-none">•</span>
+                <span className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span>Goodhart Threshold Protection</span>
+                </span>
+              </div>
             </div>
-          </div>
-        </Reveal>
+          </Reveal>
+        </div>
       </section>
 
-      {/* 2. THE PRODUCTION WORKFLOW SPECIFICATION */}
-      <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
-          {/* Left Column: Context */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-mono font-bold text-emerald-500 px-2.5 py-1 rounded bg-emerald-500/10 border border-emerald-500/25">
-                01
+      {/* 2. PRODUCTION WORKFLOW SPECIFICATION (SIDE-BY-SIDE BLUEPRINT) */}
+      <section className="py-24 sm:py-32 w-full bg-transparent">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+            
+            {/* Left Column: Workflow Narrative */}
+            <div className="lg:col-span-5 space-y-5">
+              <span className="text-xs uppercase tracking-[0.18em] text-(--faint) font-medium block">
+                01 / CI Integration
               </span>
-              <span className="text-xs font-mono uppercase tracking-wider text-(--faint)">
-                GITHUB ACTION WORKFLOW
-              </span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-(--fg)">
-              Drop into Any Repository in 30 Seconds
-            </h2>
-            <p className="text-sm sm:text-base text-(--muted) leading-relaxed">
-              Execute your agent in CI, record a PR candidate trace, and invoke <code className="font-mono text-xs text-(--fg)">agentdiff-check</code>. If divergence or loop thresholds are breached, the action exits with code 1 and blocks the merge button.
-            </p>
-            <div className="pt-2">
-              <a
-                href="https://github.com/lostmartian/agentdiff-demo/pull/3"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-xs font-mono font-semibold text-(--fg) hover:text-(--accent) transition-colors"
-              >
-                <span>Inspect Live Demo on GitHub PR #3</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            </div>
-          </div>
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.035em] text-(--fg) leading-[1.1]">
+                Drop into any repo in 30 seconds.
+              </h2>
+              <p className="text-base text-(--muted) leading-relaxed font-normal">
+                Execute your agent test script in CI, record the candidate trace, and invoke <code className="text-xs font-mono text-(--fg) bg-(--surface-2) px-1.5 py-0.5 rounded border border-(--border)">agentdiff-check</code>. If divergence, cost, or retry loop thresholds breach tolerance, the action fails with exit code 1.
+              </p>
 
-          {/* Right Column: Workflow Yaml */}
-          <div className="lg:col-span-7">
-            <CodeBlock
-              language="yaml"
-              filename=".github/workflows/agentdiff.yml"
-              code={`name: AgentDiff Gate
+              <div className="pt-2">
+                <a
+                  href="https://github.com/lostmartian/agentdiff-demo/pull/3"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-emerald-500 hover:underline"
+                >
+                  <span>Inspect live PR comment demo on GitHub #3</span>
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+
+            {/* Right Column: Workflow Yaml */}
+            <div className="lg:col-span-7">
+              <div className="rounded-2xl border border-(--border) bg-(--surface) overflow-hidden shadow-2xs">
+                <CodeBlock
+                  language="yaml"
+                  filename=".github/workflows/agentdiff.yml"
+                  code={`name: AgentDiff Gate
 on: [pull_request]
 
 jobs:
@@ -167,7 +177,7 @@ jobs:
         run: |
           pip install agent-trajectory-diff
           agentdiff record my_agent:run \\
-            --input '{"scenario": "checkout"}' \\
+            --input '{"scenario": "customer_support"}' \\
             --output traces/pr_candidate.json
 
       - name: Gate Against Golden Baseline
@@ -177,110 +187,137 @@ jobs:
           candidate: traces/pr_candidate.json
           pr: \${{ github.event.number }}
           github-token: \${{ secrets.GITHUB_TOKEN }}`}
-            />
+                />
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* 3. THREE CORE ARTIFACTS ON EVERY PR */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-(--border)">
-        <Reveal>
-          <div className="mb-14 max-w-3xl">
-            <span className="text-xs font-mono uppercase tracking-[0.18em] text-(--faint) block mb-2">
-              Automation Deliverables
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-(--fg)">
-              What Happens on Every PR Commit
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-(--muted) leading-relaxed">
-              Three deterministic safeguards are deployed automatically on every pull request:
-            </p>
-          </div>
-        </Reveal>
-
-        <Reveal delay={100}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="p-7 rounded-3xl bg-(--surface-2)/40 border border-(--border) space-y-4">
-              <div className="w-11 h-11 rounded-2xl bg-(--surface) border border-(--border) flex items-center justify-center text-(--fg)">
-                <GitPullRequest className="w-5 h-5 text-(--accent)" />
-              </div>
-              <div>
-                <div className="text-[11px] font-mono uppercase tracking-wider text-(--faint)">DIAGNOSTIC COMMENT</div>
-                <h3 className="text-lg font-semibold text-(--fg) mt-1">Rich PR Commentary</h3>
-              </div>
-              <p className="text-sm text-(--muted) leading-relaxed">
-                Posts a complete regression breakdown table, topological diff trees, cost percentage changes, and the exact culprit step directly into the PR review timeline.
+      {/* 3. THREE AUTOMATION DELIVERABLES */}
+      <section className="py-24 sm:py-32 w-full bg-transparent">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="max-w-3xl mb-16 sm:mb-20">
+              <span className="text-xs uppercase tracking-[0.18em] text-(--faint) block mb-3 font-medium">
+                02 / Core Deliverables
+              </span>
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.035em] text-(--fg) leading-[1.1]">
+                What happens on every pull request.
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-(--muted) leading-relaxed font-normal">
+                Three deterministic safeguards run on every push, giving your team actionable feedback before bad code hits main.
               </p>
             </div>
+          </Reveal>
 
-            {/* Feature 2 */}
-            <div className="p-7 rounded-3xl bg-(--surface-2)/20 border border-(--border) space-y-4">
-              <div className="w-11 h-11 rounded-2xl bg-(--surface) border border-(--border) flex items-center justify-center text-(--fg)">
-                <ShieldCheck className="w-5 h-5 text-emerald-500" />
-              </div>
-              <div>
-                <div className="text-[11px] font-mono uppercase tracking-wider text-(--faint)">STRICT CI ENFORCEMENT</div>
-                <h3 className="text-lg font-semibold text-(--fg) mt-1">Exit Code 1 Merge Blocker</h3>
-              </div>
-              <p className="text-sm text-(--muted) leading-relaxed">
-                <code className="font-mono text-xs text-(--fg)">--fail-on-regression</code> causes the GitHub Action step to exit with code 1 upon threshold violations, keeping GitHub&apos;s merge button locked.
-              </p>
-            </div>
+          {/* 3 Value Pillars: High-Converting Open Layout */}
+          <Reveal delay={100}>
+            <div className="border-t border-(--border)">
+              <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-(--border)">
+                
+                {/* Pillar 1: Rich PR Commentary */}
+                <div className="py-10 lg:py-12 lg:pr-10 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase tracking-wider text-emerald-500 font-semibold">
+                      Deliverable 01
+                    </span>
+                    <GitPullRequest className="w-4 h-4 text-emerald-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-(--fg) tracking-tight">
+                    Rich PR Diagnostic Commentary
+                  </h3>
+                  <p className="text-sm sm:text-base text-(--muted) leading-relaxed">
+                    Posts an interactive markdown summary directly to the PR with exact divergence ratios, step-by-step diff trees, token spikes, and isolated culprit root-cause lines.
+                  </p>
+                  <div className="pt-2 flex items-center gap-2 text-xs text-(--muted)">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    <span>Instant team visibility without log parsing</span>
+                  </div>
+                </div>
 
-            {/* Feature 3 */}
-            <div className="p-7 rounded-3xl bg-(--surface-2)/20 border border-(--border) space-y-4">
-              <div className="w-11 h-11 rounded-2xl bg-(--surface) border border-(--border) flex items-center justify-center text-(--fg)">
-                <RotateCcw className="w-5 h-5 text-blue-500" />
+                {/* Pillar 2: Exit Code 1 Enforcement */}
+                <div className="py-10 lg:py-12 lg:px-10 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase tracking-wider text-rose-500 font-semibold">
+                      Deliverable 02
+                    </span>
+                    <ShieldCheck className="w-4 h-4 text-rose-500" />
+                  </div>
+                  <h3 className="text-xl font-bold text-(--fg) tracking-tight">
+                    Exit Code 1 Merge Blocker
+                  </h3>
+                  <p className="text-sm sm:text-base text-(--muted) leading-relaxed">
+                    Emits strict non-zero exit codes upon regression, automatically failing the GitHub check suite and preventing engineers from merging broken agent behaviors.
+                  </p>
+                  <div className="pt-2 flex items-center gap-2 text-xs text-(--muted)">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                    <span>100% Deterministic branch protection</span>
+                  </div>
+                </div>
+
+                {/* Pillar 3: Automated Rotation */}
+                <div className="py-10 lg:py-12 lg:pl-10 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase tracking-wider text-blue-500 font-semibold">
+                      Deliverable 03
+                    </span>
+                    <RotateCcw className="w-4 h-4 text-blue-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-(--fg) tracking-tight">
+                    Automated Baseline Rotation
+                  </h3>
+                  <p className="text-sm sm:text-base text-(--muted) leading-relaxed">
+                    Set <code className="text-xs font-mono text-(--fg) bg-(--surface-2) px-1 py-0.5 rounded border border-(--border)">update-baseline = true</code> to safely advance your golden baseline trace only when the candidate execution passes all assertion criteria.
+                  </p>
+                  <div className="pt-2 flex items-center gap-2 text-xs text-(--muted)">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                    <span>Zero manual JSON copy-pasting</span>
+                  </div>
+                </div>
+
               </div>
-              <div>
-                <div className="text-[11px] font-mono uppercase tracking-wider text-(--faint)">AUTOMATED ROTATION</div>
-                <h3 className="text-lg font-semibold text-(--fg) mt-1">Clean Baseline Rotation</h3>
-              </div>
-              <p className="text-sm text-(--muted) leading-relaxed">
-                Pass <code className="font-mono text-xs text-(--fg)">update-baseline: true</code> to advance the stored golden baseline only when candidate runs pass all mathematical regression criteria.
-              </p>
             </div>
-          </div>
-        </Reveal>
+          </Reveal>
+        </div>
       </section>
 
-      {/* 4. THE GOODHART THRESHOLD GUARD */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-(--border)">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
-          {/* Left Column: Explanation */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-mono font-bold text-amber-500 px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/25">
-                02
+      {/* 4. GOODHART THRESHOLD GUARD */}
+      <section className="py-24 sm:py-32 w-full bg-transparent">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+            
+            {/* Left Column: Explanation */}
+            <div className="lg:col-span-5 space-y-5">
+              <span className="text-xs uppercase tracking-[0.18em] text-amber-500 font-medium block">
+                03 / Governance &amp; Security
               </span>
-              <span className="text-xs font-mono uppercase tracking-wider text-(--faint)">
-                THRESHOLD GOVERNANCE
-              </span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-(--fg)">
-              Did the PR Pass — or Did the Gate Move?
-            </h2>
-            <p className="text-sm sm:text-base text-(--muted) leading-relaxed">
-              When developers weaken test thresholds (e.g. raising <code className="font-mono text-xs text-(--fg)">max_divergence</code> from 0.25 to 0.70 to force a broken PR to pass), AgentDiff compares the PR configuration against the main branch baseline config.
-            </p>
-            <div className="p-4 rounded-xl bg-(--surface-2)/40 border border-(--border) space-y-2">
-              <div className="flex items-center gap-2 text-xs font-mono font-semibold text-amber-500 dark:text-amber-400">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                <span>Goodhart&apos;s Law Protection</span>
-              </div>
-              <p className="text-xs text-(--muted) leading-relaxed">
-                Threshold alterations are surfaced as explicit security warnings in the PR verdict, making test weakening immediately visible to code reviewers.
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.035em] text-(--fg) leading-[1.1]">
+                Did the PR pass — or did the gate move?
+              </h2>
+              <p className="text-base text-(--muted) leading-relaxed font-normal">
+                When developers weaken test thresholds (e.g. raising <code className="text-xs font-mono text-(--fg) bg-(--surface-2) px-1.5 py-0.5 rounded border border-(--border)">max_divergence</code> from 0.25 to 0.75 to force a broken agent to pass), AgentDiff compares the PR configuration against the main branch baseline config.
               </p>
-            </div>
-          </div>
 
-          {/* Right Column: Governance Snippet */}
-          <div className="lg:col-span-7">
-            <CodeBlock
-              language="yaml"
-              filename="governance_step.yml"
-              code={`      - name: Fetch Baseline Policy from Main
+              <div className="p-4 rounded-xl bg-(--surface-2)/60 border border-(--border) space-y-2">
+                <div className="flex items-center gap-2 text-xs font-semibold text-amber-500 dark:text-amber-400">
+                  <AlertTriangle className="w-4 h-4" />
+                  <span>Goodhart&apos;s Law Protection Active</span>
+                </div>
+                <p className="text-xs text-(--muted) leading-relaxed">
+                  Threshold alterations are flagged as high-priority security warnings in the PR review timeline, preventing silent regression masking.
+                </p>
+              </div>
+            </div>
+
+            {/* Right Column: Governance Yaml */}
+            <div className="lg:col-span-7">
+              <div className="rounded-2xl border border-(--border) bg-(--surface) overflow-hidden shadow-2xs">
+                <CodeBlock
+                  language="yaml"
+                  filename="governance_step.yml"
+                  code={`      - name: Fetch Baseline Policy from Main
         run: git show origin/main:agentdiff.toml > /tmp/baseline-agentdiff.toml
 
       - name: Gate Against Baseline with Governance Guard
@@ -291,92 +328,111 @@ jobs:
           baseline-config: /tmp/baseline-agentdiff.toml # Flags loosened thresholds
           pr: \${{ github.event.number }}
           github-token: \${{ secrets.GITHUB_TOKEN }}`}
-            />
+                />
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
       {/* 5. COMPLETE ACTION INPUTS SPECIFICATION */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-(--border)">
-        <Reveal>
-          <div className="mb-12 max-w-3xl">
-            <span className="text-xs font-mono uppercase tracking-[0.18em] text-(--faint) block mb-2">
-              Action Parameters
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-(--fg)">
-              Inputs Specification
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-(--muted) leading-relaxed">
-              All parameters supported by the <code className="font-mono text-xs text-(--fg)">agentdiff-check</code> action:
-            </p>
-          </div>
-        </Reveal>
-
-        <Reveal delay={100}>
-          <div className="rounded-3xl border border-(--border) bg-(--surface) overflow-hidden shadow-xs">
-            <div className="overflow-x-auto no-scrollbar">
-              <table className="w-full text-left min-w-[700px]">
-                <thead>
-                  <tr className="border-b border-(--border) bg-(--surface-2)/80 text-xs font-mono text-(--faint) uppercase tracking-wider">
-                    <th className="py-4 px-6 font-semibold text-(--fg) w-4/12">Parameter</th>
-                    <th className="py-4 px-6 font-semibold text-(--fg) w-2/12">Requirement</th>
-                    <th className="py-4 px-6 font-semibold text-(--fg) w-6/12">Description</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-(--border)/50 text-sm">
-                  {ACTION_INPUTS.map((input) => (
-                    <tr key={input.name} className="hover:bg-(--surface-2)/30 transition-colors">
-                      <td className="py-4 px-6 font-mono text-xs font-semibold text-(--fg)">
-                        {input.name}
-                      </td>
-                      <td className="py-4 px-6 font-mono text-xs">
-                        {input.req ? (
-                          <span className="text-emerald-500 font-semibold px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/25 text-[10.5px]">
-                            REQUIRED
-                          </span>
-                        ) : (
-                          <span className="text-(--faint) px-2 py-0.5 rounded bg-(--surface-2) border border-(--border) text-[10.5px]">
-                            OPTIONAL
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-4 px-6 text-sm text-(--muted) leading-relaxed">
-                        {input.desc}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      <section className="py-24 sm:py-32 w-full bg-transparent">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="max-w-3xl mb-16 sm:mb-20">
+              <span className="text-xs uppercase tracking-[0.18em] text-(--faint) block mb-3 font-medium">
+                04 / Parameters &amp; Config
+              </span>
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.035em] text-(--fg) leading-[1.1]">
+                Complete Action inputs specification.
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-(--muted) leading-relaxed font-normal">
+                Everything configurable in <code className="text-xs font-mono text-(--fg) bg-(--surface-2) px-1.5 py-0.5 rounded border border-(--border)">agentdiff-check</code>:
+              </p>
             </div>
-          </div>
-        </Reveal>
+          </Reveal>
+
+          <Reveal delay={100}>
+            <div className="rounded-2xl border border-(--border) bg-(--surface) overflow-hidden shadow-2xs">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse min-w-[700px]">
+                  <thead>
+                    <tr className="border-b border-(--border) bg-(--surface-2)/60 text-(--muted) text-left font-medium text-xs">
+                      <th className="py-3.5 px-5 w-4/12">Parameter</th>
+                      <th className="py-3.5 px-5 w-2/12">Requirement</th>
+                      <th className="py-3.5 px-5 w-6/12">Description</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-(--border) text-(--muted)">
+                    {ACTION_INPUTS.map((input) => (
+                      <tr key={input.name} className="hover:bg-(--surface-2)/30 transition-colors">
+                        <td className="py-4 px-5 font-mono text-xs font-semibold text-(--fg)">
+                          {input.name}
+                        </td>
+                        <td className="py-4 px-5">
+                          {input.req ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                              Required
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-normal text-(--faint) bg-(--surface-2) border border-(--border)">
+                              Optional
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-4 px-5 text-sm text-(--muted) leading-relaxed">
+                          {input.desc}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Reveal>
+        </div>
       </section>
 
-      {/* 6. CTA */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center border-t border-(--border)">
-        <Reveal>
-          <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-(--fg) mb-3">
-            Record. Diff. Gate. Ship.
-          </h2>
-          <p className="text-base text-(--muted) max-w-lg mx-auto mb-8 font-normal">
-            Automate trajectory regression testing across your entire team in under five minutes.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-sm font-semibold">
-            <Link
-              href="/quickstart"
-              className="px-8 py-3.5 rounded-full bg-(--fg) text-(--bg) hover:opacity-90 transition-opacity"
-            >
-              Start the Quickstart →
-            </Link>
-            <Link
-              href="/docs"
-              className="px-8 py-3.5 rounded-full border border-(--border) text-(--fg) hover:bg-(--surface-2) transition-colors"
-            >
-              Explore Full CLI Docs
-            </Link>
-          </div>
-        </Reveal>
+      {/* 6. CTA BANNER */}
+      <section className="py-24 sm:py-36 w-full bg-transparent text-center border-t border-(--border) relative overflow-hidden">
+        {/* Top-Right Emerald Flare */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/15 dark:bg-emerald-400/20 rounded-full blur-[100px] pointer-events-none -mr-20 -mt-20" />
+        
+        {/* Center ambient wash */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-[300px] bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <Reveal>
+            <div className="max-w-3xl mx-auto space-y-6">
+              <span className="text-xs uppercase tracking-[0.18em] text-(--faint) block font-medium">
+                Continuous Protection
+              </span>
+              <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-[-0.035em] text-(--fg) leading-[1.08]">
+                Record. Diff. Gate. <span className="text-emerald-500/90 dark:text-emerald-400">Ship with confidence.</span>
+              </h2>
+              <p className="text-base sm:text-lg text-(--muted) max-w-xl mx-auto font-normal leading-relaxed">
+                Add one GitHub Action step to automate trajectory regression testing across your engineering team in under 5 minutes.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-4 pt-4 text-sm font-semibold">
+                <Link
+                  href="/quickstart"
+                  className="px-8 py-3.5 rounded-full bg-(--fg) text-(--bg) hover:opacity-90 transition-opacity shadow-sm"
+                >
+                  Get Started with Quickstart →
+                </Link>
+                <Link
+                  href="/docs"
+                  className="px-8 py-3.5 rounded-full border border-(--border) text-(--fg) hover:bg-(--surface-2) transition-colors"
+                >
+                  Explore Full CLI Docs
+                </Link>
+              </div>
+            </div>
+          </Reveal>
+        </div>
       </section>
+
     </div>
   );
 }

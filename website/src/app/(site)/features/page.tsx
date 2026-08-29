@@ -276,82 +276,164 @@ function DeclarativeGovernanceAsset() {
 
 export default function FeaturesPage() {
   return (
-    <div className="w-full font-sans pb-32">
-      {/* 1. TECHNICAL SPEC HEADER */}
-      <section className="pt-24 pb-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Reveal>
-          <div className="max-w-3xl">
-            <span className="text-xs font-mono uppercase tracking-[0.18em] text-(--faint) block mb-4">
-              Engine Specification & Architecture
-            </span>
-            <h1
-              className="font-semibold tracking-[-0.035em] text-(--fg) leading-[1.04]"
-              style={{ fontSize: "var(--text-display)" }}
-            >
-              How the comparator actually works under the hood.
-            </h1>
-            <p
-              className="mt-6 text-base sm:text-lg text-(--muted) leading-relaxed max-w-2xl font-normal"
-              style={{ lineHeight: "var(--leading-subtitle)" }}
-            >
-              This is the technical deep-dive into the deterministic graph algorithms powering AgentDiff: topological trace normalization, modified LCS alignment, k-gram loop detection, rule-based root cause isolation, and CI exit code specifications.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-6 text-sm font-mono">
-              <span className="text-(--accent) font-semibold">Zero LLM calls</span>
-              <span className="text-(--border-strong)">•</span>
-              <span className="text-(--muted)">&lt;10ms execution latency</span>
-              <span className="text-(--border-strong)">•</span>
-              <span className="text-(--muted)">100% Deterministic CI verdicts</span>
+    <div className="w-full font-sans divide-y divide-(--border)">
+      
+      {/* 1. TECHNICAL SPEC HERO */}
+      <section className="relative overflow-hidden pt-20 pb-20 sm:pt-24 sm:pb-24 bg-transparent">
+        {/* Subtle top spotlight glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-[300px] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-emerald-500/15 via-emerald-500/5 to-transparent blur-3xl pointer-events-none -z-10" />
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <Reveal>
+            <div className="max-w-4xl">
+              <span className="text-xs uppercase tracking-[0.18em] text-(--faint) block mb-4 font-medium">
+                Engine Specification &amp; Architecture
+              </span>
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-[-0.035em] text-(--fg) leading-[1.08]">
+                How the engine evaluates agent trajectories <span className="text-emerald-500/90 dark:text-emerald-400">in single-digit milliseconds</span>.
+              </h1>
+              <p className="mt-6 text-base sm:text-lg lg:text-xl text-(--muted) leading-relaxed max-w-3xl font-normal">
+                A technical deep-dive into the deterministic graph algorithms powering AgentDiff: topological trace normalization, modified LCS alignment, k-gram loop detection, and rule-based root cause isolation in CI.
+              </p>
+
+              {/* Fast Proof Points */}
+              <div className="mt-8 flex flex-wrap items-center gap-6 text-xs text-(--muted)">
+                <span className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span className="text-(--fg) font-semibold">Zero LLM Judge Calls</span>
+                </span>
+                <span className="text-(--border) select-none">•</span>
+                <span className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span>Sub-5ms Execution Latency</span>
+                </span>
+                <span className="text-(--border) select-none">•</span>
+                <span className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span>100% Deterministic CI Block</span>
+                </span>
+              </div>
             </div>
-          </div>
-        </Reveal>
+          </Reveal>
+        </div>
       </section>
 
       {/* 2. SECTION 01: TRACE NORMALIZATION & EQUIVALENCE SIGNATURES */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-(--border)">
-        <Reveal>
-          <div className="max-w-3xl mb-10">
-            <span className="text-xs font-mono uppercase tracking-[0.18em] text-(--faint) block mb-3">
-              01 / Trace Ingestion & Equivalence
+      <section className="py-24 sm:py-32 w-full bg-transparent">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="max-w-3xl mb-16 sm:mb-20">
+            <span className="text-xs uppercase tracking-[0.18em] text-(--faint) block mb-3 font-medium">
+              01 / Trace Ingestion &amp; Normalization
             </span>
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-(--fg)">
-              Step Signatures & Semantic Equivalence
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.035em] text-(--fg) leading-[1.1]">
+              Structural Equivalence Signatures.
             </h2>
-            <p className="mt-3 text-sm sm:text-base text-(--muted) leading-relaxed">
-              Before comparison, raw JSON telemetry traces from adapters (LangGraph, CrewAI, OpenAI Agents, OTel) are normalized into strongly typed DAGs. Every node computes a structural equivalence signature:
+            <p className="mt-4 text-base sm:text-lg text-(--muted) leading-relaxed font-normal">
+              Before comparison, raw telemetry traces from LangGraph, CrewAI, OpenAI Agents, and OpenTelemetry are normalized into strongly typed execution DAGs. Every node computes a deterministic structural signature.
             </p>
           </div>
         </Reveal>
 
-        {/* Ingestion & Signature Hasher Vector Asset */}
+        {/* Clean 3-Stage Pipeline: Highly Readable Editorial Typography */}
         <Reveal delay={100}>
-          <IngestionSignatureAsset />
+          <div className="border-t border-(--border)">
+            <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-(--border)">
+              
+              {/* Stage 1: Raw Telemetry */}
+              <div className="py-10 lg:py-12 lg:pr-10 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-wider text-(--faint) font-semibold">
+                    Stage 1 · Ingestion
+                  </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-(--border)" />
+                </div>
+                <h3 className="text-xl font-bold text-(--fg) tracking-tight">
+                  Raw Telemetry Trace
+                </h3>
+                <p className="text-sm text-(--muted) leading-relaxed">
+                  Ingests heterogeneous spans and execution logs containing variable timestamps, ephemeral UUIDs, and tool payloads.
+                </p>
+                <div className="pt-3 font-mono text-xs text-(--fg) space-y-1.5 bg-(--surface-2)/60 p-4 rounded-xl border border-(--border) leading-normal">
+                  <div className="text-(--muted)">step_type: <span className="text-(--fg)">&quot;tool&quot;</span></div>
+                  <div className="text-(--muted)">name: <span className="text-(--fg)">&quot;vector_query&quot;</span></div>
+                  <div className="text-(--faint)">uuid: &quot;4a89-ef12...&quot;</div>
+                </div>
+              </div>
+
+              {/* Stage 2: Masking & Key Extraction */}
+              <div className="py-10 lg:py-12 lg:px-10 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-wider text-emerald-500 font-semibold">
+                    Stage 2 · Masking
+                  </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                </div>
+                <h3 className="text-xl font-bold text-(--fg) tracking-tight">
+                  Semantic Key Extraction
+                </h3>
+                <p className="text-sm text-(--muted) leading-relaxed">
+                  Drops non-deterministic noise (timestamps, tokens, UUIDs) and sorts input dictionary keys to ensure deterministic ordering.
+                </p>
+                <div className="pt-3 font-mono text-xs space-y-1.5 bg-(--surface-2)/60 p-4 rounded-xl border border-(--border) leading-normal">
+                  <div className="text-rose-500 font-medium">− Drop volatile UUIDs</div>
+                  <div className="text-emerald-500 font-medium">+ Sort payload keys</div>
+                  <div className="text-(--muted)">→ (&quot;query&quot;, &quot;top_k&quot;)</div>
+                </div>
+              </div>
+
+              {/* Stage 3: Equivalence Token */}
+              <div className="py-10 lg:py-12 lg:pl-10 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-wider text-(--fg) font-semibold">
+                    Stage 3 · Signature
+                  </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                </div>
+                <h3 className="text-xl font-bold text-(--fg) tracking-tight">
+                  Canonical Signature Token
+                </h3>
+                <p className="text-sm text-(--muted) leading-relaxed">
+                  Generates an immutable node tuple token ready for high-speed topological longest common subsequence alignment.
+                </p>
+                <div className="pt-3 font-mono text-xs text-emerald-500 font-medium bg-(--surface-2)/60 p-4 rounded-xl border border-(--border) leading-normal">
+                  (&quot;tool&quot;, &quot;vector_query&quot;, (&quot;query&quot;, &quot;top_k&quot;))
+                </div>
+              </div>
+
+            </div>
+          </div>
         </Reveal>
 
+        {/* Split Spec / Code Block */}
         <Reveal delay={120}>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start mt-6">
-            <div className="lg:col-span-6 space-y-4 text-sm text-(--muted) leading-relaxed">
-              <p>
-                Two steps <code className="font-mono text-xs text-(--fg)">A</code> and <code className="font-mono text-xs text-(--fg)">B</code> are considered equal by the comparator if and only if their signature matches:
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start mt-16 pt-16 border-t border-(--border)">
+            
+            {/* Left: Spec Details */}
+            <div className="lg:col-span-5 space-y-5">
+              <h3 className="text-2xl font-bold text-(--fg) tracking-tight">
+                Deterministic Hashing Contract
+              </h3>
+              <p className="text-base text-(--muted) leading-relaxed">
+                When <code className="text-xs text-(--fg) font-mono bg-(--surface-2) px-1.5 py-0.5 rounded border border-(--border)">strict_tool_signatures = true</code> is enabled, AgentDiff performs recursive value hashing on payload contents while applying user-defined regex exclusion masks in <code className="text-xs text-(--fg) font-mono bg-(--surface-2) px-1.5 py-0.5 rounded border border-(--border)">agentdiff.toml</code>.
               </p>
-              <div className="p-4 rounded-xl bg-(--code-bg) border border-(--border) font-mono text-xs text-(--fg) leading-relaxed overflow-x-auto">
-                <span className="text-(--faint)"># Equivalence Signature Tuple</span><br />
-                Signature(Node) = (<br />
-                &nbsp;&nbsp;step.step_type,&nbsp;&nbsp;<span className="text-(--faint)"># tool | llm | retrieval | reasoning</span><br />
-                &nbsp;&nbsp;step.name,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="text-(--faint)"># tool/function identifier</span><br />
-                &nbsp;&nbsp;sorted_keys&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="text-(--faint)"># tuple(sorted(input_payload.keys()))</span><br />
-                )
+              <div className="flex flex-wrap items-center gap-4 pt-2 text-sm text-(--muted)">
+                <span className="flex items-center gap-2 font-medium text-(--fg)">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span>Sub-50μs Hash Latency</span>
+                </span>
+                <span className="text-(--border-strong)">•</span>
+                <span>Zero Floating Point Drift</span>
               </div>
-              <p>
-                When <code className="font-mono text-xs text-(--fg)">strict_tool_signatures = true</code> is set in <code className="font-mono text-xs text-(--fg)">agentdiff.toml</code>, the comparator performs recursive value hashing on the input payload, while applying user-defined regex exclusion masks to discard non-deterministic timestamps, request UUIDs, and auth tokens.
-              </p>
             </div>
 
-            <div className="lg:col-span-6">
-              <CodeBlock
-                language="json"
-                filename="trace_step.json"
-                code={`{
+            {/* Right: Normalized JSON Trace Step */}
+            <div className="lg:col-span-7">
+              <div className="rounded-2xl border border-(--border) bg-(--surface) overflow-hidden shadow-2xs">
+                <CodeBlock
+                  language="json"
+                  filename="normalized_node.json"
+                  code={`{
   "step_id": "step_89f02c",
   "parent_id": "step_14a81b",
   "step_index": 3,
@@ -366,364 +448,653 @@ export default function FeaturesPage() {
     "cost_usd": 0.0024
   }
 }`}
-              />
+                />
+              </div>
             </div>
+
           </div>
         </Reveal>
+        </div>
       </section>
 
       {/* 3. SECTION 02: MODIFIED TOPOLOGICAL LCS ALIGNMENT */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-(--border)">
-        <Reveal>
-          <div className="max-w-3xl mb-10">
-            <span className="text-xs font-mono uppercase tracking-[0.18em] text-(--faint) block mb-3">
-              02 / The Comparison Algorithm
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-(--fg)">
-              Topological Longest Common Subsequence (LCS)
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-(--muted) leading-relaxed">
-              Standard string diff algorithms fail on agent traces because tool executions contain dependencies and state mutations. AgentDiff uses a 3-phase graph alignment pipeline:
-            </p>
-          </div>
-        </Reveal>
+      <section className="py-24 sm:py-32 w-full bg-transparent">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="max-w-3xl mb-16 sm:mb-20">
+              <span className="text-xs uppercase tracking-[0.18em] text-(--faint) block mb-3 font-medium">
+                02 / The Alignment Engine
+              </span>
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.035em] text-(--fg) leading-[1.1]">
+                Topological Longest Common Subsequence.
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-(--muted) leading-relaxed font-normal">
+                Standard string diff algorithms fail on AI agent executions because tool calls contain causal dependencies and cyclic retries. AgentDiff aligns complex execution DAGs through a high-speed 3-phase graph engine.
+              </p>
+            </div>
+          </Reveal>
 
-        {/* Alignment Matrix Vector Asset */}
-        <Reveal delay={100}>
-          <TopologicalMatrixAsset />
-        </Reveal>
+          {/* 3-Phase Alignment Engine */}
+          <Reveal delay={100}>
+            <div className="border-t border-(--border)">
+              <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-(--border)">
+                
+                {/* Phase 1 */}
+                <div className="py-10 lg:py-12 lg:pr-10 space-y-4">
+                  <span className="text-xs uppercase tracking-wider text-emerald-500 font-semibold">
+                    Phase 1 · DAG Sort
+                  </span>
+                  <h3 className="text-xl font-bold text-(--fg) tracking-tight">
+                    Topological Dependency Linearization
+                  </h3>
+                  <p className="text-sm text-(--muted) leading-relaxed font-normal">
+                    Linearizes the execution graph via Kahn&apos;s algorithm while preserving strict causal dependency edges defined by parent pointers.
+                  </p>
+                  <div className="text-xs text-(--muted) pt-2 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    <span>O(V + E) Dependency Traversal</span>
+                  </div>
+                </div>
 
-        <Reveal delay={120}>
-          <div className="space-y-10 mt-6">
-            {/* 3 Phases */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
-              <div className="space-y-2">
-                <div className="font-mono text-xs font-semibold text-(--accent)">PHASE 1: TOPO-SORT</div>
-                <h3 className="font-semibold text-(--fg)">Dependency DAG Sorting</h3>
-                <p className="text-(--muted) leading-relaxed font-normal">
-                  Linearizes the execution graph via Kahn&apos;s algorithm while preserving strict causal dependency edges defined by <code className="font-mono text-xs text-(--fg)">parent_id</code> pointers.
-                </p>
-              </div>
-              <div className="space-y-2">
-                <div className="font-mono text-xs font-semibold text-(--accent)">PHASE 2: DP LCS TABLE</div>
-                <h3 className="font-semibold text-(--fg)">2D Matrix Reconstruction</h3>
-                <p className="text-(--muted) leading-relaxed font-normal">
-                  Constructs an <code className="font-mono text-xs text-(--fg)">O(N · M)</code> dynamic programming grid scoring sequence matches, insertions, and branch modifications.
-                </p>
-              </div>
-              <div className="space-y-2">
-                <div className="font-mono text-xs font-semibold text-(--accent)">PHASE 3: BACKTRACKING</div>
-                <h3 className="font-semibold text-(--fg)">Diff Classification</h3>
-                <p className="text-(--muted) leading-relaxed font-normal">
-                  Backtracks the optimal alignment path to mark each step as <code className="font-mono text-xs text-emerald-400">MATCHED</code>, <code className="font-mono text-xs text-(--danger)">ADDED</code>, <code className="font-mono text-xs text-(--danger)">REMOVED</code>, or <code className="font-mono text-xs text-amber-400">MODIFIED</code>.
-                </p>
+                {/* Phase 2 */}
+                <div className="py-10 lg:py-12 lg:px-10 space-y-4">
+                  <span className="text-xs uppercase tracking-wider text-(--fg) font-semibold">
+                    Phase 2 · 2D Grid
+                  </span>
+                  <h3 className="text-xl font-bold text-(--fg) tracking-tight">
+                    Dynamic Programming Table
+                  </h3>
+                  <p className="text-sm text-(--muted) leading-relaxed font-normal">
+                    Constructs an optimized dynamic programming matrix scoring exact signature matches, structural insertions, and tool modifications.
+                  </p>
+                  <div className="text-xs text-(--muted) pt-2 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    <span>Sub-5ms Execution Latency</span>
+                  </div>
+                </div>
+
+                {/* Phase 3 */}
+                <div className="py-10 lg:py-12 lg:pl-10 space-y-4">
+                  <span className="text-xs uppercase tracking-wider text-rose-500 font-semibold">
+                    Phase 3 · Classification
+                  </span>
+                  <h3 className="text-xl font-bold text-(--fg) tracking-tight">
+                    Optimal Path Backtracking
+                  </h3>
+                  <p className="text-sm text-(--muted) leading-relaxed font-normal">
+                    Backtracks the optimal alignment path to mark each step as Matched, Added, Removed, or Modified with sub-cent token delta tracking.
+                  </p>
+                  <div className="text-xs text-(--muted) pt-2 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                    <span>Root Cause Loop Pinpointing</span>
+                  </div>
+                </div>
+
               </div>
             </div>
+          </Reveal>
 
-            {/* LCS Matrix Visual Table */}
-            <div className="pt-4">
-              <div className="text-xs font-mono text-(--faint) mb-3">Alignment Trace Matrix Table</div>
-              <div className="overflow-x-auto no-scrollbar">
-                <table className="w-full text-xs font-mono border-collapse min-w-[620px]">
-                  <thead>
-                    <tr className="border-b border-(--border) text-(--faint) text-left">
-                      <th className="py-2.5 px-3">Idx</th>
-                      <th className="py-2.5 px-3">Baseline Step</th>
-                      <th className="py-2.5 px-3">Candidate Step</th>
-                      <th className="py-2.5 px-3">Status</th>
-                      <th className="py-2.5 px-3">State Delta</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-(--border) text-(--muted)">
-                    <tr>
-                      <td className="py-2.5 px-3 font-semibold text-(--fg)">01</td>
-                      <td className="py-2.5 px-3 text-(--fg)">planner:intent</td>
-                      <td className="py-2.5 px-3 text-(--fg)">planner:intent</td>
-                      <td className="py-2.5 px-3 text-emerald-400 font-semibold">· MATCHED</td>
-                      <td className="py-2.5 px-3 text-(--faint)">identical</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 px-3 font-semibold text-(--fg)">02</td>
-                      <td className="py-2.5 px-3 text-(--fg)">search_db(query)</td>
-                      <td className="py-2.5 px-3 text-(--fg)">search_db(query)</td>
-                      <td className="py-2.5 px-3 text-emerald-400 font-semibold">· MATCHED</td>
-                      <td className="py-2.5 px-3 text-(--faint)">identical</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 px-3 font-semibold text-(--fg)">03</td>
-                      <td className="py-2.5 px-3 text-(--fg)">synthesize_sql</td>
-                      <td className="py-2.5 px-3 text-(--fg)">synthesize_sql</td>
-                      <td className="py-2.5 px-3 text-amber-400 font-semibold">~ MODIFIED</td>
-                      <td className="py-2.5 px-3 text-amber-400 font-mono text-[11px]">{`output.syntax_version: 1 → 2`}</td>
-                    </tr>
-                    <tr className="bg-(--danger)/5">
-                      <td className="py-2.5 px-3 font-semibold text-(--danger)">04</td>
-                      <td className="py-2.5 px-3 text-(--faint)">— (absent)</td>
-                      <td className="py-2.5 px-3 text-(--danger) font-semibold">retry_sql_query</td>
-                      <td className="py-2.5 px-3 text-(--danger) font-bold">+ ADDED</td>
-                      <td className="py-2.5 px-3 text-(--danger)">Loop entry point (500 syntax error)</td>
-                    </tr>
-                    <tr className="bg-(--danger)/5">
-                      <td className="py-2.5 px-3 font-semibold text-(--danger)">05</td>
-                      <td className="py-2.5 px-3 text-(--faint)">— (absent)</td>
-                      <td className="py-2.5 px-3 text-(--danger) font-semibold">retry_sql_query</td>
-                      <td className="py-2.5 px-3 text-(--danger) font-bold">+ ADDED</td>
-                      <td className="py-2.5 px-3 text-(--danger)">Stagnant parameter repetition (k=1)</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 px-3 font-semibold text-(--fg)">06</td>
-                      <td className="py-2.5 px-3 text-(--fg)">execute_db_pool</td>
-                      <td className="py-2.5 px-3 text-(--fg)">execute_db_pool</td>
-                      <td className="py-2.5 px-3 text-emerald-400 font-semibold">· MATCHED</td>
-                      <td className="py-2.5 px-3 text-(--faint)">Fell back to working query</td>
-                    </tr>
-                  </tbody>
-                </table>
+          {/* Alignment Matrix Visual Table */}
+          <Reveal delay={120}>
+            <div className="mt-16 pt-16 border-t border-(--border)">
+              <div className="max-w-2xl mb-8">
+                <span className="text-xs uppercase tracking-wider text-(--faint) font-semibold block mb-2">
+                  Live Alignment Matrix
+                </span>
+                <h3 className="text-2xl font-bold text-(--fg) tracking-tight">
+                  Candidate vs Baseline Execution Sequence
+                </h3>
+                <p className="text-base text-(--muted) mt-1 leading-relaxed">
+                  Step-by-step alignment path showing exact match points, syntax modifications, and stagnant loop injections.
+                </p>
               </div>
+
+              <div className="rounded-2xl border border-(--border) bg-(--surface) overflow-hidden shadow-2xs">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm border-collapse min-w-[680px]">
+                    <thead>
+                      <tr className="border-b border-(--border) bg-(--surface-2)/60 text-(--muted) text-left font-medium text-xs">
+                        <th className="py-3.5 px-5">Index</th>
+                        <th className="py-3.5 px-5">Baseline Step</th>
+                        <th className="py-3.5 px-5">Candidate Step</th>
+                        <th className="py-3.5 px-5">Alignment Verdict</th>
+                        <th className="py-3.5 px-5">Observed Delta</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-(--border) text-(--muted)">
+                      <tr>
+                        <td className="py-4 px-5 font-mono text-xs font-semibold text-(--fg)">01</td>
+                        <td className="py-4 px-5 font-mono text-xs text-(--fg)">planner:intent</td>
+                        <td className="py-4 px-5 font-mono text-xs text-(--fg)">planner:intent</td>
+                        <td className="py-4 px-5">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                            Matched
+                          </span>
+                        </td>
+                        <td className="py-4 px-5 text-xs text-(--faint)">Identical signature</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 px-5 font-mono text-xs font-semibold text-(--fg)">02</td>
+                        <td className="py-4 px-5 font-mono text-xs text-(--fg)">search_db(query)</td>
+                        <td className="py-4 px-5 font-mono text-xs text-(--fg)">search_db(query)</td>
+                        <td className="py-4 px-5">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                            Matched
+                          </span>
+                        </td>
+                        <td className="py-4 px-5 text-xs text-(--faint)">Identical signature</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 px-5 font-mono text-xs font-semibold text-(--fg)">03</td>
+                        <td className="py-4 px-5 font-mono text-xs text-(--fg)">synthesize_sql</td>
+                        <td className="py-4 px-5 font-mono text-xs text-(--fg)">synthesize_sql</td>
+                        <td className="py-4 px-5">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                            Modified
+                          </span>
+                        </td>
+                        <td className="py-4 px-5 text-xs text-amber-500 font-mono">syntax_version: 1 → 2</td>
+                      </tr>
+                      <tr className="bg-rose-500/[0.04]">
+                        <td className="py-4 px-5 font-mono text-xs font-bold text-rose-500">04</td>
+                        <td className="py-4 px-5 text-xs text-(--faint)">— (absent in baseline)</td>
+                        <td className="py-4 px-5 font-mono text-xs text-rose-500 font-semibold">retry_sql_query</td>
+                        <td className="py-4 px-5">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-500 border border-rose-500/25">
+                            Loop Injected
+                          </span>
+                        </td>
+                        <td className="py-4 px-5 text-xs text-rose-500 font-medium">Repetition 1 (+48% tokens)</td>
+                      </tr>
+                      <tr className="bg-rose-500/[0.04]">
+                        <td className="py-4 px-5 font-mono text-xs font-bold text-rose-500">05</td>
+                        <td className="py-4 px-5 text-xs text-(--faint)">— (absent in baseline)</td>
+                        <td className="py-4 px-5 font-mono text-xs text-rose-500 font-semibold">retry_sql_query</td>
+                        <td className="py-4 px-5">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-500 border border-rose-500/25">
+                            Loop Injected
+                          </span>
+                        </td>
+                        <td className="py-4 px-5 text-xs text-rose-500 font-medium">Repetition 2 (+100% tokens)</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 px-5 font-mono text-xs font-semibold text-(--fg)">06</td>
+                        <td className="py-4 px-5 font-mono text-xs text-(--fg)">execute_db_pool</td>
+                        <td className="py-4 px-5 font-mono text-xs text-(--fg)">execute_db_pool</td>
+                        <td className="py-4 px-5">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                            Matched
+                          </span>
+                        </td>
+                        <td className="py-4 px-5 text-xs text-(--faint)">Fallback recovery</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
             </div>
-          </div>
-        </Reveal>
+          </Reveal>
+        </div>
       </section>
 
-      {/* 4. SECTION 03: MATHEMATICAL SPECIFICATION OF THE 5 METRICS */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-(--border)">
-        <Reveal>
-          <div className="max-w-3xl mb-12">
-            <span className="text-xs font-mono uppercase tracking-[0.18em] text-(--faint) block mb-3">
-              03 / Mathematical Formulas
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-(--fg)">
-              Formal Metric Definitions & Visual Logic
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-(--muted) leading-relaxed">
-              Every verdict in AgentDiff is backed by closed-form equations and visual step breakdowns.
-            </p>
+      {/* 4. SECTION 03: THE 4 CORE REGRESSION METRICS */}
+      <section className="py-24 sm:py-32 w-full bg-transparent">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="max-w-3xl mb-16 sm:mb-24">
+              <span className="text-xs uppercase tracking-[0.18em] text-(--faint) block mb-3 font-medium">
+                03 / The 4 Core Metrics
+              </span>
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.035em] text-(--fg) leading-[1.1]">
+                Four deterministic metrics. Zero black-box judges.
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-(--muted) leading-relaxed font-normal">
+                Every verdict in AgentDiff is mathematically calculated from graph topology and execution telemetry. No subjective prompts or nondeterministic LLM evaluation latencies.
+              </p>
+            </div>
+          </Reveal>
+
+          {/* Open Editorial Flow */}
+          <div className="divide-y divide-(--border)">
+            
+            {/* Metric 01: Trajectory Divergence */}
+            <div className="py-16 sm:py-20">
+              <Reveal>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+                  <div className="lg:col-span-5 space-y-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs uppercase tracking-wider text-emerald-500 font-semibold">
+                        Metric 01
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-(--border)" />
+                      <span className="text-xs text-(--muted)">Sequence Divergence</span>
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-bold text-(--fg) tracking-tight">
+                      Trajectory Divergence Index
+                    </h3>
+                    <p className="text-base text-(--muted) leading-relaxed">
+                      Measures how far the candidate execution drifted from the golden baseline sequence. Computes the ratio of common valid tool steps to total graph size.
+                    </p>
+                    <div className="pt-2 text-sm text-(--fg) flex items-center gap-4">
+                      <span>Range: <strong className="text-emerald-500">0.0 (Identical)</strong></span>
+                      <span>→</span>
+                      <span><strong className="text-rose-500">1.0 (Full Divergence)</strong></span>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-7 space-y-5">
+                    <div className="text-xs uppercase tracking-wider text-(--faint) font-semibold">
+                      Sequence Alignment Preview
+                    </div>
+                    <div className="space-y-3 font-mono text-xs">
+                      <div className="flex items-center gap-3">
+                        <span className="w-20 text-(--muted) font-sans text-xs">Baseline:</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {["auth", "search", "filter", "export"].map((s, i) => (
+                            <span key={i} className="px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">{s}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-20 text-(--muted) font-sans text-xs">Candidate:</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {["auth", "search"].map((s, i) => (
+                            <span key={i} className="px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">{s}</span>
+                          ))}
+                          {["raw_sql", "scrape", "export"].map((s, i) => (
+                            <span key={i} className="px-2.5 py-1 rounded bg-rose-500/10 text-rose-500 border border-rose-500/25 font-semibold">{s} (drift)</span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-xs text-(--faint) pt-1">
+                      Calculated via Kahn&apos;s topological sort + DP longest common subsequence in &lt; 2ms.
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+
+            {/* Metric 02: Stagnant Loops */}
+            <div className="py-16 sm:py-20">
+              <Reveal>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+                  <div className="lg:col-span-5 space-y-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs uppercase tracking-wider text-rose-500 font-semibold">
+                        Metric 02
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-(--border)" />
+                      <span className="text-xs text-(--muted)">Cost &amp; Loop Blocker</span>
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-bold text-(--fg) tracking-tight">
+                      Stagnant Loop Detection
+                    </h3>
+                    <p className="text-base text-(--muted) leading-relaxed">
+                      Identifies agents trapped in infinite retry cycles with stagnant parameter signatures that fail to make state progress.
+                    </p>
+                    <div className="pt-2 text-sm text-(--fg)">
+                      CI Gate: <strong className="text-rose-500 font-mono text-xs">allow_loops = false</strong> (Instant 0/1 Fail)
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-7 space-y-5">
+                    <div className="text-xs uppercase tracking-wider text-(--faint) font-semibold">
+                      Cycle Identification Pattern
+                    </div>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex items-center justify-between font-mono text-xs text-(--fg) py-1.5">
+                        <span>1. query_db(id=402, page=1)</span>
+                        <span className="text-rose-500 font-sans text-xs">500 Server Error</span>
+                      </div>
+                      <div className="flex items-center justify-between font-mono text-xs text-rose-500 bg-rose-500/5 py-2 px-3 rounded-lg border-l-2 border-rose-500">
+                        <span>↻ 2. query_db(id=402, page=1) [stagnant args]</span>
+                        <span className="font-sans text-xs font-semibold">Loop Trapped</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-(--faint) pt-1">
+                      Distinguishes valid progressive pagination from non-productive retry spirals.
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+
+            {/* Metric 03: Wasted Effort */}
+            <div className="py-16 sm:py-20">
+              <Reveal>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+                  <div className="lg:col-span-5 space-y-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs uppercase tracking-wider text-emerald-500 font-semibold">
+                        Metric 03
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-(--border)" />
+                      <span className="text-xs text-(--muted)">Compute Efficiency</span>
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-bold text-(--fg) tracking-tight">
+                      Wasted Effort Index
+                    </h3>
+                    <p className="text-base text-(--muted) leading-relaxed">
+                      Calculates the exact percentage of compute time, steps, and token spend allocated to non-productive execution branches.
+                    </p>
+                    <div className="pt-2 text-sm text-(--fg)">
+                      Efficiency Target: <strong className="text-emerald-500 font-mono text-xs">WEI &lt; 0.10</strong> (under 10% waste)
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-7 space-y-5">
+                    <div className="text-xs uppercase tracking-wider text-(--faint) font-semibold">
+                      Compute Allocation Breakdown
+                    </div>
+                    <div className="space-y-3">
+                      <div className="h-3 w-full rounded-full bg-(--surface-2) overflow-hidden flex">
+                        <div className="bg-emerald-500 h-full" style={{ width: "75%" }} />
+                        <div className="bg-rose-500 h-full" style={{ width: "25%" }} />
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-(--fg) font-medium">75% Productive Execution (6 steps)</span>
+                        <span className="text-rose-500 font-semibold">25% Wasted Retries (2 steps)</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-(--faint) pt-1">
+                      Quantifies whether prompt updates actually streamline execution or silently bloat costs.
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+
+            {/* Metric 04: Recovery Ratio */}
+            <div className="py-16 sm:py-20">
+              <Reveal>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+                  <div className="lg:col-span-5 space-y-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs uppercase tracking-wider text-emerald-500 font-semibold">
+                        Metric 04
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-(--border)" />
+                      <span className="text-xs text-(--muted)">Self-Healing Resilience</span>
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-bold text-(--fg) tracking-tight">
+                      Recovery Step Ratio
+                    </h3>
+                    <p className="text-base text-(--muted) leading-relaxed">
+                      Evaluates how quickly your agent recovers from intermediate tool errors compared to the golden baseline.
+                    </p>
+                    <div className="pt-2 text-sm text-(--fg)">
+                      Resolution Ratio: <strong className="text-emerald-500 font-mono text-xs">1.0 (Optimal Recovery)</strong>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-7 space-y-5">
+                    <div className="text-xs uppercase tracking-wider text-(--faint) font-semibold">
+                      Error Recovery Comparison
+                    </div>
+                    <div className="space-y-3 text-xs">
+                      <div className="flex items-center gap-3">
+                        <span className="w-20 text-(--muted) font-medium">Baseline:</span>
+                        <span className="px-2 py-0.5 rounded bg-rose-500/10 text-rose-500 font-mono text-xs">Error</span>
+                        <span className="text-(--muted)">→</span>
+                        <span className="px-2.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-medium">1 fallback step (380ms)</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="w-20 text-(--muted) font-medium">Candidate:</span>
+                        <span className="px-2 py-0.5 rounded bg-rose-500/10 text-rose-500 font-mono text-xs">Error</span>
+                        <span className="text-(--muted)">→</span>
+                        <span className="px-2 py-0.5 rounded bg-(--surface-2) text-(--muted)">Retry 1</span>
+                        <span className="text-(--muted)">→</span>
+                        <span className="px-2 py-0.5 rounded bg-(--surface-2) text-(--muted)">Retry 2</span>
+                        <span className="text-(--muted)">→</span>
+                        <span className="px-2.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-medium">3 steps (1,420ms)</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-(--faint) pt-1">
+                      Ensures prompt refactors don&apos;t quietly degrade error-handling resilience.
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+
           </div>
-        </Reveal>
+        </div>
+      </section>
 
-        <div className="space-y-12">
-          {/* Formula 1: TDI */}
+      {/* 5. SECTION 04: DETERMINISTIC ROOT CAUSE EXPLANATIONS */}
+      <section className="py-24 sm:py-32 w-full bg-transparent">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <Reveal>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              <div className="lg:col-span-4 font-mono">
-                <span className="text-xs text-(--faint) uppercase">Metric 01</span>
-                <h3 className="text-lg font-semibold text-(--fg) mt-1">Trajectory Divergence Index</h3>
-                <div className="text-2xl font-bold text-(--danger) mt-2">TDI ∈ [0.0, 1.0]</div>
-              </div>
-              <div className="lg:col-span-8 space-y-4">
-                <div className="p-4 rounded-xl bg-(--code-bg) border border-(--border) font-mono text-sm text-(--accent) font-semibold">
-                  TDI(A, B) = 1 − [ 2 · |LCS(A, B)| ] / [ |A| + |B| ]
+            <div className="max-w-3xl mb-16 sm:mb-20">
+              <span className="text-xs uppercase tracking-[0.18em] text-(--faint) block mb-3 font-medium">
+                04 / Root Cause Synthesis
+              </span>
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.035em] text-(--fg) leading-[1.1]">
+                Know the exact culprit step in plain English.
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-(--muted) leading-relaxed font-normal">
+                When a merge gate fails, developers shouldn&apos;t spend hours parsing massive JSON telemetry traces. AgentDiff runs a deterministic rules cascade that isolates the culpable tool step and failure mechanism automatically.
+              </p>
+            </div>
+          </Reveal>
+
+          {/* 3-Tier Blame Cascade Grid */}
+          <Reveal delay={100}>
+            <div className="border-t border-(--border)">
+              <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-(--border)">
+                
+                {/* Tier 1 */}
+                <div className="py-10 lg:py-12 lg:pr-10 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase tracking-wider text-rose-500 font-semibold">
+                      Priority 1 · Critical
+                    </span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                  </div>
+                  <h3 className="text-xl font-bold text-(--fg) tracking-tight">
+                    Loop Attribution
+                  </h3>
+                  <p className="text-sm text-(--muted) leading-relaxed">
+                    Identifies the exact cycle length, repeating function name, and stagnant parameter payload that caused the failure.
+                  </p>
+                  <div className="pt-2 text-xs text-rose-500 font-mono">
+                    → Culprit: retry_sql_query (k=1)
+                  </div>
                 </div>
-                {/* Visual TDI Comparison Strip */}
-                <div className="p-3.5 rounded-xl bg-(--surface-2) font-mono text-xs space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-(--muted) w-14">Base:</span>
-                    <div className="flex gap-1">
-                      {["auth", "search", "filter", "export"].map((s, i) => (
-                        <span key={i} className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold text-[11px]">{s}</span>
-                      ))}
+
+                {/* Tier 2 */}
+                <div className="py-10 lg:py-12 lg:px-10 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase tracking-wider text-amber-500 font-semibold">
+                      Priority 2 · Drift
+                    </span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                  </div>
+                  <h3 className="text-xl font-bold text-(--fg) tracking-tight">
+                    Fork Point Discovery
+                  </h3>
+                  <p className="text-sm text-(--muted) leading-relaxed">
+                    Pins the exact step index where the candidate execution graph diverged from the golden baseline DAG.
+                  </p>
+                  <div className="pt-2 text-xs text-amber-500 font-mono">
+                    → Fork Index: Step 03 diverged
+                  </div>
+                </div>
+
+                {/* Tier 3 */}
+                <div className="py-10 lg:py-12 lg:pl-10 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase tracking-wider text-emerald-500 font-semibold">
+                      Priority 3 · Delta
+                    </span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-(--fg) tracking-tight">
+                    Resource Attribution
+                  </h3>
+                  <p className="text-sm text-(--muted) leading-relaxed">
+                    Calculates exact token delta percentages and sub-cent USD cost spikes directly attributed to the culprit node.
+                  </p>
+                  <div className="pt-2 text-xs text-emerald-500 font-mono">
+                    → Cost Spike: +170% on Step 04
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Live Terminal Output Showcase */}
+          <Reveal delay={120}>
+            <div className="mt-16 pt-16 border-t border-(--border)">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+                
+                <div className="lg:col-span-5 space-y-4">
+                  <span className="text-xs uppercase tracking-wider text-(--faint) font-semibold block">
+                    Deterministic Explanation Engine
+                  </span>
+                  <h3 className="text-2xl font-bold text-(--fg) tracking-tight">
+                    Instant root-cause isolation in your terminal and PR comments.
+                  </h3>
+                  <p className="text-base text-(--muted) leading-relaxed">
+                    No guessing whether a regression was caused by prompt drift, tool schema changes, or database timeouts. AgentDiff renders the entire execution hierarchy with actionable blame lines.
+                  </p>
+                  <div className="flex items-center gap-3 pt-2 text-xs text-(--muted)">
+                    <span className="flex items-center gap-1.5 text-(--fg) font-semibold">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      <span>0ms LLM Latency</span>
+                    </span>
+                    <span>•</span>
+                    <span>Pure AST Graph Evaluation</span>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-7">
+                  <div className="rounded-2xl border border-(--border) bg-(--code-bg) p-6 font-mono text-xs text-(--fg) space-y-4 shadow-2xs overflow-x-auto">
+                    <div className="text-(--muted) text-[11px] border-b border-(--border) pb-3 flex items-center justify-between">
+                      <span>$ agentdiff diff baseline.json candidate.json --tree</span>
+                      <span className="text-rose-500 font-sans font-semibold">Exit Code 1</span>
+                    </div>
+
+                    <div className="space-y-1 text-(--muted) text-[11.5px] leading-relaxed">
+                      <div>baseline [4 steps] vs candidate [6 steps]</div>
+                      <div className="text-emerald-500">&nbsp;&nbsp;1 · planner:task_intent</div>
+                      <div className="text-emerald-500">&nbsp;&nbsp;2 · search_vector_db</div>
+                      <div className="text-amber-500">&nbsp;&nbsp;3 ~ synthesize_sql&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(changed)</div>
+                      <div className="text-rose-500 font-semibold">&nbsp;&nbsp;4 + retry_sql_query&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(added — culprit loop)</div>
+                      <div className="text-rose-500 font-semibold">&nbsp;&nbsp;5 + retry_sql_query&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(added — stagnant cycle)</div>
+                      <div className="text-emerald-500">&nbsp;&nbsp;6 · execute_db_pool</div>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/25 text-rose-500 text-xs leading-relaxed">
+                      <strong className="font-semibold block mb-0.5">Root Cause Finding:</strong>
+                      &apos;retry_sql_query&apos; entered an infinite loop repeating 2 times with identical arguments after a 500 SQL syntax error.
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-(--muted) w-14">Cand:</span>
-                    <div className="flex gap-1">
-                      {["auth", "search"].map((s, i) => (
-                        <span key={i} className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold text-[11px]">{s}</span>
-                      ))}
-                      {["raw_sql", "scrape", "export"].map((s, i) => (
-                        <span key={i} className="px-2 py-0.5 rounded bg-(--danger-soft) text-(--danger) font-bold text-[11px]">{s}</span>
-                      ))}
-                    </div>
-                  </div>
                 </div>
-                <p className="text-sm text-(--muted) leading-relaxed">
-                  Where <code className="font-mono text-xs text-(--fg)">|A|</code> and <code className="font-mono text-xs text-(--fg)">|B|</code> are trace step counts, and <code className="font-mono text-xs text-(--fg)">|LCS(A, B)|</code> is the longest common valid subsequence.
-                </p>
-              </div>
-            </div>
-          </Reveal>
 
-          {/* Formula 2: WEI */}
-          <Reveal>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              <div className="lg:col-span-4 font-mono">
-                <span className="text-xs text-(--faint) uppercase">Metric 02</span>
-                <h3 className="text-lg font-semibold text-(--fg) mt-1">Wasted Effort Index</h3>
-                <div className="text-2xl font-bold text-(--danger) mt-2">WEI ∈ [0.0, 1.0]</div>
-              </div>
-              <div className="lg:col-span-8 space-y-4">
-                <div className="p-4 rounded-xl bg-(--code-bg) border border-(--border) font-mono text-sm text-(--accent) font-semibold">
-                  WEI = ( N_failed + N_retry + N_abandoned ) / N_total
-                </div>
-                {/* Visual Compute Allocation Bar */}
-                <div className="space-y-1.5 font-mono text-xs">
-                  <div className="h-3.5 w-full rounded-full bg-(--border) overflow-hidden flex">
-                    <div className="bg-emerald-500 h-full" style={{ width: "42%" }} title="Useful" />
-                    <div className="bg-(--danger) h-full" style={{ width: "58%" }} title="Wasted" />
-                  </div>
-                  <div className="flex justify-between text-[11px] text-(--muted)">
-                    <span>42% Productive Execution (3 steps)</span>
-                    <span className="text-(--danger) font-semibold">58% Ineffective Retries (4 iterations)</span>
-                  </div>
-                </div>
-                <p className="text-sm text-(--muted) leading-relaxed">
-                  Measures the fraction of total trace compute allocated to non-productive branches. A step is flagged as wasted if it emits an error status or is superseded by retries.
-                </p>
-              </div>
-            </div>
-          </Reveal>
-
-          {/* Formula 3: Stagnant Loop Detector */}
-          <Reveal>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              <div className="lg:col-span-4 font-mono">
-                <span className="text-xs text-(--faint) uppercase">Metric 03</span>
-                <h3 className="text-lg font-semibold text-(--fg) mt-1">k-Gram Cycle Detector</h3>
-                <div className="text-2xl font-bold text-(--danger) mt-2">Loops ∈ ℕ₀</div>
-              </div>
-              <div className="lg:col-span-8 space-y-4">
-                <div className="p-4 rounded-xl bg-(--code-bg) border border-(--border) font-mono text-xs text-(--fg) leading-relaxed overflow-x-auto">
-                  <span className="text-(--faint)"># Stagnant Loop Condition:</span><br />
-                  is_loop = (Sequence[i : i+k] == Sequence[i+k : i+2k]) ∧ (Input_Payload[i] == Input_Payload[i+k])
-                </div>
-                {/* Visual Stagnant State Flow */}
-                <div className="p-3 rounded-xl bg-(--surface-2) font-mono text-xs space-y-1.5 text-(--muted)">
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-(--fg) font-semibold">query_sql(id=104, limit=10)</span>
-                    <span className="text-(--danger)">500 Syntax Error</span>
-                  </div>
-                  <div className="flex items-center justify-between text-[11px] pl-3 border-l-2 border-(--danger)">
-                    <span className="text-(--danger)">↻ query_sql(id=104, limit=10) [stagnant args]</span>
-                    <span className="text-(--danger)">500 Syntax Error</span>
-                  </div>
-                </div>
-                <p className="text-sm text-(--muted) leading-relaxed">
-                  Evaluates sliding window sub-sequences for pattern lengths <code className="font-mono text-xs text-(--fg)">k ∈ [1, N/2]</code>. Checks state stagnation to allow progressive pagination while halting recursive loops.
-                </p>
-              </div>
-            </div>
-          </Reveal>
-
-          {/* Formula 4: RSR */}
-          <Reveal>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              <div className="lg:col-span-4 font-mono">
-                <span className="text-xs text-(--faint) uppercase">Metric 04</span>
-                <h3 className="text-lg font-semibold text-(--fg) mt-1">Recovery Step Ratio</h3>
-                <div className="text-2xl font-bold text-(--danger) mt-2">RSR ∈ [0.0, ∞)</div>
-              </div>
-              <div className="lg:col-span-8 space-y-4">
-                <div className="p-4 rounded-xl bg-(--code-bg) border border-(--border) font-mono text-sm text-(--accent) font-semibold">
-                  RSR = Steps_to_Resolution(Candidate) / Steps_to_Resolution(Baseline)
-                </div>
-                <div className="p-3.5 rounded-xl bg-(--surface-2) font-mono text-xs space-y-2 text-(--muted)">
-                  <div className="flex items-center gap-2">
-                    <span className="w-16 text-(--faint)">Baseline:</span>
-                    <span className="px-1.5 py-0.5 rounded bg-(--danger-soft) text-(--danger)">Error</span>
-                    <span>→</span>
-                    <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold">Fallback (1 step · 420ms)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-16 text-(--faint)">Candidate:</span>
-                    <span className="px-1.5 py-0.5 rounded bg-(--danger-soft) text-(--danger)">Error</span>
-                    <span>→</span>
-                    <span className="px-1.5 py-0.5 rounded bg-(--surface) text-(--fg)">Retry 1</span>
-                    <span>→</span>
-                    <span className="px-1.5 py-0.5 rounded bg-(--surface) text-(--fg)">Retry 2</span>
-                    <span>→</span>
-                    <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold">Fallback (3 steps · 1,840ms)</span>
-                  </div>
-                </div>
-                <p className="text-sm text-(--muted) leading-relaxed">
-                  Isolates the sub-graph following the first non-fatal tool error. An RSR &gt; 1.0 indicates degraded self-healing capability.
-                </p>
               </div>
             </div>
           </Reveal>
         </div>
       </section>
 
-      {/* 5. SECTION 04: DETERMINISTIC ROOT CAUSE EXPLANATIONS */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-(--border)">
-        <Reveal>
-          <div className="max-w-3xl mb-10">
-            <span className="text-xs font-mono uppercase tracking-[0.18em] text-(--faint) block mb-3">
-              04 / Root Cause Synthesis
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-(--fg)">
-              Rule-Based Blame Attribution Tree
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-(--muted) leading-relaxed">
-              When a gate fails, developers do not need raw graph matrices — they need the culpable step and the exact failure mechanism. AgentDiff runs a deterministic rules engine (<code className="font-mono text-xs text-(--fg)">explanations.py</code>) that converts diff reports into human-readable findings:
-            </p>
-          </div>
-        </Reveal>
+      {/* 6. SECTION 05: CONFIG-AS-CODE SPECIFICATION */}
+      <section className="py-24 sm:py-32 w-full bg-transparent">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="max-w-3xl mb-16 sm:mb-20">
+              <span className="text-xs uppercase tracking-[0.18em] text-(--faint) block mb-3 font-medium">
+                05 / Config as Code
+              </span>
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.035em] text-(--fg) leading-[1.1]">
+                Declarative governance in <span className="font-mono text-xl sm:text-3xl lg:text-4xl text-emerald-500 font-semibold">agentdiff.toml</span>.
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-(--muted) leading-relaxed font-normal">
+                Thresholds and masking rules live directly in your Git repository. Every engineer, branch, and CI runner shares the exact same single source of truth.
+              </p>
+            </div>
+          </Reveal>
 
-        {/* Blame Attribution Vector Tree Asset */}
-        <Reveal delay={100}>
-          <BlameAttributionTreeAsset />
-        </Reveal>
+          {/* 3 Value Pillars */}
+          <Reveal delay={100}>
+            <div className="border-t border-(--border)">
+              <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-(--border)">
+                
+                {/* Pillar 1 */}
+                <div className="py-10 lg:py-12 lg:pr-10 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase tracking-wider text-emerald-500 font-semibold">
+                      01 · Version Controlled
+                    </span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-(--fg) tracking-tight">
+                    Tracked in Git
+                  </h3>
+                  <p className="text-sm text-(--muted) leading-relaxed">
+                    Gate rules sit right next to your agent code. Changes to tolerance thresholds require PR approval and code review.
+                  </p>
+                </div>
 
-        <Reveal delay={120}>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 font-mono text-xs mt-6">
-            <div className="lg:col-span-6 p-5 rounded-2xl bg-(--code-bg) border border-(--border) space-y-3">
-              <div className="text-(--faint) text-[11px]">Rule Priority Cascade Execution</div>
-              <div className="space-y-2 text-(--muted)">
-                <div className="text-(--fg) font-semibold">1. Loop Attribution (Highest Severity)</div>
-                <p className="text-[11px] leading-relaxed">Identifies exact cycle length <code className="text-xs text-(--danger)">k</code>, repeated tool names, and stagnant parameter signatures.</p>
-                <div className="text-(--fg) font-semibold pt-2">2. Divergence Fork Isolation</div>
-                <p className="text-[11px] leading-relaxed">Pins the exact step index where candidate sequence forked away from baseline.</p>
-                <div className="text-(--fg) font-semibold pt-2">3. Cost & Latency Attribution</div>
-                <p className="text-[11px] leading-relaxed">Computes delta percentages for tokens and milliseconds on the culprit node.</p>
+                {/* Pillar 2 */}
+                <div className="py-10 lg:py-12 lg:px-10 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase tracking-wider text-(--fg) font-semibold">
+                      02 · Masking Engine
+                    </span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-(--fg) tracking-tight">
+                    Semantic Regex Masks
+                  </h3>
+                  <p className="text-sm text-(--muted) leading-relaxed">
+                    Automatically strip non-deterministic tokens, ephemeral session IDs, and UUIDs to prevent false-positive CI failures.
+                  </p>
+                </div>
+
+                {/* Pillar 3 */}
+                <div className="py-10 lg:py-12 lg:pl-10 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs uppercase tracking-wider text-rose-500 font-semibold">
+                      03 · CI Automation
+                    </span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                  </div>
+                  <h3 className="text-xl font-bold text-(--fg) tracking-tight">
+                    Deterministic Exit Codes
+                  </h3>
+                  <p className="text-sm text-(--muted) leading-relaxed">
+                    Emits clean 0/1 exit codes that instantly integrate into GitHub Actions, GitLab CI, and custom test runners.
+                  </p>
+                </div>
+
               </div>
             </div>
+          </Reveal>
 
-            <div className="lg:col-span-6 p-5 rounded-2xl bg-(--code-bg) border border-(--border) space-y-3 text-(--fg)">
-              <div className="text-(--faint) text-[11px]">Rendered Terminal Tree Output (<code className="text-(--fg)">--tree</code>)</div>
-              <pre className="text-[11.5px] leading-relaxed text-(--muted) overflow-x-auto">
-{`baseline [4 steps] vs candidate [6 steps]
-     1 · planner:task_intent
-     2 · search_vector_db
-     3 ~ synthesize_sql            (changed)
-     4 + retry_sql_query           (added — culprit loop)
-     5 + retry_sql_query           (added — stagnant cycle)
-     6 · execute_db_pool
+          {/* Code Configuration Box */}
+          <Reveal delay={120}>
+            <div className="mt-16 pt-16 border-t border-(--border)">
+              <div className="max-w-2xl mb-8">
+                <span className="text-xs uppercase tracking-wider text-(--faint) font-semibold block mb-2">
+                  Production Configuration
+                </span>
+                <h3 className="text-2xl font-bold text-(--fg) tracking-tight">
+                  Complete TOML Schema Specification
+                </h3>
+                <p className="text-base text-(--muted) mt-1 leading-relaxed">
+                  Drop this file at your repository root to configure assertion thresholds, semantic masks, and governance policies.
+                </p>
+              </div>
 
-> Root Cause: 'retry_sql_query' [loop] — entered a loop
-  repeating 'retry_sql_query' (2 times) after SQL syntax error.`}
-              </pre>
-            </div>
-          </div>
-        </Reveal>
-      </section>
-
-      {/* 6. SECTION 05: CONFIG-AS-CODE SPECIFICATION */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-(--border)">
-        <Reveal>
-          <div className="max-w-3xl mb-10">
-            <span className="text-xs font-mono uppercase tracking-[0.18em] text-(--faint) block mb-3">
-              05 / Configuration Specification
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-(--fg)">
-              Declarative Governance (<code className="font-mono text-xl sm:text-2xl">agentdiff.toml</code>)
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-(--muted) leading-relaxed">
-              Thresholds and masking rules are committed directly to your git repository, ensuring consistent CI gate evaluation across all developer machines and automated workflows.
-            </p>
-          </div>
-        </Reveal>
-
-        {/* Declarative Governance Vector Flow Asset */}
-        <Reveal delay={100}>
-          <DeclarativeGovernanceAsset />
-        </Reveal>
-
-        <Reveal delay={120}>
-          <div className="mt-6">
-            <CodeBlock
-              language="toml"
-              filename="agentdiff.toml"
-              code={`# agentdiff.toml — Committed repository configuration
+              <div className="rounded-2xl border border-(--border) bg-(--surface) overflow-hidden shadow-2xs">
+                <CodeBlock
+                  language="toml"
+                  filename="agentdiff.toml"
+                  code={`# agentdiff.toml — Committed repository configuration
 
 [compare]
 detect_loops = true
@@ -743,35 +1114,50 @@ regex_patterns = ["^uuid_[0-9a-f-]+$", "^Bearer\\\\s+.*$"]
 [governance]
 warn_stale_baseline_days = 30      # Warns when golden baseline exceeds 30 days
 flag_threshold_changes = true      # Flags PRs that lower gate rigor`}
-            />
-          </div>
-        </Reveal>
+                />
+              </div>
+            </div>
+          </Reveal>
+        </div>
       </section>
 
-      {/* 7. CTA / DOCS LINK */}
-      <section className="pt-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <Reveal>
-          <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-(--fg) mb-3">
-            Ready to integrate into your CI pipeline?
-          </h2>
-          <p className="text-base text-(--muted) max-w-lg mx-auto mb-8 font-normal">
-            Install the Python package, record your first golden baseline trace, and gate your agent in 5 minutes.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-sm font-semibold">
-            <Link
-              href="/quickstart"
-              className="px-8 py-3.5 rounded-full bg-(--fg) text-(--bg) hover:opacity-90 transition-opacity"
-            >
-              Get Started with Quickstart →
-            </Link>
-            <Link
-              href="/docs"
-              className="px-8 py-3.5 rounded-full border border-(--border) text-(--fg) hover:bg-(--surface-2) transition-colors"
-            >
-              Explore Full CLI & SDK Docs
-            </Link>
-          </div>
-        </Reveal>
+      {/* 7. CTA / NEXT STEPS */}
+      <section className="py-24 sm:py-36 w-full bg-transparent text-center border-t border-(--border) relative overflow-hidden">
+        {/* Background Radial Glow in the top-right corner */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/15 dark:bg-emerald-400/20 rounded-full blur-[100px] pointer-events-none -mr-20 -mt-20" />
+        
+        {/* Center ambient wash */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-[300px] bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <Reveal>
+            <div className="max-w-3xl mx-auto space-y-6">
+              <span className="text-xs uppercase tracking-[0.18em] text-(--faint) block font-medium">
+                Start In Minutes
+              </span>
+              <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-[-0.035em] text-(--fg) leading-[1.08]">
+                Ready to catch regressions <span className="text-emerald-500/90 dark:text-emerald-400">before they hit production?</span>
+              </h2>
+              <p className="text-base sm:text-lg text-(--muted) max-w-xl mx-auto font-normal leading-relaxed">
+                Install the Python package, record your first golden baseline, and guard your CI pipeline in under 5 minutes.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-4 pt-4 text-sm font-semibold">
+                <Link
+                  href="/quickstart"
+                  className="px-8 py-3.5 rounded-full bg-(--fg) text-(--bg) hover:opacity-90 transition-opacity shadow-sm"
+                >
+                  Get Started with Quickstart →
+                </Link>
+                <Link
+                  href="/docs"
+                  className="px-8 py-3.5 rounded-full border border-(--border) text-(--fg) hover:bg-(--surface-2) transition-colors"
+                >
+                  Explore Full Documentation
+                </Link>
+              </div>
+            </div>
+          </Reveal>
+        </div>
       </section>
     </div>
   );

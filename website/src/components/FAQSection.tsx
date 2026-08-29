@@ -1,43 +1,44 @@
 "use client";
 
-import React from "react";
-import { ChevronDown } from "lucide-react";
+import React, { useState } from "react";
+import Link from "next/link";
+import { Plus, Minus, ArrowRight, Sparkles } from "lucide-react";
 import Reveal from "./Reveal";
-
-/**
- * Landing FAQ. `FAQS` is the single source of truth: the visible accordions
- * and the FAQPage JSON-LD below render from the same strings, so search
- * engines always see schema matching on-page content.
- */
 
 const FAQS = [
   {
-    q: "How is AgentDiff different from DeepEval or Ragas?",
-    a: "They score what the agent said (semantic quality, via LLM judges). AgentDiff measures how the agent got there - step order, tool loops, wasted effort, recovery cost, and token/latency deltas - using deterministic graph algorithms. No LLM calls, fully deterministic.",
+    q: "How does AgentDiff differ from LLM judges (DeepEval, Ragas, LangSmith)?",
+    a: "LLM judges score semantic nuance (e.g. 'Is this response polite?') via expensive, non-deterministic model calls that take 15–60 seconds. AgentDiff evaluates the structural execution DAG (tool sequence order, retry loops, wasted token deltas) in sub-5ms using pure graph algorithms. It gives you an instant, deterministic Exit Code 0 or 1 for your CI/CD pipeline.",
   },
   {
-    q: "Do I need API keys to run a diff?",
-    a: "No. AgentDiff is pure math over trace files you already have, with no network calls at diff time. Keys are only needed by your own agent when it produces traces.",
+    q: "Do I need an API key or an external server to run a diff?",
+    a: "No. AgentDiff is a zero-telemetry Python package (`pip install agent-trajectory-diff`). It executes 100% locally in your shell or CI runner with zero outbound network calls, zero API keys, and zero cloud dependencies.",
   },
   {
-    q: "Where do trace files come from?",
-    a: "Native adapters ingest LangGraph state snapshots and CrewAI kickoff output directly - no instrumentation required. OpenTelemetry/OpenInference spans, Langfuse exports, LangSmith run trees, and OpenAI Agents SDK traces are also supported, plus a generic JSON schema for anything else.",
+    q: "How do I create and manage golden baselines?",
+    a: "Run `agentdiff record my_agent:run --output tests/golden_baseline.json` once on your known-good production agent. Commit the JSON baseline directly to your Git repository alongside your tests. When a developer creates a PR, your CI runs `agentdiff tests/golden_baseline.json pr_run.json` to verify no regressions occurred.",
   },
   {
-    q: "Can I compare runs from different frameworks?",
-    a: "Yes. Every trace normalizes to one canonical schema before comparison, so a CrewAI run can be benchmarked head-to-head against a LangGraph run of the same task.",
+    q: "What frameworks and telemetry formats are supported out of the box?",
+    a: "AgentDiff includes native zero-instrumentation ingestion for LangGraph StateGraphs, CrewAI task delegation hierarchies, raw OpenAI tool_calls, OpenTelemetry / OpenInference GenAI semantic spans, Langfuse trace exports, and LangSmith run trees.",
   },
   {
-    q: "What do TDI / WEI / RSR mean in one line each?",
-    a: "TDI: fraction of trajectory structure that changed (0 = identical). WEI: share of steps that were errors, retries, or abandonments. RSR: how many steps the candidate spent recovering from failures versus the baseline.",
+    q: "What happens when an agent legitimately improves its execution path?",
+    a: "If an agent finds a more optimal path (e.g. 2 steps instead of 4, saving tokens), AgentDiff detects a negative token delta and zero error loops. You simply run `agentdiff record` or update your committed baseline file to bless the new optimized trajectory.",
   },
   {
-    q: "Is it production-safe to gate merges on this?",
-    a: "That's the point - exit codes make it a drop-in CI gate, scenario suites gate whole families of flows in one call, and the GitHub Action posts the culprit and divergence tree right onto the PR so reviewers see why a merge was blocked.",
+    q: "How does the GitHub Actions PR gate work?",
+    a: "Our official GitHub Action runs your test suite, checks candidate trajectories against baseline tolerances in <5ms, and posts a structured diagnostic comment directly to the Pull Request. If regression tolerances are breached, it exits with Code 1 and blocks merging.",
   },
 ];
 
 export default function FAQSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  const toggleFaq = (idx: number) => {
+    setOpenIndex((prev) => (prev === idx ? null : idx));
+  };
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -49,29 +50,77 @@ export default function FAQSection() {
   };
 
   return (
-    <section id="faq-section" className="py-20 lg:py-24 bg-transparent font-sans">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-
+    <section id="faq-section" className="py-24 sm:py-32 bg-transparent font-sans">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Section Header */}
         <Reveal>
-          <div className="mb-10">
-            <span className="text-xs font-medium uppercase tracking-[0.18em] text-(--faint) block mb-4">FAQ</span>
-            <h2 className="text-3xl lg:text-4xl font-semibold tracking-[-0.02em] text-(--fg) leading-tight">
-              Questions engineers actually ask.
+          <div className="max-w-4xl mb-16 sm:mb-20">
+            <span className="text-xs uppercase tracking-[0.18em] text-(--faint) block mb-4 font-medium">
+              Frequently Asked Questions
+            </span>
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-[-0.035em] text-(--fg) leading-[1.1]">
+              Everything you <span className="text-emerald-500/90 dark:text-emerald-400">need to know</span>.
             </h2>
+            <p className="mt-5 text-base sm:text-lg lg:text-xl text-(--muted) leading-relaxed font-normal max-w-3xl">
+              Deterministic agent regression testing demystified. If you have any other questions, our engineering docs and GitHub discussions are always open.
+            </p>
           </div>
         </Reveal>
 
+        {/* Minimal High-Contrast FAQ Accordion */}
+        <Reveal delay={100}>
+          <div className="border-t border-(--border) divide-y divide-(--border)">
+            {FAQS.map((faq, idx) => {
+              const isOpen = openIndex === idx;
+
+              return (
+                <div key={idx} className="py-6 sm:py-8 transition-colors">
+                  <button
+                    onClick={() => toggleFaq(idx)}
+                    className="w-full flex items-start justify-between gap-6 text-left group cursor-pointer"
+                  >
+                    <span className="text-lg sm:text-xl font-bold text-(--fg) tracking-tight group-hover:text-(--muted) transition-colors leading-snug">
+                      {faq.q}
+                    </span>
+
+                    <div className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 transition-all mt-0.5 ${
+                      isOpen
+                        ? "bg-(--surface-2) border-(--border-strong) text-(--fg)"
+                        : "bg-(--surface) border-(--border) text-(--muted) group-hover:border-(--border-strong) group-hover:text-(--fg)"
+                    }`}>
+                      {isOpen ? (
+                        <Minus className="w-4 h-4" />
+                      ) : (
+                        <Plus className="w-4 h-4" />
+                      )}
+                    </div>
+                  </button>
+
+                  {isOpen && (
+                    <div className="pt-4 sm:pt-5 pr-12 text-sm sm:text-base text-(--muted) leading-relaxed font-normal max-w-4xl animate-in fade-in-50 duration-200">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </Reveal>
+
+        {/* Bottom Support Link */}
         <Reveal delay={140}>
-          <div className="border border-(--border) rounded-2xl bg-(--surface) shadow-[0_1px_2px_rgba(0,0,0,0.04)] divide-y divide-(--border) overflow-hidden px-5 sm:px-8">
-            {FAQS.map(({ q, a }) => (
-              <details key={q} className="group py-1">
-                <summary className="flex items-center justify-between gap-4 cursor-pointer list-none py-4 [&::-webkit-details-marker]:hidden">
-                  <span className="text-[15px] font-medium text-(--fg) leading-snug">{q}</span>
-                  <ChevronDown className="w-4 h-4 shrink-0 text-(--faint) transition-transform duration-200 group-open:rotate-180" />
-                </summary>
-                <p className="text-sm text-(--muted) leading-relaxed pb-5 pr-8">{a}</p>
-              </details>
-            ))}
+          <div className="mt-12 pt-8 border-t border-(--border) flex flex-wrap items-center justify-between gap-4 text-xs text-(--muted)">
+            <span>Have a unique custom framework or telemetry format?</span>
+            <Link
+              href="https://github.com/agentdiff/agentdiff/discussions"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 font-semibold text-(--fg) hover:underline"
+            >
+              <span>Ask in GitHub Discussions</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </Reveal>
 

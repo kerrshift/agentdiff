@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu, X, BookOpen } from "lucide-react";
+import { Github } from "@lobehub/icons";
 import LogoMark from "../../components/LogoMark";
 import ThemeToggle from "../../components/ThemeToggle";
 
@@ -13,12 +15,16 @@ export interface DocMeta {
   category: string;
 }
 
-/**
- * Docs chrome: header, intro strip, and sidebar navigation. Real routes now
- * carry the content (`/docs/[slug]`), so the sidebar renders plain Links and
- * the active entry derives from the pathname — every page is a distinct,
- * crawlable URL.
- */
+const NAV_ITEMS = [
+  { href: "/quickstart", label: "Quickstart" },
+  { href: "/features", label: "Features" },
+  { href: "/adapters", label: "Adapters" },
+  { href: "/action", label: "GitHub Action" },
+  { href: "/compare", label: "Compare" },
+  { href: "/docs", label: "Docs" },
+  { href: "/blog", label: "Blog" },
+];
+
 export default function DocsShell({
   docs,
   version,
@@ -30,7 +36,13 @@ export default function DocsShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [navDrawerOpen, setNavDrawerOpen] = useState(false);
+  const [docsSidebarOpen, setDocsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Legacy inbound links of the form /docs#old-slug still land on the right
   // guide even though guides are real routes now.
@@ -44,32 +56,40 @@ export default function DocsShell({
 
   // Close the mobile drawer after navigating to another guide.
   useEffect(() => {
-    setSidebarOpen(false);
+    setDocsSidebarOpen(false);
+    setNavDrawerOpen(false);
   }, [pathname]);
 
   const activeSlug =
     docs.find((d) => pathname === `/docs/${d.slug}`)?.slug ?? "";
 
+  const activeDoc = docs.find((d) => d.slug === activeSlug);
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
+
   const categories = Array.from(new Set(docs.map((p) => p.category)));
 
-  const renderNav = () => (
+  const renderDocNav = () => (
     <div className="flex flex-col gap-6">
       {categories.map((category) => (
         <div key={category} className="flex flex-col gap-1.5">
-          <div className="text-xs font-mono uppercase tracking-[0.14em] text-[var(--faint)] font-semibold mb-1">
+          <div className="text-xs uppercase tracking-[0.14em] text-(--faint) font-semibold mb-1">
             {category}
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-0.5">
             {docs
               .filter((p) => p.category === category)
               .map((p) => (
                 <Link
                   key={p.slug}
                   href={`/docs/${p.slug}`}
-                  className={`text-left text-sm py-1.5 px-2.5 rounded-md transition-colors duration-150 ${
+                  className={`text-left text-xs sm:text-sm py-1.5 px-3 rounded-lg transition-colors duration-150 ${
                     activeSlug === p.slug
-                      ? "text-[var(--fg)] font-medium bg-[var(--surface-2)]"
-                      : "text-[var(--muted)] hover:text-[var(--fg)] hover:bg-[var(--surface-2)]"
+                      ? "text-emerald-500 font-semibold bg-(--surface-2)"
+                      : "text-(--muted) hover:text-(--fg) hover:bg-(--surface-2)/60"
                   }`}
                 >
                   {p.title}
@@ -81,82 +101,209 @@ export default function DocsShell({
     </div>
   );
 
-  return (
-    <div className="h-screen bg-[var(--bg)] text-[var(--fg)] font-sans flex flex-col overflow-hidden selection:bg-[var(--surface-2)] selection:text-[var(--fg)]">
-      <div className="max-w-7xl mx-auto w-full flex-1 flex flex-col relative overflow-hidden">
-
-        {/* Docs Header */}
-        <header className="border-b border-[var(--border)] bg-[var(--bg)]/80 backdrop-blur-md sticky top-0 z-40">
-          <div className="px-5 sm:px-8 h-16 flex items-center justify-between text-sm">
-            <div className="flex items-center gap-2">
-              {/* Mobile nav toggle */}
+  // Global Mobile Navigation Slide-Over Drawer
+  const mobileNavDrawer = mounted && navDrawerOpen
+    ? createPortal(
+        <div
+          className="fixed inset-0 lg:hidden flex justify-end"
+          style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 999999 }}
+        >
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setNavDrawerOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="relative w-72 max-w-[80vw] h-full bg-(--surface) border-l border-(--border) shadow-2xl flex flex-col justify-between p-6 z-10 overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-(--border)">
+              <span className="text-xs uppercase tracking-wider font-semibold text-(--muted)">
+                Navigation
+              </span>
               <button
-                onClick={() => setSidebarOpen((v) => !v)}
-                className="md:hidden p-1.5 text-[var(--muted)] hover:text-[var(--fg)] transition-colors duration-150"
-                aria-label="Toggle navigation"
+                onClick={() => setNavDrawerOpen(false)}
+                className="p-1.5 text-(--muted) hover:text-(--fg) hover:bg-(--surface-2) rounded-lg transition-colors cursor-pointer"
+                aria-label="Close menu"
               >
-                {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                <X className="w-5 h-5" />
               </button>
+            </div>
 
+            <nav className="flex flex-col gap-1 py-4 my-auto">
+              {NAV_ITEMS.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setNavDrawerOpen(false)}
+                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-base font-semibold transition-all ${
+                      active
+                        ? "bg-(--surface-2) text-emerald-500 font-bold"
+                        : "text-(--muted) hover:bg-(--surface-2)/60 hover:text-(--fg)"
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    {active && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <div className="pt-4 border-t border-(--border) flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <span className="text-xs text-(--muted) font-medium">Theme</span>
+              </div>
+              <a
+                href="https://github.com/lostmartian/agentdiff"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-(--border) bg-(--surface) text-xs font-semibold text-(--fg) hover:bg-(--surface-2) transition-colors"
+              >
+                <Github size={14} />
+                <span>GitHub</span>
+              </a>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )
+    : null;
+
+  return (
+    <div className="h-screen bg-(--bg) text-(--fg) font-sans flex flex-col overflow-hidden selection:bg-(--surface-2) selection:text-(--fg)">
+      <div className="max-w-7xl mx-auto w-full flex-1 flex flex-col relative overflow-hidden border-x border-(--border)">
+
+        {/* 1. Global Synchronized Header */}
+        <header className="border-b border-(--border) bg-(--bg)/85 backdrop-blur-md sticky top-0 z-40 transition-colors">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            
+            {/* Branding + Mobile Breadcrumb */}
+            <div className="flex items-center gap-2 shrink-0">
               <Link
                 href="/"
-                className="font-semibold text-[var(--fg)] tracking-tight text-base hover:opacity-80 transition-opacity duration-150 flex items-center gap-2"
+                className="flex items-center gap-2.5 group cursor-pointer"
+                aria-label="AgentDiff home"
               >
-                <span className="flex items-center justify-center w-6 h-6 rounded-md bg-[var(--fg)] text-[var(--bg)]">
-                  <LogoMark size={14} />
+                <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-zinc-950 text-white border border-zinc-800 shadow-2xs group-hover:scale-105 transition-transform duration-150">
+                  <LogoMark size={13} />
                 </span>
-                <span>agentdiff</span>
-                <span className="text-[10px] font-mono font-normal text-[var(--faint)] bg-[var(--surface-2)] px-1.5 py-0.5 rounded border border-[var(--border)]">
-                  Docs
+                <span className="font-bold text-(--fg) tracking-tight text-[15px] group-hover:opacity-85 transition-opacity duration-150">
+                  agent<span className="text-emerald-500">diff</span>
+                </span>
+                <span className="hidden sm:inline text-[10px] font-mono text-(--muted) border border-(--border) rounded-full px-2 py-0.5 bg-(--surface-2)/40">
+                  v{version}
                 </span>
               </Link>
+
+              {/* Mobile Active Page Indicator */}
+              <div className="flex items-center gap-1.5 lg:hidden text-xs font-semibold text-(--muted)">
+                <span className="text-(--border-strong)">/</span>
+                <span className="text-(--fg) font-bold truncate max-w-[140px]">
+                  {activeDoc ? activeDoc.title : "Docs"}
+                </span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <ThemeToggle />
-              <span className="text-xs text-[var(--faint)] font-mono">v{version}</span>
+            {/* Desktop Navigation Links */}
+            <div className="hidden lg:flex items-center gap-0.5">
+              {NAV_ITEMS.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-150 ${
+                      active
+                        ? "text-(--fg) bg-(--surface-2) shadow-2xs"
+                        : "text-(--muted) hover:text-(--fg) hover:bg-(--surface-2)/50"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
             </div>
+
+            {/* Right Utilities + Mobile Menu Toggle */}
+            <div className="flex items-center gap-2">
+              <div className="hidden lg:flex items-center gap-2">
+                <ThemeToggle />
+                <a
+                  href="https://github.com/lostmartian/agentdiff"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center w-8 h-8 rounded-full text-(--muted) border border-(--border) bg-(--surface) hover:text-(--fg) hover:border-(--border-strong) transition-colors duration-150 shadow-2xs"
+                  aria-label="GitHub"
+                >
+                  <Github size={15} />
+                </a>
+              </div>
+
+              {/* Mobile Docs Topics Toggle */}
+              <button
+                onClick={() => setDocsSidebarOpen((v) => !v)}
+                className="md:hidden inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-(--border) bg-(--surface) text-xs font-semibold text-(--fg) hover:bg-(--surface-2) transition-colors cursor-pointer"
+                aria-label="Toggle Documentation Topics"
+              >
+                <BookOpen className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Topics</span>
+              </button>
+
+              {/* Mobile Global Navigation Toggle */}
+              <button
+                onClick={() => setNavDrawerOpen((o) => !o)}
+                className="lg:hidden p-2 -mr-1 text-(--fg) hover:bg-(--surface-2) rounded-xl transition-colors duration-150 cursor-pointer"
+                aria-label="Toggle menu"
+                aria-expanded={navDrawerOpen}
+              >
+                {navDrawerOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
+
           </div>
         </header>
 
-        {/* Docs Intro Strip */}
-        <div className="border-b border-[var(--border)] px-5 sm:px-8 py-4 flex items-center justify-between gap-4">
-          <div className="text-xs text-[var(--muted)] leading-relaxed max-w-2xl">
-            Trajectory regression testing for AI agents - compare execution DAGs in CI/CD and gate on drift, loops, cost, and recovery effort.
-          </div>
-          <Link
-            href="/"
-            className="text-xs text-[var(--fg)] hover:text-[var(--muted)] font-medium flex-shrink-0 hidden sm:inline"
-          >
-            ← Back to home
-          </Link>
-        </div>
-
-        {/* Mobile sidebar drawer */}
-        {sidebarOpen && (
-          <div className="md:hidden fixed inset-0 z-30 flex">
-            <div className="absolute inset-0 bg-black/30" onClick={() => setSidebarOpen(false)} />
-            <aside className="relative z-10 w-72 max-w-[85%] h-full bg-[var(--surface)] border-r border-[var(--border)] overflow-y-auto p-6 flex flex-col">
-              {renderNav()}
-            </aside>
-          </div>
-        )}
-
-        {/* 2-Column Sidebar Layout - both panes scroll independently */}
+        {/* 2-Column Sidebar Layout */}
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
 
-          {/* Left Sidebar - desktop */}
-          <aside className="hidden md:flex w-56 shrink-0 border-r border-[var(--border)] overflow-y-auto p-6 flex-col gap-6 bg-[var(--surface)]">
-            {renderNav()}
+          {/* Left Sidebar - Desktop */}
+          <aside className="hidden md:flex w-64 shrink-0 border-r border-(--border) overflow-y-auto p-6 flex-col gap-6 bg-(--surface)/40">
+            {renderDocNav()}
           </aside>
+
+          {/* Mobile Documentation Topics Drawer */}
+          {docsSidebarOpen && (
+            <div className="md:hidden fixed inset-0 z-50 flex">
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-xs" onClick={() => setDocsSidebarOpen(false)} />
+              <aside className="relative z-10 w-72 max-w-[85%] h-full bg-(--surface) border-r border-(--border) overflow-y-auto p-6 flex flex-col justify-between shadow-2xl">
+                <div>
+                  <div className="flex items-center justify-between pb-4 mb-6 border-b border-(--border)">
+                    <span className="text-xs uppercase tracking-wider font-semibold text-(--muted)">
+                      Documentation Topics
+                    </span>
+                    <button
+                      onClick={() => setDocsSidebarOpen(false)}
+                      className="p-1.5 text-(--muted) hover:text-(--fg) hover:bg-(--surface-2) rounded-lg transition-colors cursor-pointer"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  {renderDocNav()}
+                </div>
+              </aside>
+            </div>
+          )}
 
           {/* Right Main Document Pane */}
           <main className="flex-1 overflow-y-auto">
-            <div className="px-5 sm:px-8 lg:px-12 py-8 sm:py-10 w-full">{children}</div>
+            <div className="max-w-4xl px-5 sm:px-8 lg:px-12 py-8 sm:py-12 w-full">{children}</div>
           </main>
 
         </div>
       </div>
+      {mobileNavDrawer}
     </div>
   );
 }
