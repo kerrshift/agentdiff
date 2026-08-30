@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Check, Minus, X, GitPullRequest, Radio, Sparkles, Scale, Gauge, ShieldAlert, Cpu, ArrowRight } from "lucide-react";
 import Reveal from "@/components/Reveal";
+import CompareHeroAsset from "@/components/CompareHeroAsset";
 
 const SITE_URL = "https://agentdiff.lostmartian.in";
 
@@ -180,14 +181,21 @@ export default function ComparePage() {
                 <span className="text-(--border) select-none">•</span>
                 <span className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  <span>Zero LLM Calls</span>
+                  <span>Sub-10ms Gate Execution</span>
                 </span>
                 <span className="text-(--border) select-none">•</span>
                 <span className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  <span>Air-Gapped Execution</span>
+                  <span>Zero LLM Call Costs</span>
                 </span>
               </div>
+            </div>
+          </Reveal>
+          
+          {/* Interactive Paradigm Visual Asset */}
+          <Reveal delay={120}>
+            <div className="mt-10 sm:mt-14">
+              <CompareHeroAsset />
             </div>
           </Reveal>
         </div>

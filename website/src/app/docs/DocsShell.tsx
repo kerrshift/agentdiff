@@ -73,28 +73,37 @@ export default function DocsShell({
   const categories = Array.from(new Set(docs.map((p) => p.category)));
 
   const renderDocNav = () => (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-7">
       {categories.map((category) => (
-        <div key={category} className="flex flex-col gap-1.5">
-          <div className="text-xs uppercase tracking-[0.14em] text-(--faint) font-semibold mb-1">
-            {category}
+        <div key={category} className="flex flex-col gap-2">
+          <div className="text-[11px] uppercase tracking-[0.16em] text-(--faint) font-bold px-2 flex items-center justify-between">
+            <span>{category}</span>
+            <span className="text-[10px] font-mono text-(--muted) bg-(--surface-2) px-1.5 py-0.2 rounded">
+              {docs.filter((p) => p.category === category).length}
+            </span>
           </div>
-          <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col gap-1">
             {docs
               .filter((p) => p.category === category)
-              .map((p) => (
-                <Link
-                  key={p.slug}
-                  href={`/docs/${p.slug}`}
-                  className={`text-left text-xs sm:text-sm py-1.5 px-3 rounded-lg transition-colors duration-150 ${
-                    activeSlug === p.slug
-                      ? "text-emerald-500 font-semibold bg-(--surface-2)"
-                      : "text-(--muted) hover:text-(--fg) hover:bg-(--surface-2)/60"
-                  }`}
-                >
-                  {p.title}
-                </Link>
-              ))}
+              .map((p) => {
+                const isActiveDoc = activeSlug === p.slug;
+                return (
+                  <Link
+                    key={p.slug}
+                    href={`/docs/${p.slug}`}
+                    className={`group text-left text-xs sm:text-[13px] py-2 px-3 rounded-xl transition-all duration-150 flex items-center justify-between ${
+                      isActiveDoc
+                        ? "text-emerald-500 font-semibold bg-(--surface-2) shadow-2xs"
+                        : "text-(--muted) hover:text-(--fg) hover:bg-(--surface-2)/60"
+                    }`}
+                  >
+                    <span className="truncate">{p.title}</span>
+                    {isActiveDoc && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                    )}
+                  </Link>
+                );
+              })}
           </div>
         </div>
       ))}
@@ -266,10 +275,12 @@ export default function DocsShell({
         </header>
 
         {/* 2-Column Sidebar Layout */}
-        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+          {/* Subtle top ambient glow inside docs content */}
+          <div className="absolute top-0 right-1/4 w-[500px] h-[300px] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent blur-3xl pointer-events-none -z-0" />
 
           {/* Left Sidebar - Desktop */}
-          <aside className="hidden md:flex w-64 shrink-0 border-r border-(--border) overflow-y-auto p-6 flex-col gap-6 bg-(--surface)/40">
+          <aside className="hidden md:flex w-72 shrink-0 border-r border-(--border) overflow-y-auto p-6 flex-col gap-6 bg-(--surface)/30 relative z-10">
             {renderDocNav()}
           </aside>
 
@@ -297,8 +308,20 @@ export default function DocsShell({
           )}
 
           {/* Right Main Document Pane */}
-          <main className="flex-1 overflow-y-auto">
-            <div className="max-w-4xl px-5 sm:px-8 lg:px-12 py-8 sm:py-12 w-full">{children}</div>
+          <main className="flex-1 overflow-y-auto relative z-10">
+            <div className="max-w-4xl px-6 sm:px-10 lg:px-16 py-10 sm:py-14 w-full">
+              {/* Document Breadcrumb Bar */}
+              {activeDoc && (
+                <div className="flex items-center gap-2 text-xs text-(--muted) mb-6 font-medium">
+                  <Link href="/docs" className="hover:text-(--fg) transition-colors">Docs</Link>
+                  <span className="text-(--border)">/</span>
+                  <span className="text-(--faint)">{activeDoc.category}</span>
+                  <span className="text-(--border)">/</span>
+                  <span className="text-emerald-500 font-semibold">{activeDoc.title}</span>
+                </div>
+              )}
+              {children}
+            </div>
           </main>
 
         </div>
