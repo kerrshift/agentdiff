@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
 import Reveal from "@/components/Reveal";
 import CodeBlock from "@/components/CodeBlock";
+import FeaturesEngineHeroAsset from "@/components/FeaturesEngineHeroAsset";
 
 const SITE_URL = "https://agentdiff.lostmartian.in";
 
@@ -313,6 +314,13 @@ export default function FeaturesPage() {
                   <span>100% Deterministic CI Block</span>
                 </span>
               </div>
+            </div>
+          </Reveal>
+
+          {/* Engine Spec Showcase Interactive Visual */}
+          <Reveal delay={120}>
+            <div className="mt-12 sm:mt-16">
+              <FeaturesEngineHeroAsset />
             </div>
           </Reveal>
         </div>

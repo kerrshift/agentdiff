@@ -13,6 +13,7 @@ import markdown from "react-syntax-highlighter/dist/esm/languages/prism/markdown
 import python from "react-syntax-highlighter/dist/esm/languages/prism/python";
 import toml from "react-syntax-highlighter/dist/esm/languages/prism/toml";
 import yaml from "react-syntax-highlighter/dist/esm/languages/prism/yaml";
+import { Check, Copy } from "lucide-react";
 
 SyntaxHighlighter.registerLanguage("bash", bash);
 SyntaxHighlighter.registerLanguage("shell", bash);
@@ -24,6 +25,8 @@ SyntaxHighlighter.registerLanguage("md", markdown);
 SyntaxHighlighter.registerLanguage("python", python);
 SyntaxHighlighter.registerLanguage("toml", toml);
 SyntaxHighlighter.registerLanguage("yaml", yaml);
+SyntaxHighlighter.registerLanguage("yml", yaml);
+
 import { oneLight, oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import remarkMath from "remark-math";
 import remarkGfm from "remark-gfm";
@@ -38,12 +41,14 @@ export default function DocContent({ content }: { content: string }) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    const id = requestAnimationFrame(() =>
-      setTheme(
-        document.documentElement.classList.contains("dark") ? "dark" : "light"
-      )
-    );
-    return () => cancelAnimationFrame(id);
+    const isDark = document.documentElement.classList.contains("dark");
+    setTheme(isDark ? "dark" : "light");
+
+    const observer = new MutationObserver(() => {
+      setTheme(document.documentElement.classList.contains("dark") ? "dark" : "light");
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
   }, []);
 
   const dark = theme === "dark";
@@ -135,26 +140,27 @@ function CodeComponent({
 
   if (!isInline && match) {
     return (
-      <div className="relative group my-6 rounded-lg border border-[var(--border)] overflow-hidden bg-[var(--code-bg)]">
-        {/* Copy button overlay */}
-        <div className="absolute right-3 top-3 flex items-center gap-2.5 select-none z-10">
-          <span className="text-[10px] text-[var(--faint)] uppercase font-mono tracking-wider font-semibold">
+      <div className="relative group my-6 rounded-xl border border-(--border) overflow-hidden bg-(--code-bg) shadow-2xs">
+        {/* Header bar */}
+        <div className="flex items-center justify-between px-4 py-2 border-b border-(--border) bg-(--surface-2)/60 text-xs font-mono select-none">
+          <span className="text-(--muted) font-semibold text-[11px] uppercase tracking-wider">
             {match[1]}
           </span>
           <button
             onClick={handleCopy}
-            className="p-1.5 rounded-md border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-2)] text-[var(--faint)] hover:text-[var(--fg)] transition-all duration-150 cursor-pointer"
+            className="flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium text-(--muted) hover:text-(--fg) hover:bg-(--surface-2) transition-all cursor-pointer"
             title="Copy Code"
           >
             {copied ? (
-              <span className="text-[var(--accent)] text-[10px] font-mono uppercase tracking-wider font-semibold">
-                Copied!
-              </span>
+              <>
+                <Check className="w-3.5 h-3.5 text-emerald-500" />
+                <span className="text-emerald-500 font-semibold">Copied!</span>
+              </>
             ) : (
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-              </svg>
+              <>
+                <Copy className="w-3.5 h-3.5" />
+                <span>Copy</span>
+              </>
             )}
           </button>
         </div>
@@ -168,8 +174,8 @@ function CodeComponent({
             border: "none",
             background: "transparent",
             padding: "1.25rem",
-            fontSize: "0.84rem",
-            lineHeight: "1.7",
+            fontSize: "0.85rem",
+            lineHeight: "1.75",
           }}
           codeTagProps={{ style: { background: "transparent", fontFamily: "inherit" } }}
         >

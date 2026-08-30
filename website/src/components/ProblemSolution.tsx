@@ -32,7 +32,7 @@ export default function ProblemSolution() {
             </span>
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-[-0.035em] text-(--fg) leading-[1.1]">
               Your unit tests are{" "}
-              <span className="line-through decoration-[#16a34a] dark:decoration-[#4ade80] decoration-[3px] sm:decoration-[4px] text-[#16a34a] dark:text-[#4ade80]">
+              <span className="line-through decoration-rose-500 decoration-[3.5px] sm:decoration-[5px] text-emerald-500 dark:text-emerald-400 font-extrabold">
                 green
               </span>
               .

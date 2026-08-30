@@ -1,88 +1,130 @@
+<div align="center">
+
+<img src="docs/assets/logo.svg" alt="AgentDiff Logo" width="84" height="84" />
+
 # AgentDiff
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
+**Catch silent cost surges and broken agent loops before they ship.**
 
-**AgentDiff** is a developer-first Python library and CLI designed to solve the hardest problem in agent engineering: **regression testing multi-turn, tool-using AI agents by comparing execution paths (trajectories) head-to-head.**
+<p align="center">
+  <a href="https://github.com/lostmartian/agentdiff/actions/workflows/ci.yml"><img src="https://github.com/lostmartian/agentdiff/actions/workflows/ci.yml/badge.svg" alt="CI Build" /></a>
+  <a href="https://pypi.org/project/agent-trajectory-diff/"><img src="https://img.shields.io/pypi/v/agent-trajectory-diff.svg?color=10b981" alt="PyPI version" /></a>
+  <a href="https://pypi.org/project/agent-trajectory-diff/"><img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg" alt="Python Versions" /></a>
+  <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/badge/code%20style-ruff-000000.svg" alt="Code Style: Ruff" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
+  <a href="https://agentdiff.lostmartian.in"><img src="https://img.shields.io/badge/docs-agentdiff.lostmartian.in-emerald.svg" alt="Website" /></a>
+</p>
 
-## What AgentDiff Is
-
-* **A Trajectory Diff Engine:** Compares Run A (Baseline) against Run B (Candidate) across their execution Directed Acyclic Graphs (DAGs).
-* **A Local-First CI/CD Gate:** Runs locally in your terminal or inside `pytest` and GitHub Actions, raising errors or exit codes on regression violations.
-* **A Universal Comparator:** Ingests telemetry run files from **OpenInference/OTel**, **Langfuse**, **LangSmith**, **OpenAI Agents SDK**, or raw/custom JSON.
-
-### What AgentDiff Is Not
-
-* **Not an observability backend.** No hosted tracing, no APM, no log storage — AgentDiff works on trace files you already have, at test time.
-* **Not an LLM-as-a-judge scorer.** Semantic answer quality is DeepEval/Ragas territory; AgentDiff measures *how* your agent got there — structurally and deterministically.
-* **Not an agent framework.** It doesn't orchestrate or run agents; it evaluates the trajectories your existing agents (LangGraph, CrewAI, OpenAI Agents SDK, custom loops) already produce.
-
-### Local-First Privacy
-
-Agent trajectories contain your prompts, your tool outputs, and often your customers' data. AgentDiff is architected so that **nothing ever leaves your machine:**
-
-* **No network calls at diff time.** Parsing, DAG alignment, and scoring are pure local computation — run a diff on a plane, in a bank's air-gapped CI, or behind a strict egress firewall.
-* **No account, no telemetry.** AgentDiff doesn't phone home, has no API to sign up for, and collects nothing.
-* **Your baselines live in your repo.** Baseline traces are ordinary committed files (`--baseline` / `--update-baseline`), versioned with the code they gate — no external service holds them.
-* **CI stays inside your perimeter.** The GitHub Action reads traces from your checkout and posts reports with your own `GITHUB_TOKEN`; traces are never uploaded anywhere by us.
-
-Hosted eval platforms require shipping production traces to a third party before you can diff them. With AgentDiff, the diff is a file operation.
-
-## Installation
-
-Install the PyPI package:
 ```bash
 pip install agent-trajectory-diff
 ```
 
-Or using `uv`:
-```bash
-uv add agent-trajectory-diff
+[Website & Interactive Docs](https://agentdiff.lostmartian.in) · [Cookbooks](cookbooks/) · [Live Demo Repo](https://github.com/lostmartian/agentdiff-demo) · [Changelog](CHANGELOG.md)
+
+</div>
+
+**AgentDiff** is a developer-first Python library, pytest plugin, and CLI for **regression testing multi-turn, tool-using AI agents by comparing execution paths (trajectories) head-to-head.**
+
+When you change a prompt, tweak a system instruction, or upgrade an LLM, traditional assertions only verify that the final string matches. They miss the silent failures: **the agent took 5 extra tool calls, burned 3× the tokens, entered an infinite retry loop, or drifted from the verified execution path.**
+
+AgentDiff aligns candidate execution DAGs against committed golden baselines in `<10ms` without calling any paid LLM judges.
+
+## Highlights
+
+- **Deterministic Graph Diffing:** Topological DAG alignment and Longest Common Subsequence (LCS) step comparison in `<10ms` with zero paid LLM-judge calls.
+- **100% Local & Air-Gapped:** Zero telemetry, no cloud accounts, no network calls during diffs. Raw prompts and tool outputs never leave your machine or CI runner.
+- **Drop-in CI Merge Gate:** Native exit codes (`0` pass / `1` regression fail) and automated GitHub Action PR comments with collapsed divergence trees and culprit attribution.
+- **Universal Telemetry Adapters:** Seamlessly diff traces exported from **LangGraph**, **CrewAI**, **OpenAI Agents SDK**, **Langfuse**, **LangSmith**, **OpenInference / OpenTelemetry**, or generic JSON.
+- **Config-as-Code & Goodhart Guard:** Commit thresholds in `agentdiff.toml` right next to your code. Flag drift when baseline gate definitions change.
+- **First-Class Pytest Plugin:** Native `agentdiff_trace` fixture and `assert_no_regressions` assertion helper.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    subgraph Ingestion["1. Ingestion"]
+        A1[LangGraph / CrewAI] --> T[Normalized AgentTrace]
+        A2[Langfuse / LangSmith] --> T
+        A3[OpenInference / OTel] --> T
+        A4[OpenAI Agents SDK] --> T
+    end
+
+    subgraph DiffEngine["2. Diff Engine (<10ms)"]
+        T --> DAG[Topological DAG Align]
+        DAG --> Metrics[TDI · WEI · LBI · RSR · ΔCost]
+    end
+
+    subgraph Enforcement["3. Merge Gate"]
+        Metrics --> Gate{Thresholds Violated?}
+        Gate -- No --> Pass[Exit 0 · Update Baseline]
+        Gate -- Yes --> Fail[Exit 1 · Block PR & Post Root-Cause Comment]
+    end
 ```
 
-Enable tab-completion for the CLI (bash/zsh/fish/powershell):
+## Installation
+
+```bash
+# Using pip
+pip install agent-trajectory-diff
+
+# Using uv
+uv add agent-trajectory-diff
+
+# Global CLI tool (isolated environment)
+uv tool install agent-trajectory-diff
+```
+
+Enable tab completion for bash, zsh, fish, or powershell:
 ```bash
 agentdiff --install-completion
 ```
-> Tip: for a global `agentdiff` command without activating a venv, use `uv tool install agent-trajectory-diff` — then completion works anywhere.
 
 ## Quickstart
 
-### 0. No trace yet? Record one.
-
-Point `record` at any callable (your agent's entry function) and it captures a canonical trace:
+### 1. Record a Golden Baseline
+Record a canonical execution trace from any agent function without writing boilerplate telemetry:
 
 ```bash
-agentdiff record my_agent:run --input '{"question": "What is AgentDiff?"}' --out traces/run.json
+agentdiff record my_agent:run --input '{"query": "summarize repo"}' --out baselines/golden.json
 ```
 
-- `--input` takes a JSON object (passed as kwargs) or `@file.json`
-- A failed run is still recorded — diff it to see exactly what broke
-- Then compare: `agentdiff traces/baseline.json traces/run.json`
+### 2. Compare Traces in CLI
+Compare candidate runs against your golden baseline:
 
-### 1. CLI Usage
-
-Compare two trajectory JSON traces from your terminal:
 ```bash
-agentdiff baseline_run.json candidate_run.json --fail-on-regression --max-divergence 0.25
+agentdiff baselines/golden.json traces/candidate.json --fail-on-regression --max-divergence 0.25
 ```
 
-Options:
-- `--adapter`: Telemetry parser to use (`auto`, `generic`, `openinference`, `langfuse`, `langsmith`, `openai_agents`).
-- `--format`: Format for the output (`terminal`, `json`, `markdown`).
-- `--fail-on-regression`: Return exit code `1` if thresholds are violated.
-- `--max-loops`: Maximum loops allowed.
-- `--max-divergence`: Maximum Trajectory Divergence Index (TDI) allowed.
-- `--max-cost-delta`: Maximum cost increase percentage allowed.
-- `--baseline, -b PATH`: Compare against a persistent baseline trace file (see [Baseline workflow](#baseline-workflow)).
-- `--update-baseline`: Overwrite the persistent baseline with the candidate after a clean diff.
-- `--baseline-config PATH`: The `agentdiff.toml` the **baseline** was recorded with. When gate values differ from this run's config, the report flags the change (Goodhart guard — see [Gate governance](https://agentdiff.lostmartian.in/docs/configuration#gate-governance-goodhart-guard)).
-- `--stale-days N`: Warn via `--explain` when the baseline file is older than N days (default: config `stale_baseline_days` or 30 — advisory only).
-- `--config PATH`: Load defaults from an `agentdiff.toml` (auto-discovered if not given).
+### 3. Pytest Regression Testing
+Enforce trajectory parity directly in your test suite:
 
-#### Config-as-code (`agentdiff.toml`)
+```python
+import pytest
+from agentdiff import load_trace, compare
+from agentdiff.testing import assert_no_regressions
 
-Commit your thresholds, adapter, and baseline path next to your traces instead of repeating CLI flags. Explicit flags always win over config.
+def test_agent_refactor_efficiency():
+    # Load traces (auto-detects telemetry source format)
+    baseline = load_trace("tests/baselines/golden.json")
+    candidate = load_trace("tests/traces/candidate.json")
+
+    # Run sub-10ms deterministic comparison
+    report = compare(baseline, candidate)
+
+    # Assert no structural drift, cost surges, or tool loops
+    assert_no_regressions(
+        report,
+        max_divergence=0.25,        # Max Trajectory Divergence Index [0.0 - 1.0]
+        max_cost_increase_pct=5.0,  # Max 5% token cost increase
+        allow_loops=False,          # Reject repetitive tool call cycles
+        max_wasted_effort=0.10,     # Max 10% error/retry/abandoned steps
+        max_recovery_step_ratio=1.5 # Max recovery steps relative to baseline
+    )
+```
+
+## Config-as-Code (`agentdiff.toml`)
+
+Commit your gate policy directly to your repository. AgentDiff auto-discovers `agentdiff.toml` in your working directory tree:
 
 ```toml
 [compare]
@@ -94,171 +136,134 @@ name = "auto"            # auto, generic, openinference, langfuse, langsmith, op
 
 [cli]
 format = "terminal"      # terminal, json, markdown, pr
-baseline = "baselines/current.json"
+baseline = "baselines/golden.json"
 max_loops = 0
-max_divergence = 0.3
-max_cost_delta = 10.0
+max_divergence = 0.25
+max_cost_delta = 5.0
+max_recovery_ratio = 1.5
 
-[assertions]             # defaults used by assert_no_regressions / pytest plugin
+[assertions]             # Defaults for assert_no_regressions / pytest plugin
 max_divergence = 0.25
 max_cost_increase_pct = 5.0
 allow_loops = false
-max_wasted_effort = 0.1
+max_wasted_effort = 0.10
+max_recovery_step_ratio = 1.5
 ```
 
-AgentDiff auto-discovers `agentdiff.toml` from the current directory upward, or you can point at it explicitly with `--config`.
+## GitHub Actions CI Gate
 
-## Baseline workflow
-
-Keep a single `baseline.json` file committed to your repo instead of hand-managing two trace files. The first run establishes the baseline; later runs compare against it and advance it only on clean diffs.
-
-```bash
-# First run: stores candidate as the baseline, exits 0
-agentdiff baseline.json today.json --baseline baseline.json --update-baseline
-
-# Later runs: compare today's run against the stored baseline
-agentdiff baseline.json today.json --baseline baseline.json --update-baseline --fail-on-regression
-```
-
-- If `baseline.json` does not exist and `--update-baseline` is set, the candidate is copied in as the baseline and the command exits `0`.
-- If it does not exist and `--update-baseline` is omitted, the command exits `2` with a helpful message.
-- On a regression the baseline is **never** overwritten, and `--fail-on-regression` exits `1`.
-
-### 2. Python SDK & Pytest Integration
-
-Catch agent loop regressions or token cost spikes in your test suites:
-
-```python
-import pytest
-from agentdiff import load_trace, compare
-from agentdiff.testing import assert_no_regressions
-
-def test_agent_refactor_efficiency():
-    # Load traces from disk (auto-detects the telemetry format)
-    baseline = load_trace("tests/traces/baseline.json")
-    candidate = load_trace("tests/traces/candidate.json")
-
-    # Run the comparison
-    report = compare(baseline, candidate)
-
-    # Expressive assertion helper that raises detailed error messages on regression
-    assert_no_regressions(
-        report,
-        max_divergence=0.25,        # TDI threshold [0.0 - 1.0]
-        max_cost_increase_pct=5.0,  # Max cost increase allowed
-        allow_loops=False,           # Reject if tool loops are detected
-        max_wasted_effort=0.10      # Max Wasted Effort Index (WEI) allowed
-    )
-```
-
-### 3. GitHub Action
-
-Gate a PR on agent trajectory regressions with the reusable composite action.
-Pin it to a release tag and point `package` at the published package (or a
-`git+` path / local directory for pre-release testing):
+Block broken agent PRs before they land in production using the official composite action:
 
 ```yaml
-name: AgentDiff Gate
+name: AgentDiff Regression Gate
+
 on:
   pull_request:
 
 permissions:
   contents: read
-  pull-requests: write   # lets the action post the PR comment
+  pull-requests: write   # Allows posting automated root-cause PR comments
 
 jobs:
-  agentdiff:
+  agent-regression-gate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - uses: lostmartian/agentdiff/.github/actions/agentdiff-check@v0.2.2
         with:
-          baseline: traces/baseline.json   # committed baseline trace
-          candidate: traces/candidate.json # generated by an earlier step
-          update-baseline: "false"
-          max-divergence: "0.3"
-          max-cost-delta: "10.0"
-          # Optional: auto-post the report onto the triggering PR.
+          baseline: baselines/golden.json
+          candidate: traces/pr_candidate.json
+          max-divergence: "0.25"
+          max-cost-delta: "5.0"
+          max-loops: "0"
           pr: ${{ github.event.pull_request.number }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-The action installs the package (default `agent-trajectory-diff` from PyPI),
-runs `agentdiff --fail-on-regression`, and fails the job when divergence,
-loops, or cost spikes exceed the thresholds. When `pr` is set it also posts the
-PR-ready report (status, gate table, root-cause culprit, collapsed divergence
-tree, loops) as a comment on that PR — even when the gate blocks. See the
-[`agentdiff-demo`](https://github.com/lostmartian/agentdiff-demo) repository
-for a working, live example (real Gemini agent + auto PR comments).
+When a regression occurs, the gate fails with exit code `1` and comments on the PR with culprit identification and a collapsed divergence tree:
 
-**Available inputs:**
+```markdown
+### AgentDiff Gate: REGRESSION DETECTED
 
-| Input | Default | Description |
-| --- | --- | --- |
-| `baseline` | *(required)* | Path to the stored baseline trace JSON. |
-| `candidate` | *(required)* | Path to the candidate trace JSON. |
-| `package` | `agent-trajectory-diff` | Python package spec to install (PyPI name, `git+https://…`, or a local path). |
-| `adapter` | `auto` | Telemetry adapter: `auto`, `generic`, `openinference`, `langfuse`, `langsmith`, `openai_agents`. |
-| `max-divergence` | `0.3` | Maximum Trajectory Divergence Index (TDI) before regression. |
-| `max-loops` | `0` | Maximum loop count before regression. |
-| `max-cost-delta` | `10.0` | Maximum cost increase percentage before regression. |
-| `update-baseline` | `false` | Overwrite the stored baseline with the candidate when the run is clean. |
-| `pr` | *(empty)* | GitHub PR number to post the report comment to (e.g. `github.event.pull_request.number`). |
-| `github-token` | *(empty)* | GitHub token used to post the comment (e.g. `secrets.GITHUB_TOKEN`). Required when `pr` is set. |
+| Metric | Baseline | Candidate | Threshold | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **Divergence (TDI)** | 0.00 | 0.42 | ≤ 0.25 | FAIL |
+| **Cost Surge** | $0.0042 | $0.0138 (+228%) | ≤ +5.0% | FAIL |
+| **Loops (LBI)** | 0 | 3 loops | 0 | FAIL |
+| **Wasted Effort (WEI)**| 0.00 | 0.38 | ≤ 0.10 | FAIL |
 
-> **Permission:** to post the PR comment the workflow needs `pull-requests: write`
-> (the built-in `GITHUB_TOKEN` is otherwise read-only). No manual token required.
+**Culprit Step:** Step 4 `execute_sql` entered a 3× retry loop after schema refactor.
+```
 
-## Core Metrics
+## Core Metric Mathematics
 
-| Metric | Target / Range | Algorithmic Definition |
-| --- | --- | --- |
-| **Trajectory Divergence Index (TDI)** | `0.0` (Identical) to `1.0` (Divergent) | $$1.0 - \frac{2 \times \vert{}\text{LCS}(\text{Steps}_A, \text{Steps}_B)\vert{}}{\vert{}\text{Steps}_A\vert{} + \vert{}\text{Steps}_B\vert{}}$$ |
-| **Wasted Effort Index (WEI)** | `0.0` (Optimal) to `1.0` (Total Waste) | $$\frac{\text{Count}(\text{Steps with status} \in \{\text{ERROR, RETRY, ABANDONED}\})}{\text{Total Execution Steps}}$$ |
-| **Loop Buster Index (LBI)** | Integer ($\ge 0$) | Detects consecutive repeating sequences of tools with stagnant state changes. |
-| **Recovery Step Ratio (RSR)** | `1.0` = parity; $> 1.0$ = slower recovery than baseline | Successful steps spent after ERROR/RETRY/ABANDONED clusters until re-aligning with the baseline path: $\text{RSR} = \frac{\text{Recovery}_{\text{candidate}}}{\text{Recovery}_{\text{baseline}}}$ (falls back to the raw candidate count when the baseline is clean). Gate via `--max-recovery-ratio` / `max_recovery_step_ratio`. |
-| **Resource Deltas ($\Delta\text{Res}$)** | Percentage ($\pm\%$) | Standard deltas for $\Delta\text{Tokens}$, $\Delta\text{Cost}$, and $\Delta\text{Latency}$. |
+| Metric | Target / Range | Algorithmic Definition | Description |
+| :--- | :--- | :--- | :--- |
+| **Trajectory Divergence Index (TDI)** | `0.0` (Identical) to `1.0` (Divergent) | $$1.0 - \frac{2 \times \vert{}\text{LCS}(\text{Steps}_A, \text{Steps}_B)\vert{}}{\vert{}\text{Steps}_A\vert{} + \vert{}\text{Steps}_B\vert{}}$$ | Structural distance between baseline and candidate execution DAGs using Longest Common Subsequence. |
+| **Wasted Effort Index (WEI)** | `0.0` (Optimal) to `1.0` (Total Waste) | $$\frac{\text{Count}(\text{Steps} \in \{\text{ERROR, RETRY, ABANDONED}\})}{\text{Total Steps}}$$ | Fraction of execution steps spent in failed, retried, or aborted tool operations. |
+| **Loop Buster Index (LBI)** | Integer ($\ge 0$) | Stagnant State Cycle Detection | Counts repeating consecutive tool call patterns where inputs/outputs show no state progression. |
+| **Recovery Step Ratio (RSR)** | `1.0` = Parity; $> 1.0$ = Slower Recovery | $$\text{RSR} = \frac{\text{Recovery Steps}_{\text{candidate}}}{\text{Recovery Steps}_{\text{baseline}}}$$ | Measures the number of steps required to return to the verified golden trajectory path after encountering an error. |
+| **Resource Deltas ($\Delta\text{Res}$)** | Percentage ($\pm\%$) | $\frac{\text{Val}_{\text{candidate}} - \text{Val}_{\text{baseline}}}{\text{Val}_{\text{baseline}}} \times 100$ | Exact percentage deltas for $\Delta\text{Tokens}$, $\Delta\text{Cost}$, and $\Delta\text{Latency}$. |
 
-## FAQ
+## Supported Telemetry Formats
 
-**How is AgentDiff different from DeepEval or Ragas?**
-They score *what* the agent said (semantic quality, via LLM judges). AgentDiff measures *how* the agent got there — step order, tool loops, wasted effort, cost/latency deltas — using deterministic graph algorithms. They complement each other; AgentDiff adds no LLM calls and is fully deterministic.
+| Telemetry Framework / Format | Adapter Spec | Ingestion Guide |
+| :--- | :--- | :--- |
+| **LangGraph / LangChain** | `--adapter langgraph` | [`cookbooks/langgraph`](cookbooks/) |
+| **CrewAI** | `--adapter crewai` | [`cookbooks/crewai`](cookbooks/) |
+| **OpenAI Agents SDK** | `--adapter openai_agents` | [`cookbooks/openai_agents`](cookbooks/) |
+| **Langfuse** | `--adapter langfuse` | [`cookbooks/langfuse`](cookbooks/) |
+| **LangSmith** | `--adapter langsmith` | [`cookbooks/langsmith`](cookbooks/) |
+| **OpenInference / OpenTelemetry** | `--adapter openinference` | [`cookbooks/openinference`](cookbooks/) |
+| **Generic JSON Schema** | `--adapter generic` | [`schema/v0.1.0/trace.json`](schema/v0.1.0/trace.json) |
 
-**Do I need API keys to run a diff?**
-No. AgentDiff is pure math over trace files you already have. Keys are only needed by your own agent when it produces traces, or by the optional live cookbooks that generate them.
+## Local-First Privacy Guarantee
 
-**Where do trace files come from?**
-Export them from whatever already records your runs: Langfuse or LangSmith exports, OpenTelemetry/OpenInference span dumps, the OpenAI Agents SDK tracing processor, or hand-rolled JSON matching the generic schema. See [`cookbooks/`](cookbooks/) for working recipes per source.
+Agent trajectories often contain proprietary prompts, sensitive tool payloads, and customer data. AgentDiff is engineered with strict local-first principles:
 
-**Can I compare runs from different frameworks?**
-Yes. Traces are normalized to one canonical `AgentTrace` schema before comparison, so an OpenInference baseline can be diffed against a Langfuse candidate (or any other pairing).
+- **Zero Outbound Network Traffic:** Parsing, DAG diffing, metric calculations, and reporting run 100% locally.
+- **Air-Gapped & Firewall Friendly:** Run tests on laptops, in air-gapped VPCs, or under strict enterprise egress policies.
+- **Repo-Committed Baselines:** Your golden trajectories live in Git next to the code they protect.
+- **No Third-Party APM Lock-In:** Switch tracing providers at any time; AgentDiff normalizes all schemas to a unified specification.
 
-**What do TDI / WEI / LBI mean in one line each?**
-TDI: fraction of trajectory structure that changed (0 = identical). WEI: share of steps that were errors/retries/abandonments. LBI: count of repeating tool sequences with no state progress. Definitions above.
+## Documentation & Cookbooks
 
-**How does the pytest plugin know which baseline belongs to a test?**
-Mark tests with the `agentdiff` marker and use the `agentdiff_trace` fixture; a committed baseline file per test is compared automatically (`--agentdiff-update-baselines` advances baselines on clean runs). See the docs for setup.
+- **Official Documentation:** [https://agentdiff.lostmartian.in](https://agentdiff.lostmartian.in)
+- **Live Demo Repository:** [github.com/lostmartian/agentdiff-demo](https://github.com/lostmartian/agentdiff-demo)
+- **Engine Specification:** [Under the Hood](https://agentdiff.lostmartian.in/features)
+- **Interactive Visualizer:** [Diff Playground](https://agentdiff.lostmartian.in/compare)
+- **Adapters Guide:** [Framework Integration](https://agentdiff.lostmartian.in/adapters)
 
-**Which Python versions are supported?**
-Python 3.10 through 3.13, tested in CI on every PR.
+## Development
 
-**Is it production-safe to gate merges on this?**
-That's the point — exit codes 0/1 make it a drop-in CI gate, and the GitHub Action posts the culprit + divergence tree right onto the PR so reviewers see *why* a gate blocked.
+This repository uses [`uv`](https://docs.astral.sh/uv/) for lightning-fast environment and dependency management.
 
-## Development & Operations
+```bash
+# Clone the repository
+git clone https://github.com/lostmartian/agentdiff.git
+cd agentdiff
 
-This project utilizes `uv` to manage environments and dependencies. Automation tasks are defined in the **[`Makefile`](file:///Users/lostmartian/Desktop/interview/agentdiff/Makefile)**:
+# Install dependencies and sync virtualenv
+uv sync
 
-- `make lint` / `make format`: Run Ruff linter checks and formatter.
-- `make test`: Run pytest suite (including style & formatting assertions).
-- `make build`: Package the library into source and wheel distributions in `dist/`.
-- `make website-dev`: Start the Next.js landing and documentation site local server.
-- `make website-build`: Build the Next.js static output in `website/out/`.
+# Run linting and code formatting checks
+make lint
 
-### Repository Layout
-- `src/`: Python source code package modules.
-- `tests/`: Quality assurance unit tests.
-- `website/`: Next.js web application and documentation pages.
+# Run the test suite
+make test
+
+# Build package distributions
+make build
+
+# Launch the website & docs locally
+make website-dev
+```
+
+## License
+
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
