@@ -167,7 +167,7 @@ APPROVE_WORKFLOW_TEMPLATE = """\
 #
 # Branded identity (agentdiff[bot] with your logo instead of
 # github-actions[bot]): create a GitHub App named "AgentDiff" and upload
-# context/logos/agentdiff-dark-512.png as its avatar:
+# .github/assets/agentdiff-avatar-512.png as its avatar:
 #   Permissions: Contents RW, Pull requests RW, Issues comments RW, Actions R
 #   Repo secrets: AGENTDIFF_APP_ID, AGENTDIFF_APP_PRIVATE_KEY
 #   Repo variable: AGENTDIFF_APP_ID = <the app id>
