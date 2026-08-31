@@ -138,7 +138,7 @@ def compare_envelope(
     max_loops: int = 0,
     step_count_std_dev: float = 2.0,
     max_wasted_effort: float | None = None,
-    max_recovery_step_ratio: float | None = None,
+    max_recovery_step_ratio: float | None = 3.0,
     fail_on_identical_loops: bool = True,
     max_tool_repeats: int | None = None,
 ) -> tuple[DiffReport, GateResult]:

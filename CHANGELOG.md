@@ -8,6 +8,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`/agentdiff approve` — the interactive PR bot** (Pillar 3 of the 0.5.0
+  release, pulled forward): reviewers comment `/agentdiff approve` on a
+  flagged PR and the candidate run becomes (or joins) the golden baseline —
+  no local checkout, no manual JSON. Policy D3: loop violations are **never
+  blessable**; path drift and cost spikes are human judgments.
+  `agentdiff approve BASELINE CANDIDATE [--pr N]` powers it.
+- **Branded bot identity**: the approve workflow authenticates as a GitHub
+  App (`agentdiff[bot]` with AgentDiff's logo — the repo ships the avatar
+  PNG) via `actions/create-github-app-token`, falling back to
+  `github-actions[bot]` when the App isn't configured. App-token pushes also
+  re-trigger the check (GITHUB_TOKEN pushes never do), so the check genuinely
+  flips to PASSED after approval.
+- **`agentdiff init --with-approve`**: additionally writes the approve-bot
+  workflow — command filter (`/agentdiff approve`, bots excluded),
+  write-permission gate on the commenter, concurrency guard, and
+  candidate-trace artifact handoff from the check workflow (which now
+  uploads it).
+- **Error Recovery Cascade is now a default hard gate** (PRD failure class):
+  a candidate that spends ≥ 3× the baseline's post-error recovery steps
+  blocks CI (exit 1). Explicit `--max-recovery-ratio` still wins; pass a
+  large value (or `[cli] max_recovery_ratio`) to tune it.
 - **`agentdiff init` — zero-config CLI wizard** (Pillar 4 of the 0.5.0
   "Circuit Breaker" release): auto-detects the agent framework (LangGraph,
   CrewAI, OpenAI Agents SDK, OpenTelemetry/OpenInference, or generic) and
@@ -15,6 +36,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   scenario) plus a GitHub Actions gate workflow in seconds.
   Idempotent — refuses to clobber without `--force`; `--adapter` overrides
   detection; `--scenario`/`--runs` parameterize the generated config.
+- **Human-first PR verdict** (positioning fix, product side): the PR comment
+  now leads with what reviewers care about — "No infinite loops. No cost
+  spikes. Trajectory within budget — safe to merge." or "Blocked by:
+  tool_loop." — with the metric table demoted to a collapsible
+  *Gate details* section.
 - **Statistical envelopes — N-run baselines with variance bands** (Pillar 1 of
   the 0.5.0 "Circuit Breaker" release): baselines can now capture N ≥ 2 runs
   (`agentdiff record ... --runs 5`) into a versioned
