@@ -75,7 +75,10 @@ class TestWriteConfig:
 
     def test_toml_parses_as_valid_toml(self, tmp_path):
         write_config(tmp_path, framework=FRAMEWORKS[0])
-        import tomllib
+        try:  # Python 3.11+
+            import tomllib
+        except ImportError:  # Python 3.10
+            import tomli as tomllib
 
         raw = tomllib.loads((tmp_path / "agentdiff.toml").read_text())
         assert "scenario" in raw
