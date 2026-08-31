@@ -11,5 +11,5 @@ compatibility_date = "2026-08-01"
 #   (the App is named AgentDiff CI because GitHub reserves "AgentDiff"
 #   for the agentdiff repository in this account)
 #
-# [vars]
-# AGENTDIFF_APP_SLUG = "agentdiff-ci"
+[vars]
+AGENTDIFF_APP_SLUG = "agentdiff-ci"
