@@ -129,6 +129,84 @@ def record(
     typer.echo(f"Next: agentdiff diff <baseline> {path}")
 
 
+@app.command(name="init")
+def init(
+    scenario: str = typer.Option(
+        "default",
+        "--scenario",
+        help="Scenario name written into agentdiff.toml and the workflow.",
+    ),
+    runs: int = typer.Option(
+        3,
+        "--runs",
+        "-n",
+        min=1,
+        help="Sample runs recorded into the baseline envelope.",
+    ),
+    adapter: str | None = typer.Option(
+        None,
+        "--adapter",
+        help="Override framework detection (langgraph, crewai, openai_agents, openinference, generic).",
+    ),
+    force: bool = typer.Option(
+        False,
+        "--force",
+        help="Overwrite existing agentdiff.toml / workflow files.",
+    ),
+):
+    """Zero-config wizard: detect your framework, write agentdiff.toml + CI gate.
+
+    Example:
+        agentdiff init --scenario customer_refund --runs 5
+    """
+    from agentdiff.init_wizard import (
+        FRAMEWORKS,
+        GENERIC,
+        detect_framework,
+        write_config,
+    )
+
+    if adapter:
+        match = next(
+            (f for f in (*FRAMEWORKS, GENERIC) if f.key == adapter.lower()), None
+        )
+        if match is None:
+            typer.echo(
+                f"Unknown adapter {adapter!r}. Known: {', '.join(f.key for f in (*FRAMEWORKS, GENERIC))}",
+                err=True,
+            )
+            sys.exit(2)
+        framework = match
+    else:
+        framework = detect_framework()
+
+    typer.echo(f"Detected framework: {framework.label} ({framework.note})")
+
+    try:
+        created = write_config(
+            Path.cwd(),
+            framework=framework,
+            scenario=scenario,
+            runs=runs,
+            force=force,
+        )
+    except FileExistsError as e:
+        typer.echo(f"Error: {e}", err=True)
+        sys.exit(2)
+
+    for path in created:
+        typer.echo(f"Wrote {path}")
+
+    typer.echo(
+        f"\nNext steps:\n"
+        f"  1. Record a baseline envelope:\n"
+        f"       agentdiff record <your_agent:run> --runs {runs} "
+        f"--out baselines/{scenario}.envelope.json\n"
+        f"  2. Commit agentdiff.toml, the workflow, and the baseline.\n"
+        f"  3. Open a PR — AgentDiff gates it automatically."
+    )
+
+
 def _resolve_cli(cfg: AgentDiffConfig, **values):
     """Returns config-provided values for any option left at its sentinel."""
     resolved = {}

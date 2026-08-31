@@ -1,0 +1,139 @@
+"""Pillar 4 — zero-config CLI wizard (`agentdiff init`)."""
+
+from pathlib import Path
+
+import pytest
+from typer.testing import CliRunner
+
+from agentdiff.cli import app
+from agentdiff.config import load_config
+from agentdiff.init_wizard import (
+    FRAMEWORKS,
+    GENERIC,
+    detect_framework,
+    write_config,
+)
+
+
+class TestDetection:
+    def test_falls_back_to_generic_when_nothing_installed(self, monkeypatch):
+        monkeypatch.setattr(
+            "agentdiff.init_wizard.importlib.util.find_spec", lambda name: None
+        )
+        assert detect_framework() is GENERIC
+
+    def test_detects_first_installed_framework_in_priority_order(self, monkeypatch):
+        def fake_find_spec(name):
+            return object() if name == "crewai" else None
+
+        monkeypatch.setattr(
+            "agentdiff.init_wizard.importlib.util.find_spec", fake_find_spec
+        )
+        assert detect_framework().key == "crewai"
+
+    def test_priority_order_is_langgraph_first(self):
+        assert FRAMEWORKS[0].key == "langgraph"
+
+
+class TestWriteConfig:
+    def test_writes_toml_and_workflow(self, tmp_path):
+        created = write_config(tmp_path, framework=GENERIC, scenario="refund", runs=5)
+        names = {p.name for p in created}
+        assert names == {"agentdiff.toml", "agentdiff.yml"}
+
+        cfg = load_config(tmp_path / "agentdiff.toml")
+        sc = cfg.scenario("refund")
+        assert sc is not None
+        assert sc.mode == "statistical"
+        assert sc.sample_runs == 5
+        assert sc.hard_invariants.fail_on_identical_loops is True
+        assert sc.tolerances.divergence_ceiling == 0.35
+        assert cfg.adapter.name == GENERIC.adapter
+
+    def test_workflow_is_valid_action_yaml(self, tmp_path):
+        write_config(tmp_path, framework=GENERIC)
+        text = (tmp_path / ".github/workflows/agentdiff.yml").read_text()
+        assert "name: AgentDiff Check" in text
+        assert "pull_request:" in text
+        assert "agent-trajectory-diff" in text
+        assert "--runs 3" in text
+        # GitHub expression braces survive str.format
+        assert "${{ github.event.number }}" in text
+        # record target placeholder is explicitly marked
+        assert "EDIT ME" in text
+
+    def test_refuses_to_clobber_without_force(self, tmp_path):
+        write_config(tmp_path, framework=GENERIC)
+        with pytest.raises(FileExistsError):
+            write_config(tmp_path, framework=GENERIC)
+
+    def test_force_overwrites(self, tmp_path):
+        write_config(tmp_path, framework=GENERIC, runs=3)
+        write_config(tmp_path, framework=GENERIC, runs=7, force=True)
+        cfg = load_config(tmp_path / "agentdiff.toml")
+        assert cfg.scenario("default").sample_runs == 7
+
+    def test_toml_parses_as_valid_toml(self, tmp_path):
+        write_config(tmp_path, framework=FRAMEWORKS[0])
+        try:  # Python 3.11+
+            import tomllib
+        except ImportError:  # Python 3.10
+            import tomli as tomllib
+
+        raw = tomllib.loads((tmp_path / "agentdiff.toml").read_text())
+        assert "scenario" in raw
+        assert raw["adapter"]["name"] == "langgraph"
+
+
+class TestCliInit:
+    def test_init_creates_files_and_prints_next_steps(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(
+            "agentdiff.init_wizard.importlib.util.find_spec", lambda name: None
+        )
+        result = CliRunner().invoke(app, ["init", "--scenario", "refund"])
+        assert result.exit_code == 0, result.output
+        assert "Detected framework: Generic" in result.output
+        assert (tmp_path / "agentdiff.toml").exists()
+        assert (tmp_path / ".github/workflows/agentdiff.yml").exists()
+        assert "Next steps" in result.output
+        assert "baselines/refund.envelope.json" in result.output
+
+    def test_init_refuses_existing_without_force(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(
+            "agentdiff.init_wizard.importlib.util.find_spec", lambda name: None
+        )
+        first = CliRunner().invoke(app, ["init"])
+        assert first.exit_code == 0
+        second = CliRunner().invoke(app, ["init"])
+        assert second.exit_code == 2
+        assert "--force" in second.output
+
+    def test_init_force_overwrites(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(
+            "agentdiff.init_wizard.importlib.util.find_spec", lambda name: None
+        )
+        assert CliRunner().invoke(app, ["init"]).exit_code == 0
+        again = CliRunner().invoke(app, ["init", "--force", "--runs", "5"])
+        assert again.exit_code == 0
+        assert "--runs 5" in (tmp_path / ".github/workflows/agentdiff.yml").read_text()
+
+    def test_init_unknown_adapter_exits_2(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        result = CliRunner().invoke(app, ["init", "--adapter", "bogus"])
+        assert result.exit_code == 2
+
+    def test_init_adapter_override(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        result = CliRunner().invoke(app, ["init", "--adapter", "openai_agents"])
+        assert result.exit_code == 0, result.output
+        cfg = load_config(tmp_path / "agentdiff.toml")
+        assert cfg.adapter.name == "openai_agents"
+
+    def test_workflow_path_constant_is_github_standard(self):
+        assert GENERIC.key == "generic"
+        assert Path(".github/workflows/agentdiff.yml").as_posix() == str(
+            Path(".github") / "workflows" / "agentdiff.yml"
+        )
