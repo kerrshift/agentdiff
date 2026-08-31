@@ -125,7 +125,8 @@ def test_rsr_gate_flows_through_thresholds():
             make_step("fetch"),
             make_step("query", status="error"),
             make_step("verify"),
-            make_step("query"),
+            # recovery retry with adjusted params (not a stagnant identical repeat)
+            make_step("query", input_payload={"retry": True}),
             make_step("done"),
         ],
     )

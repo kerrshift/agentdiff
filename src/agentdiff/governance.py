@@ -19,12 +19,20 @@ _GATED_KEYS: tuple[str, ...] = (
     "max_recovery_ratio",
 )
 
+# Hard-invariant knobs (Pillar 2) — also Goodhart-guarded and self-described.
+_INVARIANT_KEYS: tuple[str, ...] = (
+    "fail_on_identical_loops",
+    "max_tool_repeats",
+)
+
 # Defaults used when neither config nor flag provides a value (mirrors cli.py).
-_EFFECTIVE_DEFAULTS: dict[str, float | int | None] = {
+_EFFECTIVE_DEFAULTS: dict[str, float | int | bool | None] = {
     "max_divergence": 0.3,
     "max_loops": 0,
     "max_cost_delta": 10.0,
     "max_recovery_ratio": None,
+    "fail_on_identical_loops": True,
+    "max_tool_repeats": None,
 }
 
 
@@ -33,18 +41,23 @@ class ThresholdChange:
     """One gate knob that differs between the baseline config and this run."""
 
     gate: str
-    old: float | int | None
-    new: float | int | None
+    old: float | int | bool | None
+    new: float | int | bool | None
 
     def render(self) -> str:
         return f"{self.gate}: `{self.old}` → `{self.new}`"
 
 
-def effective_gates(cfg: AgentDiffConfig) -> dict[str, float | int | None]:
+def effective_gates(cfg: AgentDiffConfig) -> dict[str, float | int | bool | None]:
     """Resolves the effective gate values from a config (config or defaults)."""
-    resolved: dict[str, float | int | None] = {}
+    resolved: dict[str, float | int | bool | None] = {}
     for key in _GATED_KEYS:
         value = getattr(cfg.cli, key, None)
+        if value is None:
+            value = _EFFECTIVE_DEFAULTS[key]
+        resolved[key] = value
+    for key in _INVARIANT_KEYS:
+        value = getattr(cfg.invariants, key, None)
         if value is None:
             value = _EFFECTIVE_DEFAULTS[key]
         resolved[key] = value
@@ -57,9 +70,10 @@ def diff_gate_thresholds(
     """Returns gate knobs that differ between two configs, display-ordered."""
     old_gates = effective_gates(baseline_cfg)
     new_gates = effective_gates(candidate_cfg)
+    keys = (*_GATED_KEYS, *_INVARIANT_KEYS)
     return [
         ThresholdChange(gate=key, old=old_gates[key], new=new_gates[key])
-        for key in _GATED_KEYS
+        for key in keys
         if old_gates[key] != new_gates[key]
     ]
 
@@ -83,4 +97,9 @@ def provenance_line(cfg: AgentDiffConfig, config_path: str | None) -> str:
     ]
     if gates["max_recovery_ratio"] is not None:
         parts.append(f"max_recovery_ratio={gates['max_recovery_ratio']}")
+    parts.append(
+        f"fail_on_identical_loops={str(gates['fail_on_identical_loops']).lower()}"
+    )
+    if gates["max_tool_repeats"] is not None:
+        parts.append(f"max_tool_repeats={gates['max_tool_repeats']}")
     return f"Gate: {', '.join(parts)} — source: {source}"

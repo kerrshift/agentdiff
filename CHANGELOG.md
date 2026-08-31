@@ -5,6 +5,30 @@ All notable changes to **AgentDiff** (`agent-trajectory-diff`) are documented he
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Decoupled failure modes — hard gates vs soft warnings** (Pillar 2 of the
+  0.5.0 "Circuit Breaker" release): gate evaluation is now severity-aware.
+  HARD violations block CI (exit 1); SOFT warnings render in every report
+  format but never flip the exit code. New `GateResult`/`GateFinding` types;
+  `evaluate_gate()` is the shared severity-aware gate, while
+  `evaluate_report()` keeps its historical string contract.
+- **Cyclical tool loop invariant** (`[invariants] fail_on_identical_loops`,
+  default on): the same endpoint called ≥ 2 times with identical inputs and
+  stagnant output state — even non-consecutively (`A -> B -> A`) — is a hard
+  block. `--allow-identical-loops` disables it for a run.
+- **Tool repeat cap invariant** (`[invariants] max_tool_repeats`, opt-in):
+  hard cap on calls to any single endpoint; `--max-tool-repeats` flag.
+- **Path drift soft warning**: a run that passes every budget but took an
+  alternate route renders a non-blocking "alternate valid route" note in
+  terminal, JSON (`warnings`), markdown, and PR comments (`[!NOTE]` block).
+- Hard violations now render in terminal, JSON (`violations`), markdown, and
+  PR comments — a FAILED report shows exactly which rules fired.
+- Gate provenance (G7) and threshold-change flagging (G6) now cover the new
+  `[invariants]` knobs; config sections ignore unknown keys, so
+  forward-compatible `agentdiff.toml` files load cleanly.
+
 ## [0.4.0] - 2026-08-28
 
 AgentDiff v0.4.0 — trace capture, Goodhart-resistant gating, and a full docs

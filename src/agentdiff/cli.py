@@ -20,6 +20,7 @@ from agentdiff.reporters.markdown import generate_markdown
 from agentdiff.reporters.pr import generate_pr_markdown
 from agentdiff.reporters.terminal import print_report
 from agentdiff.staleness import check_baseline_staleness
+from agentdiff.testing.assertions import evaluate_gate
 
 app = typer.Typer(
     help="AgentDiff CLI - Compare multi-turn agent execution trajectories."
@@ -105,6 +106,8 @@ def _resolve_cli(cfg: AgentDiffConfig, **values):
             resolved[key] = val
         elif key == "adapter":
             resolved[key] = cfg.adapter.name or "auto"
+        elif key == "max_tool_repeats":
+            resolved[key] = cfg.invariants.max_tool_repeats
         else:
             resolved[key] = getattr(cfg.cli, key, None)
     return resolved
@@ -157,6 +160,18 @@ def diff(
         None,
         help="Maximum allowed Recovery Step Ratio (RSR) before regression "
         "(candidate vs baseline post-error recovery effort; opt-in).",
+    ),
+    allow_identical_loops: bool = typer.Option(
+        False,
+        "--allow-identical-loops",
+        help="Disable the cyclical-tool-loop hard invariant (same endpoint "
+        "called >= 2 times with identical inputs and stagnant outputs).",
+    ),
+    max_tool_repeats: int | None = typer.Option(
+        None,
+        "--max-tool-repeats",
+        help="Hard cap on calls to any single endpoint (opt-in invariant; "
+        "default: config or disabled).",
     ),
     baseline_store: str | None = typer.Option(
         None,
@@ -219,6 +234,7 @@ def diff(
         max_cost_delta=max_cost_delta,
         max_recovery_ratio=max_recovery_ratio,
         baseline_store=baseline_store,
+        max_tool_repeats=max_tool_repeats,
     )
     adapter = values["adapter"]
     format = values["format"] or "terminal"
@@ -231,6 +247,10 @@ def diff(
         max_cost_delta = 10.0
     max_recovery_ratio = values["max_recovery_ratio"]
     baseline_store = values["baseline_store"]
+    max_tool_repeats = values["max_tool_repeats"]
+    fail_on_identical_loops = (
+        not allow_identical_loops and cfg.invariants.fail_on_identical_loops
+    )
     detect_loops = cfg.compare.detect_loops
     strict_tool_signatures = cfg.compare.strict_tool_signatures
 
@@ -279,18 +299,20 @@ def diff(
             strict_tool_signatures=strict_tool_signatures,
         )
 
-        # Check regressions
-        loop_count = len(report.loops_detected)
-        diverged = report.trajectory_divergence_index > max_divergence
-        loop_failed = loop_count > max_loops
-        cost_failed = report.cost_delta_percentage > max_cost_delta
-        recovery_failed = (
-            max_recovery_ratio is not None
-            and report.recovery_step_ratio > max_recovery_ratio
+        # Shared severity-aware gate (Pillar 2): hard violations block,
+        # soft warnings render but never flip the exit code.
+        gate = evaluate_gate(
+            report,
+            max_divergence=max_divergence,
+            max_cost_increase_pct=max_cost_delta,
+            max_loops=max_loops,
+            max_recovery_step_ratio=max_recovery_ratio,
+            fail_on_identical_loops=fail_on_identical_loops,
+            max_tool_repeats=max_tool_repeats,
         )
-
-        has_regression = diverged or loop_failed or cost_failed or recovery_failed
-
+        has_regression = not gate.passed
+        report.warnings = gate.warnings
+        report.violations = gate.violations
         if has_regression:
             report.passed = False
 

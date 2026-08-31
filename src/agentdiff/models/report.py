@@ -22,6 +22,30 @@ class StepDiff(BaseModel):
     output_diff: dict[str, Any] | None = None
 
 
+class GateSeverity(str, Enum):
+    """Action tier for a gate finding (Pillar 2: decoupled failure modes).
+
+    ``HARD`` findings block CI (exit 1); ``SOFT`` findings are rendered in
+    every report format but never flip the exit code.
+    """
+
+    HARD = "hard"
+    SOFT = "soft"
+
+
+class GateFinding(BaseModel):
+    """One outcome of gate evaluation, typed for severity-aware reporting.
+
+    ``code`` values: ``divergence``, ``loops``, ``cost_spike``, ``wasted_effort``,
+    ``recovery_cascade``, ``tool_loop`` (identical-call runaway loop),
+    ``tool_repeats`` (over the per-tool repeat cap), ``path_drift`` (benign).
+    """
+
+    severity: GateSeverity
+    code: str
+    message: str
+
+
 class DiffReport(BaseModel):
     baseline_id: str
     candidate_id: str
@@ -29,6 +53,26 @@ class DiffReport(BaseModel):
     baseline_wei: float
     candidate_wei: float
     loops_detected: list[dict[str, Any]] = Field(default_factory=list)
+    identical_call_loops: list[dict[str, Any]] = Field(
+        default_factory=list,
+        description="Non-consecutive runaway loops: same step name called >= 2 "
+        "times with identical inputs and stagnant outputs (hard-invariant facts).",
+    )
+    tool_call_counts: dict[str, int] = Field(
+        default_factory=dict,
+        description="Calls per step name in the candidate run (for the "
+        "max_tool_repeats hard invariant).",
+    )
+    warnings: list[GateFinding] = Field(
+        default_factory=list,
+        description="SOFT findings (Pillar 2): rendered in every format but "
+        "never block CI or flip the exit code. Populated by gate consumers.",
+    )
+    violations: list[GateFinding] = Field(
+        default_factory=list,
+        description="HARD findings (Pillar 2): blocking gate violations that "
+        "flip the exit code. Populated by gate consumers.",
+    )
     cost_delta_percentage: float
     latency_delta_percentage: float
     token_delta_percentage: float

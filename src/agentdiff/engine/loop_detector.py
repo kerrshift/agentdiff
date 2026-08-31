@@ -1,3 +1,4 @@
+import json
 from typing import Any
 
 import networkx as nx
@@ -113,3 +114,52 @@ def detect_all_loops(trace: AgentTrace) -> list[dict[str, Any]]:
         )
 
     return loops
+
+
+def detect_identical_call_loops(trace: AgentTrace) -> list[dict[str, Any]]:
+    """Detects non-consecutive runaway loops: the same step name called >= 2
+    times with identical input payloads and stagnant output state.
+
+    Unlike :func:`detect_sequence_loops` (which only catches *consecutive*
+    repeated patterns), this scan is order-insensitive: ``A -> B -> A`` with
+    identical ``A`` inputs and outputs is a runaway loop even though the
+    repeats are not adjacent. Calls whose outputs differ are *not* stagnant
+    (e.g. the same query returning fresh data) and are ignored.
+    """
+    groups: dict[tuple[str, str], list[Any]] = {}
+    for step in sorted(trace.steps, key=lambda s: s.step_index):
+        key = (step.name, json.dumps(step.input_payload, sort_keys=True, default=str))
+        groups.setdefault(key, []).append(step)
+
+    loops = []
+    for (name, _), calls in groups.items():
+        if len(calls) < 2:
+            continue
+        first_output = json.dumps(calls[0].output_payload, sort_keys=True, default=str)
+        stagnant = all(
+            json.dumps(c.output_payload, sort_keys=True, default=str) == first_output
+            for c in calls[1:]
+        )
+        if not stagnant:
+            continue
+        loops.append(
+            {
+                "steps": [name],
+                "step_ids": [c.step_id for c in calls],
+                "iterations": len(calls),
+                "start_index": calls[0].step_index,
+                "length": 1,
+                "stagnant": True,
+                "type": "identical_call",
+            }
+        )
+    loops.sort(key=lambda loop: loop["start_index"])
+    return loops
+
+
+def count_tool_calls(trace: AgentTrace) -> dict[str, int]:
+    """Counts calls per step name across the whole trace (order-insensitive)."""
+    counts: dict[str, int] = {}
+    for step in trace.steps:
+        counts[step.name] = counts.get(step.name, 0) + 1
+    return counts
