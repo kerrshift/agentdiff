@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Hosted identity service** (`worker/`): a stateless Cloudflare Worker
+  (free tier, ~100 lines, nothing stored) that mints 1-hour GitHub App
+  installation tokens for AgentDiff workflows. Once the project App is
+  installed on a repo, the approve bot comments as **agentdiff[bot]** with
+  zero per-repo configuration — no secrets, no variables. Security model:
+  the caller must present a Actions token that already has access to the
+  repo it claims, and the App must be installed there; tokens expire in ≤1
+  hour regardless. Deploy checklist in `worker/README.md`.
+- Three-tier bot identity in generated workflows: self-managed App secrets →
+  hosted token service → `github-actions[bot]` — each tier fully automatic,
+  degrading gracefully.
 - **`/agentdiff approve` — the interactive PR bot** (Pillar 3 of the 0.5.0
   release, pulled forward): reviewers comment `/agentdiff approve` on a
   flagged PR and the candidate run becomes (or joins) the golden baseline —

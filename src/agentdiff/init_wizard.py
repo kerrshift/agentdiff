@@ -15,6 +15,12 @@ CONFIG_FILENAME = "agentdiff.toml"
 WORKFLOW_PATH = Path(".github/workflows/agentdiff.yml")
 APPROVE_WORKFLOW_PATH = Path(".github/workflows/agentdiff-approve.yml")
 
+# Hosted identity service (Cloudflare Worker, stateless, free tier). Mints
+# short-lived installation tokens for the project's AgentDiff App so the bot
+# comments as agentdiff[bot] with zero per-repo configuration. Optional:
+# workflows degrade to github-actions[bot] when the App isn't installed.
+TOKEN_SERVICE_URL = "https://agentdiff-token.lostmartian.workers.dev"
+
 
 @dataclass(frozen=True)
 class FrameworkInfo:
@@ -212,24 +218,48 @@ jobs:
             exit 1
           fi
 
-      - name: AgentDiff bot token (branded identity)
-        id: bot_token
+      - name: AgentDiff bot token (self-managed App, optional)
+        id: app_token
         if: ${{{{ vars.AGENTDIFF_APP_ID != '' }}}}
         uses: actions/create-github-app-token@v1
         with:
           app-id: ${{{{ secrets.AGENTDIFF_APP_ID }}}}
           private-key: ${{{{ secrets.AGENTDIFF_APP_PRIVATE_KEY }}}}
 
+      - name: AgentDiff bot token (hosted service, zero config)
+        id: minted_token
+        if: ${{{{ steps.app_token.outputs.token == '' }}}}
+        env:
+          SERVICE_URL: {token_service}
+          GH_TOKEN: ${{{{ github.token }}}}
+          REPO: ${{{{ github.repository }}}}
+        run: |
+          # Mints a 1h agentdiff[bot] token when the AgentDiff App is
+          # installed on this repo; prints nothing sensitive, stores nothing.
+          RESP=$(curl -sS -X POST "$SERVICE_URL/token" \\
+            -H "Content-Type: application/json" \\
+            -d "{{\\"repository\\": \\"$REPO\\", \\"token\\": \\"$GH_TOKEN\\"}}" || true)
+          BOT_TOKEN=$(echo "$RESP" | python3 -c 'import json,sys
+          try: print(json.load(sys.stdin).get("token",""))
+          except Exception: print("")' 2>/dev/null || true)
+          if [ -n "$BOT_TOKEN" ]; then
+            echo "token=$BOT_TOKEN" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Select token
         id: token
         env:
-          BOT_TOKEN: ${{{{ steps.bot_token.outputs.token }}}}
+          APP_TOKEN: ${{{{ steps.app_token.outputs.token }}}}
+          MINTED: ${{{{ steps.minted_token.outputs.token }}}}
         run: |
-          if [ -n "$BOT_TOKEN" ]; then
-            echo "token=$BOT_TOKEN" >> "$GITHUB_OUTPUT"
+          if [ -n "$APP_TOKEN" ]; then
+            echo "token=$APP_TOKEN" >> "$GITHUB_OUTPUT"
+          elif [ -n "$MINTED" ]; then
+            echo "token=$MINTED" >> "$GITHUB_OUTPUT"
+            echo "Branded agentdiff[bot] identity acquired via the AgentDiff App."
           else
             echo "token=${{{{ github.token }}}}" >> "$GITHUB_OUTPUT"
-            echo "::notice::Falling back to github-actions[bot] identity. Set the AgentDiff GitHub App secrets for the branded bot and automatic check re-runs."
+            echo "::notice::Using github-actions[bot] identity. Install the AgentDiff App (agentdiff install page or /apps/agentdiff) for the branded bot — everything else works identically."
           fi
 
       - name: Resolve PR head
@@ -309,7 +339,11 @@ def _render_approve_workflow(
     runs: int, scenario: str, baseline: str, candidate: str
 ) -> str:
     return APPROVE_WORKFLOW_TEMPLATE.format(
-        runs=runs, scenario=scenario, baseline=baseline, candidate=candidate
+        runs=runs,
+        scenario=scenario,
+        baseline=baseline,
+        candidate=candidate,
+        token_service=TOKEN_SERVICE_URL,
     )
 
 

@@ -1,0 +1,13 @@
+name = "agentdiff-token"
+main = "src/worker.js"
+compatibility_date = "2026-08-01"
+
+# Secrets (set via `wrangler secret put`, never in this file):
+#   AGENTDIFF_APP_ID          - the AgentDiff GitHub App's numeric ID
+#   AGENTDIFF_APP_PRIVATE_KEY - the App's PEM private key
+#
+# Optional vars (set in the Cloudflare dashboard or here):
+#   AGENTDIFF_APP_SLUG - the App's URL slug (defaults to "agentdiff")
+#
+# [vars]
+# AGENTDIFF_APP_SLUG = "agentdiff"
