@@ -154,17 +154,21 @@ def _explain_divergence(report: DiffReport) -> list[Finding]:
             )
         )
 
-    # Pinpoint the first point the two paths diverge.
+    # Pinpoint the first point the two paths diverge (benign reorders skip).
     for i, diff in enumerate(diffs):
-        if diff.diff_status != StepDiffStatus.MATCHED:
-            findings.append(
-                Finding(
-                    "warning",
-                    "divergence",
-                    f"First divergence at position {i}: {_describe_fork(diff)}.",
-                )
+        if diff.diff_status in (
+            StepDiffStatus.MATCHED,
+            StepDiffStatus.MATCHED_COMMUTATIVE,
+        ):
+            continue
+        findings.append(
+            Finding(
+                "warning",
+                "divergence",
+                f"First divergence at position {i}: {_describe_fork(diff)}.",
             )
-            break
+        )
+        break
 
     return findings
 

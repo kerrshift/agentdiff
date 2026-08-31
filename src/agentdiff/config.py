@@ -106,12 +106,80 @@ class InvariantsConfig:
 
 
 @dataclass
+class TolerancesConfig:
+    """Statistical tolerances (Pillar 1): variance bands, not hard caps."""
+
+    step_count_std_dev: float = 2.0
+    divergence_ceiling: float = 0.35
+
+
+@dataclass
+class ScenarioConfig:
+    """One named scenario from ``agentdiff.toml`` (PRD v0.5 spec).
+
+    Example::
+
+        [scenario.customer_refund]
+        mode = "statistical"          # or "strict"
+        sample_runs = 5
+        max_cost_increase_pct = 20.0
+
+        [scenario.customer_refund.hard_invariants]
+        fail_on_identical_loops = true
+        max_tool_repeats = 1
+
+        [scenario.customer_refund.tolerances]
+        step_count_std_dev = 2.0
+        divergence_ceiling = 0.35
+    """
+
+    name: str = "default"
+    mode: str = "statistical"
+    sample_runs: int = 3
+    max_cost_increase_pct: float = 20.0
+    hard_invariants: InvariantsConfig = field(default_factory=InvariantsConfig)
+    tolerances: TolerancesConfig = field(default_factory=TolerancesConfig)
+
+    @classmethod
+    def from_dict(cls, name: str, data: dict[str, Any]) -> ScenarioConfig:
+        cfg = cls(name=name)
+        if "mode" in data:
+            cfg.mode = str(data["mode"])
+        if "sample_runs" in data:
+            cfg.sample_runs = int(data["sample_runs"])
+        if "max_cost_increase_pct" in data:
+            cfg.max_cost_increase_pct = float(data["max_cost_increase_pct"])
+        if isinstance(data.get("hard_invariants"), dict):
+            cfg.hard_invariants = InvariantsConfig(
+                **_filter_known(InvariantsConfig, data["hard_invariants"])
+            )
+        if isinstance(data.get("tolerances"), dict):
+            cfg.tolerances = TolerancesConfig(
+                **_filter_known(TolerancesConfig, data["tolerances"])
+            )
+        return cfg
+
+
+@dataclass
 class AgentDiffConfig:
     compare: CompareConfig = field(default_factory=CompareConfig)
     adapter: AdapterConfig = field(default_factory=AdapterConfig)
     cli: CliConfig = field(default_factory=CliConfig)
     assertions: AssertionsConfig = field(default_factory=AssertionsConfig)
     invariants: InvariantsConfig = field(default_factory=InvariantsConfig)
+    scenarios: dict[str, ScenarioConfig] = field(default_factory=dict)
+
+    def scenario(self, name: str | None = None) -> ScenarioConfig | None:
+        """Returns the matching scenario config, or ``None`` when unset.
+
+        Matches an explicit name, or the sole configured scenario when no
+        name is given (single-scenario repos don't need ``--scenario``).
+        """
+        if name is not None:
+            return self.scenarios.get(name)
+        if len(self.scenarios) == 1:
+            return next(iter(self.scenarios.values()))
+        return None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -133,6 +201,13 @@ class AgentDiffConfig:
             cfg.invariants = InvariantsConfig(
                 **_filter_known(InvariantsConfig, data["invariants"])
             )
+        scenarios = data.get("scenarios") or data.get("scenario")
+        if isinstance(scenarios, dict):
+            for scenario_name, raw in scenarios.items():
+                if isinstance(raw, dict):
+                    cfg.scenarios[str(scenario_name)] = ScenarioConfig.from_dict(
+                        str(scenario_name), raw
+                    )
         return cfg
 
 

@@ -1,6 +1,6 @@
 from typing import Any
 
-from agentdiff.engine.aligner import align_traces
+from agentdiff.engine.aligner import align_traces, mark_commutative_swaps
 from agentdiff.engine.loop_detector import (
     count_tool_calls,
     detect_all_loops,
@@ -13,8 +13,15 @@ from agentdiff.engine.metrics import (
     calculate_wei,
     compute_recovery_steps,
 )
-from agentdiff.models.report import DiffReport, StepDiffStatus
+from agentdiff.models.envelope import BaselineEnvelope
+from agentdiff.models.report import (
+    DiffReport,
+    GateFinding,
+    GateSeverity,
+    StepDiffStatus,
+)
 from agentdiff.models.trace import AgentTrace
+from agentdiff.testing.assertions import GateResult, evaluate_gate
 
 
 def compare(
@@ -45,14 +52,23 @@ def compare(
     Raises:
         ValueError: If either trace contains duplicate ``step_id`` values.
     """
-    # 1. Align execution traces
-    step_diffs = align_traces(baseline, candidate, strict_tool_signatures)
+    # 1. Align execution traces (with topological-equivalence pass)
+    step_diffs = mark_commutative_swaps(
+        align_traces(baseline, candidate, strict_tool_signatures),
+        baseline,
+        candidate,
+    )
 
-    # 2. Compute LCS length for TDI
+    # 2. Compute LCS length for TDI (commutative swaps count as matched)
     lcs_len = sum(
         1
         for sd in step_diffs
-        if sd.diff_status in (StepDiffStatus.MATCHED, StepDiffStatus.MODIFIED)
+        if sd.diff_status
+        in (
+            StepDiffStatus.MATCHED,
+            StepDiffStatus.MODIFIED,
+            StepDiffStatus.MATCHED_COMMUTATIVE,
+        )
     )
 
     # 3. Calculate metrics
@@ -111,3 +127,110 @@ def compare(
     )
 
     return report
+
+
+def compare_envelope(
+    envelope: BaselineEnvelope,
+    candidate: AgentTrace,
+    *,
+    max_divergence: float = 0.35,
+    max_cost_increase_pct: float = 20.0,
+    max_loops: int = 0,
+    step_count_std_dev: float = 2.0,
+    max_wasted_effort: float | None = None,
+    max_recovery_step_ratio: float | None = None,
+    fail_on_identical_loops: bool = True,
+    max_tool_repeats: int | None = None,
+) -> tuple[DiffReport, GateResult]:
+    """Statistical comparison: candidate vs an N-run baseline envelope.
+
+    Semantics (decision D1): the candidate is aligned against *every*
+    recorded run and judged against its best match (minimum TDI) — "within
+    normal variance" means some recorded run explains it. Resource bands
+    (step count, cost) are evaluated against the envelope's mean ± k·sigma
+    rather than a single static run.
+
+    Hard gates: divergence ceiling, cost ceiling over the envelope mean,
+    step-count band, loop count, and the hard invariants (identical-call
+    loops, tool repeat cap, recovery cascade — all inherited from
+    :func:`evaluate_gate`). Soft: benign path drift, as usual.
+
+    Returns:
+        ``(report, gate)`` where ``report`` is the best-matching pair diff
+        (loops injected once) and ``gate`` the merged severity result.
+    """
+    if envelope.n_runs < 2:
+        raise ValueError(
+            "statistical comparison requires >= 2 recorded runs in the envelope; "
+            f"got {envelope.n_runs}. Record more runs or use strict mode."
+        )
+
+    # 1. Align the candidate against every run; keep the best explanation.
+    pair_reports = [
+        compare(run, candidate, detect_loops=False) for run in envelope.runs
+    ]
+    report = min(pair_reports, key=lambda r: r.trajectory_divergence_index)
+    report.loops_detected = detect_all_loops(candidate)
+
+    findings: list[GateFinding] = []
+    bands = envelope.envelope
+
+    # 2. Step-count band: |candidate - mean| must sit within k·sigma.
+    step_band = bands.get("step_count")
+    if step_band is not None:
+        allowed = step_count_std_dev * step_band.std_dev
+        drift = len(candidate.steps) - step_band.mean
+        if abs(drift) > allowed:
+            findings.append(
+                GateFinding(
+                    severity=GateSeverity.HARD,
+                    code="step_count_band",
+                    message=f"Step count {len(candidate.steps)} is outside the "
+                    f"envelope band (mean {step_band.mean:.1f} ± "
+                    f"{step_count_std_dev:g} sigma = {allowed:.1f}); drift "
+                    f"{drift:+.1f} steps.",
+                )
+            )
+
+    # 3. Cost ceiling: candidate cost above the envelope mean by more than
+    #    max_cost_increase_pct (the "200% cost spike" hard gate). The ceiling
+    #    is the LOOSER of the relative cap and the variance band, so a run
+    #    that is merely longer-but-in-band is not flagged as a cost spike.
+    cost_band = bands.get("estimated_cost_usd")
+    if cost_band is not None:
+        candidate_cost = candidate.total_tokens.estimated_cost_usd
+        relative = cost_band.mean * (1 + max_cost_increase_pct / 100.0)
+        variance = cost_band.ceiling(step_count_std_dev)
+        ceiling = max(relative, variance)
+        if candidate_cost > ceiling and ceiling > 0:
+            findings.append(
+                GateFinding(
+                    severity=GateSeverity.HARD,
+                    code="cost_spike",
+                    message=f"Cost ${candidate_cost:.4f} exceeds the envelope "
+                    f"ceiling ${ceiling:.4f} (mean ${cost_band.mean:.4f} + "
+                    f"{max_cost_increase_pct:g}%).",
+                )
+            )
+
+    # 4. Path gates (divergence ceiling, loops, recovery, invariants) plus
+    #    the soft path-drift warning — reuse the shared gate. Cost is
+    #    envelope-relative (checked above), so the pairwise cost check is
+    #    opened here.
+    pair_gate = evaluate_gate(
+        report,
+        max_divergence=max_divergence,
+        max_cost_increase_pct=float("inf"),
+        max_loops=max_loops,
+        max_wasted_effort=max_wasted_effort,
+        max_recovery_step_ratio=max_recovery_step_ratio,
+        fail_on_identical_loops=fail_on_identical_loops,
+        max_tool_repeats=max_tool_repeats,
+    )
+
+    gate = GateResult(
+        violations=[*findings, *pair_gate.violations], warnings=pair_gate.warnings
+    )
+    if not gate.passed:
+        report.passed = False
+    return report, gate

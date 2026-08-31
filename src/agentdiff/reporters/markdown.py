@@ -71,6 +71,7 @@ def generate_markdown(report: DiffReport) -> str:
     for idx, sd in enumerate(report.step_diffs):
         status_emoji_map = {
             StepDiffStatus.MATCHED: "🟢 MATCHED",
+            StepDiffStatus.MATCHED_COMMUTATIVE: "🔁 REORDERED",
             StepDiffStatus.ADDED: "🔵 ADDED",
             StepDiffStatus.REMOVED: "🔴 REMOVED",
             StepDiffStatus.MODIFIED: "🟡 MODIFIED",

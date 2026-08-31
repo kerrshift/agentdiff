@@ -7,12 +7,14 @@ COLLAPSE_THRESHOLD = 3
 
 _MARKER = {
     StepDiffStatus.MATCHED: "·",
+    StepDiffStatus.MATCHED_COMMUTATIVE: "=",
     StepDiffStatus.ADDED: "+",
     StepDiffStatus.REMOVED: "-",
     StepDiffStatus.MODIFIED: "~",
 }
 
 _NOTE = {
+    StepDiffStatus.MATCHED_COMMUTATIVE: "reordered (independent)",
     StepDiffStatus.ADDED: "added — absent in baseline",
     StepDiffStatus.REMOVED: "removed — absent in candidate",
     StepDiffStatus.MODIFIED: "changed",
@@ -29,6 +31,7 @@ _ANSI = {
 
 _COLOR_FOR = {
     StepDiffStatus.MATCHED: "dim",
+    StepDiffStatus.MATCHED_COMMUTATIVE: "dim",
     StepDiffStatus.ADDED: "green",
     StepDiffStatus.REMOVED: "red",
     StepDiffStatus.MODIFIED: "yellow",
@@ -42,7 +45,10 @@ def _render_diff(diff, color: bool) -> str:
     name = step.name if step else diff.step_name
     location = f"{idx:>4} " if idx is not None else "  —  "
     line = f"  {location}{marker} {name}"
-    if diff.diff_status != StepDiffStatus.MATCHED:
+    if diff.diff_status not in (
+        StepDiffStatus.MATCHED,
+        StepDiffStatus.MATCHED_COMMUTATIVE,
+    ):
         line += f"   ({_NOTE[diff.diff_status]})"
     if color:
         code = _COLOR_FOR[diff.diff_status]
@@ -66,7 +72,11 @@ def render_tree(
     baseline_count = sum(1 for d in diffs if d.baseline_step is not None)
     candidate_count = sum(1 for d in diffs if d.candidate_step is not None)
     header = f"baseline [{baseline_count} steps] vs candidate [{candidate_count} steps]"
-    if not any(d.diff_status != StepDiffStatus.MATCHED for d in diffs):
+    if not any(
+        d.diff_status
+        not in (StepDiffStatus.MATCHED, StepDiffStatus.MATCHED_COMMUTATIVE)
+        for d in diffs
+    ):
         return header + "\n  No divergence — trajectories match."
 
     lines: list[str] = []
@@ -82,7 +92,10 @@ def render_tree(
         matched_run.clear()
 
     for diff in diffs:
-        if diff.diff_status == StepDiffStatus.MATCHED:
+        if diff.diff_status in (
+            StepDiffStatus.MATCHED,
+            StepDiffStatus.MATCHED_COMMUTATIVE,
+        ):
             matched_run.append(diff)
         else:
             flush_run()

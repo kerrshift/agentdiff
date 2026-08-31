@@ -2,7 +2,7 @@ from conftest import make_step, make_trace
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from agentdiff.engine.aligner import align_traces
+from agentdiff.engine.aligner import align_traces, mark_commutative_swaps
 from agentdiff.engine.comparator import compare
 from agentdiff.engine.loop_detector import detect_sequence_loops
 from agentdiff.engine.metrics import (
@@ -95,11 +95,18 @@ def test_tdi_from_alignment_equals_metric(baseline_steps, candidate_steps):
     baseline = make_trace("b", baseline_steps)
     candidate = make_trace("c", candidate_steps)
 
-    diffs = align_traces(baseline, candidate)
+    diffs = mark_commutative_swaps(
+        align_traces(baseline, candidate), baseline, candidate
+    )
     lcs = sum(
         1
         for d in diffs
-        if d.diff_status in (StepDiffStatus.MATCHED, StepDiffStatus.MODIFIED)
+        if d.diff_status
+        in (
+            StepDiffStatus.MATCHED,
+            StepDiffStatus.MODIFIED,
+            StepDiffStatus.MATCHED_COMMUTATIVE,
+        )
     )
     expected = calculate_tdi(len(baseline.steps), len(candidate.steps), lcs)
 

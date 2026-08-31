@@ -8,12 +8,18 @@ import typer
 
 from agentdiff.ci.baseline import decide_rotation
 from agentdiff.ci.github import post_pr_comment
-from agentdiff.config import AgentDiffConfig, find_config_file, load_config
-from agentdiff.engine.comparator import compare
+from agentdiff.config import (
+    AgentDiffConfig,
+    TolerancesConfig,
+    find_config_file,
+    load_config,
+)
+from agentdiff.engine.comparator import compare, compare_envelope
 from agentdiff.engine.explanations import format_explanations, locate_culprit
 from agentdiff.engine.tree import render_tree
 from agentdiff.governance import diff_gate_thresholds, provenance_line
-from agentdiff.loader import load_trace
+from agentdiff.loader import load_baseline, load_trace
+from agentdiff.models.envelope import BaselineEnvelope
 from agentdiff.models.step import StepStatus
 from agentdiff.recorder import record_run, save_trace
 from agentdiff.reporters.markdown import generate_markdown
@@ -50,6 +56,14 @@ def record(
         "--name",
         help="Agent name recorded in the trace (default: function name).",
     ),
+    runs: int = typer.Option(
+        1,
+        "--runs",
+        "-n",
+        min=1,
+        help="Run the callable N times and save a statistical baseline "
+        "envelope (N >= 2) instead of a single trace.",
+    ),
 ):
     """Runs an agent callable once and captures its trajectory as a trace.
 
@@ -76,13 +90,30 @@ def record(
             task_input = {"input": task_input}
 
     try:
-        trace = record_run(target, task_input=task_input, agent_name=name)
+        traces = []
+        for i in range(runs):
+            if runs > 1:
+                typer.echo(f"Recording run {i + 1}/{runs}...")
+            traces.append(record_run(target, task_input=task_input, agent_name=name))
     except ValueError as e:
         typer.echo(f"Error: {e}", err=True)
         sys.exit(2)
     except Exception as e:
         typer.echo(f"Recording failed: {e}", err=True)
         sys.exit(3)
+
+    trace = traces[0]
+    if runs > 1:
+        envelope = BaselineEnvelope.from_runs(traces)
+        Path(out).write_text(envelope.model_dump_json(), encoding="utf-8")
+        failed = sum(
+            1 for t in traces if t.steps and t.steps[0].status == StepStatus.ERROR
+        )
+        typer.echo(
+            f"Recorded envelope ({runs} runs) → {out}"
+            + (f"  ⚠ {failed} run(s) failed" if failed else "")
+        )
+        sys.exit(1 if failed == runs else 0)
 
     path = save_trace(trace, out)
 
@@ -207,6 +238,11 @@ def diff(
         "--stale-days",
         help="Warn (with --explain) when the baseline file is older than this many days (default: config or 30).",
     ),
+    scenario: str | None = typer.Option(
+        None,
+        "--scenario",
+        help="Scenario name from agentdiff.toml ([scenario.<name>]) whose gates and tolerances apply.",
+    ),
 ):
     """Compares baseline and candidate agent trajectories."""
     cfg = load_config(config)
@@ -248,9 +284,14 @@ def diff(
     max_recovery_ratio = values["max_recovery_ratio"]
     baseline_store = values["baseline_store"]
     max_tool_repeats = values["max_tool_repeats"]
-    fail_on_identical_loops = (
-        not allow_identical_loops and cfg.invariants.fail_on_identical_loops
-    )
+    scenario_cfg = cfg.scenario(scenario)
+    invariants = scenario_cfg.hard_invariants if scenario_cfg else cfg.invariants
+    if not allow_identical_loops:
+        fail_on_identical_loops = invariants.fail_on_identical_loops
+    else:
+        fail_on_identical_loops = False
+    if invariants.max_tool_repeats is not None and max_tool_repeats is None:
+        max_tool_repeats = invariants.max_tool_repeats
     detect_loops = cfg.compare.detect_loops
     strict_tool_signatures = cfg.compare.strict_tool_signatures
 
@@ -262,7 +303,14 @@ def diff(
         if baseline_store:
             if not os.path.exists(baseline_store):
                 if update_baseline:
-                    shutil.copyfile(candidate_path, baseline_store)
+                    envelope = BaselineEnvelope.from_runs(
+                        [candidate],
+                        scenario=scenario or "default",
+                        mode=scenario_cfg.mode if scenario_cfg else "statistical",
+                    )
+                    Path(baseline_store).write_text(
+                        envelope.model_dump_json(), encoding="utf-8"
+                    )
                     typer.echo(
                         f"Baseline established at {baseline_store} from {candidate_path}"
                     )
@@ -282,7 +330,7 @@ def diff(
             actual_baseline, stale_after_days=stale_days
         )
 
-        baseline = load_trace(actual_baseline, adapter)
+        baseline_env = load_baseline(actual_baseline, adapter)
     except (json.JSONDecodeError, ValueError, FileNotFoundError) as e:
         typer.echo(f"Error loading or parsing trace: {e}", err=True)
         sys.exit(2)
@@ -291,25 +339,38 @@ def diff(
         sys.exit(2)
 
     try:
-        # Perform comparison
-        report = compare(
-            baseline,
-            candidate,
-            detect_loops=detect_loops,
-            strict_tool_signatures=strict_tool_signatures,
-        )
-
-        # Shared severity-aware gate (Pillar 2): hard violations block,
-        # soft warnings render but never flip the exit code.
-        gate = evaluate_gate(
-            report,
-            max_divergence=max_divergence,
-            max_cost_increase_pct=max_cost_delta,
-            max_loops=max_loops,
-            max_recovery_step_ratio=max_recovery_ratio,
-            fail_on_identical_loops=fail_on_identical_loops,
-            max_tool_repeats=max_tool_repeats,
-        )
+        if baseline_env.mode == "statistical" and baseline_env.n_runs >= 2:
+            # Pillar 1 — statistical envelope: judge against normal variance
+            tol = scenario_cfg.tolerances if scenario_cfg else TolerancesConfig()
+            cost_pct = scenario_cfg.max_cost_increase_pct if scenario_cfg else 20.0
+            report, gate = compare_envelope(
+                baseline_env,
+                candidate,
+                max_divergence=tol.divergence_ceiling,
+                max_cost_increase_pct=cost_pct,
+                max_loops=max_loops,
+                step_count_std_dev=tol.step_count_std_dev,
+                max_recovery_step_ratio=max_recovery_ratio,
+                fail_on_identical_loops=fail_on_identical_loops,
+                max_tool_repeats=max_tool_repeats,
+            )
+        else:
+            # Strict mode: single-run comparison (v1 behavior, unchanged)
+            report = compare(
+                baseline_env.runs[0],
+                candidate,
+                detect_loops=detect_loops,
+                strict_tool_signatures=strict_tool_signatures,
+            )
+            gate = evaluate_gate(
+                report,
+                max_divergence=max_divergence,
+                max_cost_increase_pct=max_cost_delta,
+                max_loops=max_loops,
+                max_recovery_step_ratio=max_recovery_ratio,
+                fail_on_identical_loops=fail_on_identical_loops,
+                max_tool_repeats=max_tool_repeats,
+            )
         has_regression = not gate.passed
         report.warnings = gate.warnings
         report.violations = gate.violations
@@ -396,7 +457,19 @@ def diff(
                 explicit_update=update_baseline,
             )
             if decision.rotate:
-                shutil.copyfile(candidate_path, baseline_store)
+                if baseline_env.mode == "statistical" and baseline_env.n_runs >= 2:
+                    # Rolling window: append the candidate, keep the most
+                    # recent sample_runs, recompute the bands.
+                    baseline_env.runs.append(candidate)
+                    keep = scenario_cfg.sample_runs if scenario_cfg else 3
+                    keep = max(2, keep)
+                    baseline_env.runs = baseline_env.runs[-keep:]
+                    baseline_env.refresh()
+                    Path(baseline_store).write_text(
+                        baseline_env.model_dump_json(), encoding="utf-8"
+                    )
+                else:
+                    shutil.copyfile(candidate_path, baseline_store)
                 typer.echo(f"Baseline updated at {baseline_store}: {decision.reason}")
             elif update_baseline:
                 typer.echo(f"Baseline not updated: {decision.reason}")
