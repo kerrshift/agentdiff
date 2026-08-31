@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Envelope benchmarks (N=3/N=5 at 100/500/1000 steps): compare cost scales
   linearly with N (N=5 @ 1000 steps ≈ 7.4s worst case; realistic KB-scale
   traces are milliseconds).
+
 - **Decoupled failure modes — hard gates vs soft warnings** (Pillar 2 of the
   0.5.0 "Circuit Breaker" release): gate evaluation is now severity-aware.
   HARD violations block CI (exit 1); SOFT warnings render in every report
