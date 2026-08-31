@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`agentdiff init` — zero-config CLI wizard** (Pillar 4 of the 0.5.0
+  "Circuit Breaker" release): auto-detects the agent framework (LangGraph,
+  CrewAI, OpenAI Agents SDK, OpenTelemetry/OpenInference, or generic) and
+  writes a production-ready `agentdiff.toml` (v0.5 spec, statistical
+  scenario) plus a GitHub Actions gate workflow in seconds.
+  Idempotent — refuses to clobber without `--force`; `--adapter` overrides
+  detection; `--scenario`/`--runs` parameterize the generated config.
 - **Statistical envelopes — N-run baselines with variance bands** (Pillar 1 of
   the 0.5.0 "Circuit Breaker" release): baselines can now capture N ≥ 2 runs
   (`agentdiff record ... --runs 5`) into a versioned
