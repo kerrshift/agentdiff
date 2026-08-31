@@ -7,7 +7,9 @@ compatibility_date = "2026-08-01"
 #   AGENTDIFF_APP_PRIVATE_KEY - the App's PEM private key
 #
 # Optional vars (set in the Cloudflare dashboard or here):
-#   AGENTDIFF_APP_SLUG - the App's URL slug (defaults to "agentdiff")
+#   AGENTDIFF_APP_SLUG - the App URL slug; SET THIS to "agentdiff-ci"
+#   (the App is named AgentDiff CI because GitHub reserves "AgentDiff"
+#   for the agentdiff repository in this account)
 #
 # [vars]
-# AGENTDIFF_APP_SLUG = "agentdiff"
+# AGENTDIFF_APP_SLUG = "agentdiff-ci"

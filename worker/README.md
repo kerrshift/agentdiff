@@ -40,7 +40,7 @@ curl -X POST .../token -H 'Content-Type: application/json' \
 ## GitHub App checklist (browser, ~5 min)
 
 1. github.com/settings/apps/new → **New GitHub App**
-2. Name: `AgentDiff` · homepage: repo URL · **webhook: disable** (not needed)
+2. Name: `AgentDiff CI` · homepage: repo URL · **webhook: disable** (not needed)
 3. Upload avatar: `.github/assets/agentdiff-avatar-1024.png`
 4. Permissions:
    - Contents: **Read & write** (baseline commits)
