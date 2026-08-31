@@ -19,7 +19,7 @@ APPROVE_WORKFLOW_PATH = Path(".github/workflows/agentdiff-approve.yml")
 # short-lived installation tokens for the project's AgentDiff App so the bot
 # comments as agentdiff[bot] with zero per-repo configuration. Optional:
 # workflows degrade to github-actions[bot] when the App isn't installed.
-TOKEN_SERVICE_URL = "https://agentdiff-token.lostmartian.workers.dev"
+TOKEN_SERVICE_URL = "https://agentdiff-token.sahilgangurde08.workers.dev"
 
 
 @dataclass(frozen=True)

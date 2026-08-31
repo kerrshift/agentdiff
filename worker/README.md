@@ -18,7 +18,7 @@ wrangler login
 wrangler secret put AGENTDIFF_APP_ID          # paste the App's numeric ID
 wrangler secret put AGENTDIFF_APP_PRIVATE_KEY # paste the full PEM (incl. BEGIN/END lines)
 
-npx wrangler deploy           # → https://agentdiff-token.lostmartian.workers.dev
+npx wrangler deploy           # → https://agentdiff-token.sahilgangurde08.workers.dev
 ```
 
 The URL is baked into the generated workflows (`init_wizard.TOKEN_SERVICE_URL`)
@@ -28,7 +28,7 @@ The URL is baked into the generated workflows (`init_wizard.TOKEN_SERVICE_URL`)
 ## Smoke test
 
 ```bash
-curl https://agentdiff-token.lostmartian.workers.dev/
+curl https://agentdiff-token.sahilgangurde08.workers.dev/
 # {"service":"agentdiff-token","status":"ok",...}
 
 curl -X POST .../token -H 'Content-Type: application/json' \
