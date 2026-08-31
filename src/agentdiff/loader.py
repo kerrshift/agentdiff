@@ -11,6 +11,11 @@ from agentdiff.adapters import (
     OpenInferenceAdapter,
 )
 from agentdiff.adapters.registry import custom_adapters_with_detect, get_adapter
+from agentdiff.models.envelope import (
+    ENVELOPE_KIND,
+    BaselineEnvelope,
+    compute_bands,
+)
 from agentdiff.models.trace import AgentTrace
 
 
@@ -120,3 +125,43 @@ def load_trace(filepath: str, adapter_name: str = "auto") -> AgentTrace:
     with open(filepath, encoding="utf-8") as f:
         data = json.load(f)
     return parse_trace_data(data, adapter_name)
+
+
+def load_baseline(filepath: str, adapter_name: str = "auto") -> BaselineEnvelope:
+    """Loads a baseline file as a :class:`BaselineEnvelope`.
+
+    Accepts both baseline formats:
+
+    - **v2 envelope** (``kind == "agentdiff_baseline_envelope"``): loaded
+      directly, bands recomputed from ``runs`` (the cached ``envelope`` block
+      is never trusted over the runs).
+    - **v1 single trace** (any bare ``AgentTrace``-shaped JSON): wrapped as an
+      envelope with ``N=1`` and mode forced to ``strict`` — a single run
+      carries no variance information, so statistical gating would be
+      meaningless. Existing baselines keep working unchanged.
+    """
+    with open(filepath, encoding="utf-8") as f:
+        data = json.load(f)
+
+    if isinstance(data, dict) and data.get("kind") == ENVELOPE_KIND:
+        runs = [parse_trace_data(run, adapter_name) for run in data.get("runs", [])]
+        envelope = BaselineEnvelope(
+            scenario=data.get("scenario", "default"),
+            mode=data.get("mode", "statistical"),
+            recorded_at=data.get("recorded_at"),
+            generator_version=data.get("generator_version"),
+            runs=runs,
+        )
+        envelope.envelope = compute_bands(runs)
+        if envelope.mode == "statistical" and envelope.n_runs < 2:
+            envelope.mode = "strict"
+        return envelope
+
+    # v1 single-trace baseline: wrap, force strict (no variance to reason about)
+    trace = parse_trace_data(data, adapter_name)
+    return BaselineEnvelope(
+        scenario="default",
+        mode="strict",
+        runs=[trace],
+        envelope=compute_bands([trace]),
+    )

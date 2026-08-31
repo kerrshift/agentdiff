@@ -8,6 +8,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Statistical envelopes — N-run baselines with variance bands** (Pillar 1 of
+  the 0.5.0 "Circuit Breaker" release): baselines can now capture N ≥ 2 runs
+  (`agentdiff record ... --runs 5`) into a versioned
+  `agentdiff_baseline_envelope` artifact (`schema/baseline_envelope.schema.json`,
+  schema 2.0.0 — additive; `agent_trace.schema.json` untouched). A candidate
+  passes when *some* recorded run explains it (min-TDI-of-N) and its resource
+  profile sits within mean ± k·sigma bands. Existing v1 baselines keep working:
+  `load_baseline()` wraps a bare trace as an envelope with N=1, mode `strict`.
+- **Topological equivalence (commutative subgraphs)**: executing `[A -> B]` or
+  `[B -> A]` is zero-penalty when the swapped steps are data-independent (no
+  parent-graph path in either direction) and did identical work; steps with a
+  dependency path, changed arguments, or changed outcomes still count as real
+  divergence. New `matched_commutative` diff status renders as "reordered"
+  across terminal/JSON/markdown/PR.
+- **`[scenario.<name>]` config sections** (PRD v0.5 spec): `mode`,
+  `sample_runs`, `max_cost_increase_pct`, `[scenario.x.hard_invariants]`
+  (`fail_on_identical_loops`, `max_tool_repeats`), and
+  `[scenario.x.tolerances]` (`step_count_std_dev`, `divergence_ceiling`).
+  A repo with a single scenario needs no `--scenario` flag.
+- **CLI statistical mode**: envelope baselines gate via variance bands
+  (step-count band, envelope-relative cost ceiling = max of the relative cap
+  and the k·sigma band, divergence ceiling); strict single-run baselines are
+  unchanged. `--update-baseline` on an envelope rotates a rolling window of
+  `sample_runs` and recomputes bands.
+- Envelope benchmarks (N=3/N=5 at 100/500/1000 steps): compare cost scales
+  linearly with N (N=5 @ 1000 steps ≈ 7.4s worst case; realistic KB-scale
+  traces are milliseconds).
 - **Decoupled failure modes — hard gates vs soft warnings** (Pillar 2 of the
   0.5.0 "Circuit Breaker" release): gate evaluation is now severity-aware.
   HARD violations block CI (exit 1); SOFT warnings render in every report

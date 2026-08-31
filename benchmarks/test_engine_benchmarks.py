@@ -13,7 +13,7 @@ import pytest
 
 from agentdiff.adapters import OpenInferenceAdapter
 from agentdiff.engine.aligner import align_traces
-from agentdiff.engine.comparator import compare
+from agentdiff.engine.comparator import compare, compare_envelope
 from agentdiff.engine.loop_detector import detect_all_loops
 from agentdiff.engine.metrics import calculate_wei, compute_recovery_steps
 from agentdiff.models.step import TokenUsage
@@ -103,3 +103,37 @@ def test_bench_report_serialization(benchmark):
 
     payload = benchmark(lambda: report.model_dump_json())
     assert '"passed"' in payload
+
+
+@pytest.mark.parametrize("n_steps", [100, 500, 1000])
+def test_bench_compare_envelope_n3(benchmark, n_steps):
+    """I2b — statistical compare at N=3: min-TDI-of-N alignment cost."""
+    from agentdiff.models.envelope import BaselineEnvelope
+
+    runs = [
+        build_trace(f"r{i}", n_steps, error_every=50 if i else None) for i in range(3)
+    ]
+    envelope = BaselineEnvelope.from_runs(runs)
+    candidate = build_trace("c", n_steps, error_every=25)
+
+    def run():
+        _report, gate = compare_envelope(envelope, candidate)
+        assert gate is not None
+
+    benchmark(run)
+
+
+@pytest.mark.parametrize("n_steps", [100, 500, 1000])
+def test_bench_compare_envelope_n5(benchmark, n_steps):
+    """I2b — statistical compare at N=5 (upper end of the recommended range)."""
+    from agentdiff.models.envelope import BaselineEnvelope
+
+    runs = [build_trace(f"r{i}", n_steps) for i in range(5)]
+    envelope = BaselineEnvelope.from_runs(runs)
+    candidate = build_trace("c", n_steps, error_every=25)
+
+    def run():
+        _report, gate = compare_envelope(envelope, candidate)
+        assert gate is not None
+
+    benchmark(run)

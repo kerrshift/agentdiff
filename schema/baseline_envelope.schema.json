@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/lostmartian/agentdiff/schema/baseline_envelope.schema.json",
+  "title": "AgentDiff Baseline Envelope",
+  "description": "Statistical baseline over N >= 1 recorded agent runs (v2 baseline format). Wraps canonical AgentTrace runs; never alters them. A v1 single-trace baseline loads as an envelope with N=1 and mode=strict.",
+  "type": "object",
+  "required": ["schema_version", "kind", "runs"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "2.0.0",
+      "description": "Semver of the baseline envelope format (independent of the AgentTrace schema)."
+    },
+    "kind": {
+      "type": "string",
+      "const": "agentdiff_baseline_envelope"
+    },
+    "scenario": {
+      "type": "string",
+      "description": "Scenario name from agentdiff.toml ([scenario.<name>]).",
+      "default": "default"
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["statistical", "strict"],
+      "description": "statistical: candidate judged against variance bands (requires N >= 2). strict: single-run comparison."
+    },
+    "recorded_at": {
+      "type": ["string", "null"],
+      "description": "ISO-8601 UTC timestamp of the last baseline rotation."
+    },
+    "generator_version": {
+      "type": ["string", "null"],
+      "description": "agent-trajectory-diff version that wrote this envelope."
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "$ref": "agent_trace.schema.json"
+      },
+      "description": "The recorded runs. Authoritative; the envelope block is a recomputable cache."
+    },
+    "envelope": {
+      "type": "object",
+      "description": "Cached variance bands (mean/std_dev per metric). Recomputed from runs on load; never trusted over runs.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "mean": { "type": "number" },
+          "std_dev": { "type": "number" }
+        },
+        "required": ["mean", "std_dev"]
+      }
+    }
+  },
+  "additionalProperties": false
+}

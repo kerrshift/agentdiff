@@ -8,6 +8,7 @@ from agentdiff.models.step import TraceStep
 
 class StepDiffStatus(str, Enum):
     MATCHED = "matched"
+    MATCHED_COMMUTATIVE = "matched_commutative"
     ADDED = "added"
     REMOVED = "removed"
     MODIFIED = "modified"

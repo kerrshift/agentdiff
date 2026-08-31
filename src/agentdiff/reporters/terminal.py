@@ -27,6 +27,9 @@ def render_diff_table(report: DiffReport) -> Table:
         if sd.diff_status == StepDiffStatus.MATCHED:
             status_text.stylize("dim green")
             row_style = "dim"
+        elif sd.diff_status == StepDiffStatus.MATCHED_COMMUTATIVE:
+            status_text.stylize("dim cyan")
+            row_style = "dim"
         elif sd.diff_status == StepDiffStatus.ADDED:
             status_text.stylize("bold cyan")
             row_style = "bold cyan"

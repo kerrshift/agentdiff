@@ -6,7 +6,13 @@ WASTED_STATUSES = frozenset({StepStatus.ERROR, StepStatus.RETRY, StepStatus.ABAN
 
 # Diff statuses that mean "back on the shared path with the other run"
 # (the same set TDI counts as LCS matches).
-_ALIGNED_STATUSES = frozenset({StepDiffStatus.MATCHED, StepDiffStatus.MODIFIED})
+_ALIGNED_STATUSES = frozenset(
+    {
+        StepDiffStatus.MATCHED,
+        StepDiffStatus.MODIFIED,
+        StepDiffStatus.MATCHED_COMMUTATIVE,
+    }
+)
 
 
 def calculate_tdi(steps_a_len: int, steps_b_len: int, lcs_len: int) -> float:

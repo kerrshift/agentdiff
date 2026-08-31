@@ -163,3 +163,96 @@ def align_traces(
 
     step_diffs.reverse()
     return step_diffs
+
+
+def _independent(graph: nx.DiGraph, u: str, v: str) -> bool:
+    """True when there is no data-dependency path between u and v either way."""
+    if u == v:
+        return False
+    if not graph.has_node(u) or not graph.has_node(v):
+        return True
+    return not (nx.has_path(graph, u, v) or nx.has_path(graph, v, u))
+
+
+def mark_commutative_swaps(
+    step_diffs: list[StepDiff], baseline: AgentTrace, candidate: AgentTrace
+) -> list[StepDiff]:
+    """Topological equivalence pass (Pillar 1): zero penalty for harmless reorders.
+
+    When a step was recorded REMOVED from the baseline and an equally
+    signed step ADDED to the candidate, the step may have merely moved. If
+    every step matched *between* the two positions is data-independent of it
+    in both traces (no parent-graph path in either direction), executing
+    ``[A -> B]`` or ``[B -> A]`` is equivalent — the pair is reclassified as
+    a single ``MATCHED_COMMUTATIVE`` diff with zero divergence penalty.
+
+    Steps that DO have a dependency path are left untouched: a genuine
+    reordering of dependent work is a semantic change, not a swap.
+    """
+    g_base = baseline.to_networkx()
+    g_cand = candidate.to_networkx()
+
+    removed_by_sig: dict[tuple, list[int]] = {}
+    added_by_sig: dict[tuple, list[int]] = {}
+    for idx, sd in enumerate(step_diffs):
+        if sd.diff_status == StepDiffStatus.REMOVED and sd.baseline_step:
+            removed_by_sig.setdefault(step_signature(sd.baseline_step), []).append(idx)
+        elif sd.diff_status == StepDiffStatus.ADDED and sd.candidate_step:
+            added_by_sig.setdefault(step_signature(sd.candidate_step), []).append(idx)
+
+    merge: dict[int, int] = {}  # added index -> removed index it replaces
+    drop: set[int] = set()
+    for sig, added_indexes in added_by_sig.items():
+        removed_indexes = removed_by_sig.get(sig, [])
+        for a_idx, r_idx in zip(added_indexes, removed_indexes):
+            added = step_diffs[a_idx].candidate_step
+            removed = step_diffs[r_idx].baseline_step
+            if added is None or removed is None:
+                continue
+            # A swap is *the same work in a different order*: identical inputs
+            # and outcome. Changed arguments or a changed outcome is a real
+            # modification, not a reorder — leave it for the diff to show.
+            if (
+                added.input_payload != removed.input_payload
+                or added.status != removed.status
+                or added.error_message != removed.error_message
+            ):
+                continue
+            lo, hi = min(a_idx, r_idx), max(a_idx, r_idx)
+            between = [
+                sd
+                for sd in step_diffs[lo + 1 : hi]
+                if sd.diff_status in (StepDiffStatus.MATCHED, StepDiffStatus.MODIFIED)
+            ]
+            if not between:
+                continue  # nothing between: same position, not a reorder
+            independent = all(
+                _independent(g_base, removed.step_id, m.baseline_step.step_id)
+                and _independent(g_cand, added.step_id, m.candidate_step.step_id)
+                for m in between
+                if m.baseline_step and m.candidate_step
+            )
+            if independent:
+                merge[a_idx] = r_idx
+                drop.add(r_idx)
+
+    if not merge:
+        return step_diffs
+
+    result: list[StepDiff] = []
+    for idx, sd in enumerate(step_diffs):
+        if idx in drop:
+            continue
+        if idx in merge:
+            removed = step_diffs[merge[idx]].baseline_step
+            result.append(
+                StepDiff(
+                    step_name=sd.step_name,
+                    diff_status=StepDiffStatus.MATCHED_COMMUTATIVE,
+                    baseline_step=removed,
+                    candidate_step=sd.candidate_step,
+                )
+            )
+            continue
+        result.append(sd)
+    return result
