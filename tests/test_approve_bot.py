@@ -100,13 +100,18 @@ class TestWorkflowTemplates:
         # artifact download wired to the check run
         assert "actions/download-artifact@v4" in text
         assert "run-id:" in text
-        # branded identity with fallback
+        # zero-setup default: GITHUB_TOKEN works end-to-end
+        assert "checks: write" in text
+        assert "check-runs" in text  # green flip via the Checks API
+        assert "Re-baselined via /agentdiff approve" in text
+        # branded identity remains opt-in
         assert "create-github-app-token" in text
         assert "agentdiff[bot]" in text
         # valid YAML
         import yaml
 
-        assert isinstance(yaml.safe_load(text), dict)
+        parsed = yaml.safe_load(text)
+        assert parsed["permissions"]["checks"] == "write"
 
     def test_approve_workflow_written_only_on_flag(self, tmp_path):
         from agentdiff.init_wizard import GENERIC, write_config
