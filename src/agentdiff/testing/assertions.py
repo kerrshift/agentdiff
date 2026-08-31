@@ -38,7 +38,7 @@ def evaluate_gate(
     max_cost_increase_pct: float = 5.0,
     max_loops: int = 0,
     max_wasted_effort: float | None = None,
-    max_recovery_step_ratio: float | None = None,
+    max_recovery_step_ratio: float | None = 3.0,
     fail_on_identical_loops: bool = True,
     max_tool_repeats: int | None = None,
 ) -> GateResult:
@@ -53,7 +53,8 @@ def evaluate_gate(
     2. Loops — more candidate loops than ``max_loops`` (0 = none allowed).
     3. Cost / token spike — cost increase above ``max_cost_increase_pct``.
     4. Wasted effort — candidate WEI above ``max_wasted_effort`` (opt-in).
-    5. Recovery cascade — RSR above ``max_recovery_step_ratio`` (opt-in).
+    5. Recovery cascade — candidate spent >= 3x the baseline's post-error
+       recovery steps (PRD failure class; disable with ``None``).
     6. Cyclical tool loop — same endpoint called >= 2 times with identical
        inputs and stagnant outputs, when ``fail_on_identical_loops`` is set.
     7. Tool repeat cap — any single tool called more than ``max_tool_repeats``

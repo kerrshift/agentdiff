@@ -153,6 +153,11 @@ def init(
         "--force",
         help="Overwrite existing agentdiff.toml / workflow files.",
     ),
+    with_approve: bool = typer.Option(
+        False,
+        "--with-approve",
+        help="Also write the /agentdiff approve bot workflow (see docs for the GitHub App identity setup).",
+    ),
 ):
     """Zero-config wizard: detect your framework, write agentdiff.toml + CI gate.
 
@@ -189,6 +194,7 @@ def init(
             scenario=scenario,
             runs=runs,
             force=force,
+            with_approve=with_approve,
         )
     except FileExistsError as e:
         typer.echo(f"Error: {e}", err=True)
@@ -197,14 +203,100 @@ def init(
     for path in created:
         typer.echo(f"Wrote {path}")
 
-    typer.echo(
+    next_steps = (
         f"\nNext steps:\n"
         f"  1. Record a baseline envelope:\n"
         f"       agentdiff record <your_agent:run> --runs {runs} "
         f"--out baselines/{scenario}.envelope.json\n"
-        f"  2. Commit agentdiff.toml, the workflow, and the baseline.\n"
-        f"  3. Open a PR — AgentDiff gates it automatically."
+        f"  2. Commit agentdiff.toml, the workflow(s), and the baseline.\n"
+        f"  3. Open a PR — AgentDiff gates it automatically.\n"
+        f"  4. Reviewers bless accepted drift with: /agentdiff approve\n"
     )
+    if with_approve:
+        next_steps += (
+            "     (set the AgentDiff GitHub App secrets for the branded\n"
+            "      agentdiff[bot] identity and automatic check re-runs)\n"
+        )
+    typer.echo(next_steps)
+
+
+@app.command(name="approve")
+def approve(
+    baseline_path: str = typer.Argument(
+        ..., help="Path to the baseline (trace JSON or statistical envelope)."
+    ),
+    candidate_path: str = typer.Argument(
+        ..., help="Path to the candidate trace being blessed (the PR's run)."
+    ),
+    scenario: str | None = typer.Option(
+        None, "--scenario", help="Scenario name from agentdiff.toml."
+    ),
+    runs: int = typer.Option(
+        3, "--runs", min=2, help="Rolling window size kept for statistical envelopes."
+    ),
+    pr: int | None = typer.Option(
+        None, "--pr", help="Post the approval confirmation as a GitHub PR comment."
+    ),
+):
+    """Blesses a candidate run as the new golden baseline (Pillar 3).
+
+    Used by the /agentdiff approve PR bot. Path drift and cost spikes are
+    human-blessable; loop violations are NEVER blessable — the command
+    refuses and the loop must be fixed.
+
+    Example:
+        agentdiff approve baselines/refund.envelope.json traces/pr-12.json --pr 12
+    """
+    from agentdiff.ci.approve import approve_candidate
+    from agentdiff.ci.github import post_pr_comment
+
+    cfg = load_config(None)
+    scenario_cfg = cfg.scenario(scenario)
+
+    try:
+        decision = approve_candidate(
+            baseline_path,
+            candidate_path,
+            scenario_cfg=scenario_cfg,
+            sample_runs=runs,
+        )
+    except (json.JSONDecodeError, ValueError, FileNotFoundError) as e:
+        typer.echo(f"Error loading traces: {e}", err=True)
+        sys.exit(2)
+    except Exception as e:
+        typer.echo(f"Approve failed: {e}", err=True)
+        sys.exit(3)
+
+    if not decision.approved:
+        typer.echo("✖ Approval REFUSED", err=True)
+        for message in decision.refusals:
+            typer.echo(f"  - {message}", err=True)
+        typer.echo(decision.reason, err=True)
+        sys.exit(1)
+
+    typer.echo(f"✅ Baseline updated at {baseline_path}")
+    typer.echo(f"  {decision.reason}")
+
+    if pr is not None:
+        lines = [
+            "## AgentDiff — baseline approved ✅",
+            "",
+            f"Blessed by @{os.environ.get('AGENTDIFF_APPROVER', 'a reviewer')} "
+            "via `/agentdiff approve`.",
+            "",
+            f"{decision.reason}.",
+            "",
+            "The AgentDiff check will pass on the next run of this PR.",
+            "",
+            "<sub>Loop violations are never blessable (policy D3).</sub>",
+        ]
+        try:
+            comment = post_pr_comment("\n".join(lines), pr)
+            typer.echo(f"Posted approval comment: {comment.get('html_url')}")
+        except (ValueError, RuntimeError) as e:
+            typer.echo(f"Warning: could not post PR comment: {e}", err=True)
+
+    sys.exit(0)
 
 
 def _resolve_cli(cfg: AgentDiffConfig, **values):
@@ -417,6 +509,11 @@ def diff(
         sys.exit(2)
 
     try:
+        recovery_kwargs = {}
+        if max_recovery_ratio is not None:
+            # explicit threshold wins; otherwise the 3.0 recovery-cascade
+            # default (PRD failure class) applies inside the gate
+            recovery_kwargs["max_recovery_step_ratio"] = max_recovery_ratio
         if baseline_env.mode == "statistical" and baseline_env.n_runs >= 2:
             # Pillar 1 — statistical envelope: judge against normal variance
             tol = scenario_cfg.tolerances if scenario_cfg else TolerancesConfig()
@@ -428,9 +525,9 @@ def diff(
                 max_cost_increase_pct=cost_pct,
                 max_loops=max_loops,
                 step_count_std_dev=tol.step_count_std_dev,
-                max_recovery_step_ratio=max_recovery_ratio,
                 fail_on_identical_loops=fail_on_identical_loops,
                 max_tool_repeats=max_tool_repeats,
+                **recovery_kwargs,
             )
         else:
             # Strict mode: single-run comparison (v1 behavior, unchanged)
@@ -445,9 +542,9 @@ def diff(
                 max_divergence=max_divergence,
                 max_cost_increase_pct=max_cost_delta,
                 max_loops=max_loops,
-                max_recovery_step_ratio=max_recovery_ratio,
                 fail_on_identical_loops=fail_on_identical_loops,
                 max_tool_repeats=max_tool_repeats,
+                **recovery_kwargs,
             )
         has_regression = not gate.passed
         report.warnings = gate.warnings

@@ -30,10 +30,27 @@ def generate_pr_markdown(
     """
     status = "⛔ **FAILED**" if not report.passed else "✅ **PASSED**"
 
+    # Human-first verdict (Pillar 2/3): lead with what the reviewer cares
+    # about — loops and money — and demote the metric table to details.
+    if report.passed:
+        verdict = (
+            "No infinite loops. No cost spikes. "
+            "Trajectory within budget — safe to merge."
+        )
+    else:
+        blocking = sorted(
+            {f.code for f in report.violations if f.severity.value == "hard"}
+        )
+        verdict = (
+            f"Blocked by: {', '.join(blocking) if blocking else 'gate violations'}."
+        )
+
     lines = [
         "## AgentDiff — Trajectory Regression Check",
         "",
         f"**Status:** {status}",
+        "",
+        verdict,
         "",
     ]
 
@@ -47,6 +64,9 @@ def generate_pr_markdown(
             lines.append(f"> - {change.render()}")
         lines.append("")
 
+    lines.append("<details>")
+    lines.append("<summary>Gate details (metrics & thresholds)</summary>")
+    lines.append("")
     lines.extend(
         [
             "| Gate | Value | Threshold |",
@@ -63,6 +83,25 @@ def generate_pr_markdown(
             f"≤ `{max_recovery_ratio}` |"
         )
     lines.append("")
+    lines.append("</details>")
+    lines.append("")
+
+    if report.violations:
+        lines.append("### Hard violations (blocking)")
+        lines.append("")
+        for finding in report.violations:
+            lines.append(f"- ✖ {finding.message}")
+        lines.append("")
+
+    if report.warnings:
+        lines.append("> [!NOTE]")
+        lines.append(
+            "> **Soft warnings (non-blocking)** — the build is green; review before merging."
+        )
+        lines.append(">")
+        for finding in report.warnings:
+            lines.append(f"> - {finding.message}")
+        lines.append("")
 
     if report.violations:
         lines.append("### Hard violations (blocking)")
