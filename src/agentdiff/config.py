@@ -28,6 +28,10 @@ Example ``agentdiff.toml``::
     max_wasted_effort = 0.1
     max_recovery_step_ratio = 1.5
 
+    [invariants]
+    fail_on_identical_loops = true   # hard block: identical inputs + stagnant outputs
+    max_tool_repeats = 5             # hard cap per endpoint; omit to disable
+
 Configuration is discovered by looking for ``agentdiff.toml`` in the current
 directory (or an explicit path). ``load_config`` returns an
 :class:`AgentDiffConfig` populated with defaults, then overlaid with whatever
@@ -47,6 +51,12 @@ except ImportError:  # pragma: no cover - Python 3.10
     import tomli as tomllib  # type: ignore[no-redef]
 
 CONFIG_FILENAME = "agentdiff.toml"
+
+
+def _filter_known(cls, data: dict[str, Any]) -> dict[str, Any]:
+    """Drops keys that are not fields of ``cls`` (forward-compatible configs)."""
+    known = {f for f in cls.__dataclass_fields__}  # type: ignore[attr-defined]
+    return {k: v for k, v in data.items() if k in known}
 
 
 @dataclass
@@ -82,11 +92,26 @@ class AssertionsConfig:
 
 
 @dataclass
+class InvariantsConfig:
+    """Hard invariants (Pillar 2): violations always block, tolerances can't.
+
+    ``fail_on_identical_loops``: same endpoint called >= 2 times with identical
+    inputs and stagnant output state is a runaway loop — hard block.
+    ``max_tool_repeats``: hard cap on calls to any single endpoint;
+    ``None`` disables the cap.
+    """
+
+    fail_on_identical_loops: bool = True
+    max_tool_repeats: int | None = None
+
+
+@dataclass
 class AgentDiffConfig:
     compare: CompareConfig = field(default_factory=CompareConfig)
     adapter: AdapterConfig = field(default_factory=AdapterConfig)
     cli: CliConfig = field(default_factory=CliConfig)
     assertions: AssertionsConfig = field(default_factory=AssertionsConfig)
+    invariants: InvariantsConfig = field(default_factory=InvariantsConfig)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -95,13 +120,19 @@ class AgentDiffConfig:
     def from_dict(cls, data: dict[str, Any]) -> AgentDiffConfig:
         cfg = cls()
         if isinstance(data.get("compare"), dict):
-            cfg.compare = CompareConfig(**data["compare"])
+            cfg.compare = CompareConfig(**_filter_known(CompareConfig, data["compare"]))
         if isinstance(data.get("adapter"), dict):
-            cfg.adapter = AdapterConfig(**data["adapter"])
+            cfg.adapter = AdapterConfig(**_filter_known(AdapterConfig, data["adapter"]))
         if isinstance(data.get("cli"), dict):
-            cfg.cli = CliConfig(**data["cli"])
+            cfg.cli = CliConfig(**_filter_known(CliConfig, data["cli"]))
         if isinstance(data.get("assertions"), dict):
-            cfg.assertions = AssertionsConfig(**data["assertions"])
+            cfg.assertions = AssertionsConfig(
+                **_filter_known(AssertionsConfig, data["assertions"])
+            )
+        if isinstance(data.get("invariants"), dict):
+            cfg.invariants = InvariantsConfig(
+                **_filter_known(InvariantsConfig, data["invariants"])
+            )
         return cfg
 
 

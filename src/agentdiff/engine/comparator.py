@@ -1,7 +1,11 @@
 from typing import Any
 
 from agentdiff.engine.aligner import align_traces
-from agentdiff.engine.loop_detector import detect_all_loops
+from agentdiff.engine.loop_detector import (
+    count_tool_calls,
+    detect_all_loops,
+    detect_identical_call_loops,
+)
 from agentdiff.engine.metrics import (
     calculate_delta_percentage,
     calculate_recovery_step_ratio,
@@ -80,6 +84,12 @@ def compare(
     if detect_loops:
         loops = detect_all_loops(candidate)
 
+    # 5b. Hard-invariant facts (Pillar 2): identical-call runaway loops and
+    # per-endpoint call counts. Recorded unconditionally — they are cheap,
+    # order-insensitive, and the gate decides whether they block.
+    identical_call_loops = detect_identical_call_loops(candidate)
+    tool_call_counts = count_tool_calls(candidate)
+
     # 6. Build the DiffReport
     report = DiffReport(
         baseline_id=baseline.trace_id,
@@ -88,6 +98,8 @@ def compare(
         baseline_wei=baseline_wei,
         candidate_wei=candidate_wei,
         loops_detected=loops,
+        identical_call_loops=identical_call_loops,
+        tool_call_counts=tool_call_counts,
         cost_delta_percentage=cost_delta,
         latency_delta_percentage=latency_delta,
         token_delta_percentage=token_delta,

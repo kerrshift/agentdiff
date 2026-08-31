@@ -114,4 +114,26 @@ def print_report(report: DiffReport, gate_provenance: str | None = None):
         )
         console.print(loop_panel)
 
+    if report.violations:
+        violation_text = ""
+        for finding in report.violations:
+            violation_text += f"[bold red]✖ {finding.message}[/bold red]\n"
+        violation_panel = Panel(
+            violation_text.strip(),
+            title="[bold red]Hard Violations (blocking)[/bold red]",
+            border_style="red",
+        )
+        console.print(violation_panel)
+
+    if report.warnings:
+        warning_text = ""
+        for finding in report.warnings:
+            warning_text += f"[bold yellow]⚠ {finding.message}[/bold yellow]\n"
+        warning_panel = Panel(
+            warning_text.strip(),
+            title="[bold yellow]Soft Warnings (non-blocking)[/bold yellow]",
+            border_style="yellow",
+        )
+        console.print(warning_panel)
+
     console.print(render_diff_table(report))

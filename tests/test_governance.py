@@ -24,6 +24,8 @@ class TestEffectiveGates:
             "max_loops": 0,
             "max_cost_delta": 10.0,
             "max_recovery_ratio": None,
+            "fail_on_identical_loops": True,
+            "max_tool_repeats": None,
         }
 
     def test_config_values_win(self, tmp_path):

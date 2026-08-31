@@ -37,6 +37,28 @@ def generate_markdown(report: DiffReport) -> str:
             )
         lines.append("")
 
+    if report.violations:
+        lines.extend(
+            [
+                "## ✖ Hard Violations (blocking)",
+                "",
+            ]
+        )
+        for finding in report.violations:
+            lines.append(f"- {finding.message}")
+        lines.append("")
+
+    if report.warnings:
+        lines.extend(
+            [
+                "## ⚠️ Soft Warnings (non-blocking)",
+                "",
+            ]
+        )
+        for finding in report.warnings:
+            lines.append(f"- {finding.message}")
+        lines.append("")
+
     lines.extend(
         [
             "## Step-by-Step Trajectory Diff",
