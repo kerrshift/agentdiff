@@ -103,6 +103,23 @@ def generate_pr_markdown(
             lines.append(f"> - {finding.message}")
         lines.append("")
 
+    if report.violations:
+        lines.append("### Hard violations (blocking)")
+        lines.append("")
+        for finding in report.violations:
+            lines.append(f"- ✖ {finding.message}")
+        lines.append("")
+
+    if report.warnings:
+        lines.append("> [!NOTE]")
+        lines.append(
+            "> **Soft warnings (non-blocking)** — the build is green; review before merging."
+        )
+        lines.append(">")
+        for finding in report.warnings:
+            lines.append(f"> - {finding.message}")
+        lines.append("")
+
     culprit = locate_culprit(report)
     if culprit:
         lines.append(
