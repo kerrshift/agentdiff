@@ -116,7 +116,7 @@ export default {
     }
 
     if (request.method === "GET" && url.pathname === "/app") {
-      const slug = env.AGENTDIFF_APP_SLUG || "agentdiff";
+      const slug = env.AGENTDIFF_APP_SLUG || "agentdiff-ci";
       return Response.redirect(`https://github.com/apps/${slug}/installations/new`, 302);
     }
 
