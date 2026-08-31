@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `github-actions[bot]` when the App isn't configured. App-token pushes also
   re-trigger the check (GITHUB_TOKEN pushes never do), so the check genuinely
   flips to PASSED after approval.
+- **Zero-setup approve bot**: the default path needs **no configuration at
+  all** — the bot runs on the workflow's own `GITHUB_TOKEN` and, after
+  re-baselining, posts a genuine green `AgentDiff Check` result on the new
+  head via the Checks API. The GitHub App is purely optional branding
+  (identity + auto re-trigger), and a one-click website installer (App
+  Manifest flow, client-side, $0 hosting) lands with the site update.
 - **`agentdiff init --with-approve`**: additionally writes the approve-bot
   workflow — command filter (`/agentdiff approve`, bots excluded),
   write-permission gate on the commenter, concurrency guard, and

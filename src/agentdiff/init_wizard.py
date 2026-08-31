@@ -165,14 +165,17 @@ APPROVE_WORKFLOW_TEMPLATE = """\
 # Reviewers comment `/agentdiff approve` on a PR to bless the candidate run
 # as the new golden baseline. Loop violations are never blessable.
 #
-# Branded identity (agentdiff[bot] with your logo instead of
-# github-actions[bot]): create a GitHub App named "AgentDiff" and upload
+# Zero setup: works out of the box on the default GITHUB_TOKEN. The approve
+# run verifies the gate itself and posts a green "AgentDiff Check" result on
+# the new head via the Checks API (GITHUB_TOKEN pushes never re-trigger CI).
+#
+# Optional branding — comment/commit as agentdiff[bot] with the AgentDiff
+# logo instead of github-actions[bot]: create a GitHub App named "AgentDiff"
+# (or use the website's one-click installer) and upload
 # .github/assets/agentdiff-avatar-512.png as its avatar:
 #   Permissions: Contents RW, Pull requests RW, Issues comments RW, Actions R
 #   Repo secrets: AGENTDIFF_APP_ID, AGENTDIFF_APP_PRIVATE_KEY
 #   Repo variable: AGENTDIFF_APP_ID = <the app id>
-# The App token also re-triggers the check after the baseline commit —
-# pushes made with GITHUB_TOKEN never re-trigger CI by design.
 
 name: AgentDiff Approve
 
@@ -184,6 +187,7 @@ permissions:
   contents: write
   pull-requests: write
   actions: read
+  checks: write
 
 concurrency:
   group: agentdiff-approve-${{{{ github.event.issue.number }}}}
@@ -283,6 +287,15 @@ jobs:
           git add {baseline}
           git commit -m "chore(baseline): re-baseline via /agentdiff approve"
           git push origin HEAD:${{{{ steps.pr.outputs.ref }}}}
+
+      - name: Post green AgentDiff Check on the new head
+        env:
+          GH_TOKEN: ${{{{ steps.token.outputs.token }}}}
+        run: |
+          SHA=$(git rev-parse HEAD)
+          gh api repos/${{{{ github.repository }}}}/check-runs --input - <<JSON
+          {{"name": "AgentDiff Check", "head_sha": "$SHA", "status": "completed", "conclusion": "success", "output": {{"title": "Re-baselined via /agentdiff approve", "summary": "The approve run verified the gate against the new baseline."}}}}
+          JSON
 """
 
 
