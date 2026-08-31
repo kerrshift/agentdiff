@@ -104,7 +104,8 @@ class TestWorkflowTemplates:
         assert "checks: write" in text
         assert "check-runs" in text  # green flip via the Checks API
         assert "Re-baselined via /agentdiff approve" in text
-        # branded identity remains opt-in
+        # hosted identity service (no secrets needed) + self-managed App escape hatch
+        assert "https://agentdiff-token.lostmartian.workers.dev" in text
         assert "create-github-app-token" in text
         assert "agentdiff[bot]" in text
         # valid YAML
@@ -112,6 +113,9 @@ class TestWorkflowTemplates:
 
         parsed = yaml.safe_load(text)
         assert parsed["permissions"]["checks"] == "write"
+        step_names = [s.get("name", "") for s in parsed["jobs"]["approve"]["steps"]]
+        assert any("hosted service" in n for n in step_names)
+        assert any("Select token" in n for n in step_names)
 
     def test_approve_workflow_written_only_on_flag(self, tmp_path):
         from agentdiff.init_wizard import GENERIC, write_config
