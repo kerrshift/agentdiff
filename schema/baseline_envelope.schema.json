@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/lostmartian/agentdiff/schema/baseline_envelope.schema.json",
+  "$id": "https://github.com/kerrshift/agentdiff/schema/baseline_envelope.schema.json",
   "title": "AgentDiff Baseline Envelope",
   "description": "Statistical baseline over N >= 1 recorded agent runs (v2 baseline format). Wraps canonical AgentTrace runs; never alters them. A v1 single-trace baseline loads as an envelope with N=1 and mode=strict.",
   "type": "object",

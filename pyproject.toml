@@ -28,8 +28,8 @@ agentdiff = "agentdiff.cli:main"
 agentdiff = "agentdiff.pytest_plugin"
 
 [project.urls]
-Homepage = "https://github.com/lostmartian/agentdiff"
-Repository = "https://github.com/lostmartian/agentdiff"
+Homepage = "https://github.com/kerrshift/agentdiff"
+Repository = "https://github.com/kerrshift/agentdiff"
 
 [dependency-groups]
 dev = [
