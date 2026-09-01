@@ -107,13 +107,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - uses: kerrshift/agentdiff/.github/actions/agentdiff-check@v0.2.2
+      - uses: kerrshift/agentdiff/.github/actions/agentdiff-check@v0.5.0
         with:
-          baseline: traces/baseline.json
+          baseline: baselines/customer_support.envelope.json
           candidate: traces/candidate.json
-          max-divergence: "0.3"
-          max-loops: "0"
-          max-cost-delta: "10.0"
           pr: ${{ github.event.pull_request.number }}   # optional
           github-token: ${{ secrets.GITHUB_TOKEN }}     # required with pr
 ```
@@ -122,10 +119,10 @@ jobs:
 
 | Input | Default | Description |
 | --- | --- | --- |
-| `baseline` | *(required)* | Path to the stored baseline trace JSON. |
+| `baseline` | *(required)* | Path to the stored baseline trace JSON or statistical envelope. |
 | `candidate` | *(required)* | Path to the candidate trace JSON. |
 | `package` | `agent-trajectory-diff` | Package spec (PyPI name, `git+https://…`, or a local path). |
-| `adapter` | `auto` | `auto`, `generic`, `openinference`, `langfuse`, `langsmith`, `openai_agents`. |
+| `adapter` | `auto` | `auto`, `generic`, `langgraph`, `crewai`, `openinference`, `langfuse`, `langsmith`, `openai_agents`. |
 | `max-divergence` | `0.3` | Maximum Trajectory Divergence Index (TDI). |
 | `max-loops` | `0` | Maximum loop count. |
 | `max-cost-delta` | `10.0` | Maximum cost increase percentage. |
@@ -133,7 +130,19 @@ jobs:
 | `pr` | *(empty)* | PR number to post the report comment to. |
 | `github-token` | *(empty)* | Token for the PR comment (required when `pr` is set). |
 
-Pin the action to a release tag (`@v0.2.2`) for reproducible gates.
+Pin the action to a release tag (`@v0.5.0`) for reproducible gates.
+
+## In-PR Approvals (`/agentdiff approve`)
+
+When developers alter an agent's expected trajectory, reviewers can re-baseline directly on GitHub by commenting `/agentdiff approve`. 
+
+Generate the approve bot workflow with:
+
+```bash
+agentdiff init --with-approve
+```
+
+The bot authenticates via the hosted [AgentDiff CI GitHub App](https://github.com/apps/agentdiff-ci) (or repository `GITHUB_TOKEN`), commits the blessed candidate run to the baseline envelope, and flips the GitHub Check result to green.
 
 ## Baseline rotation in CI
 

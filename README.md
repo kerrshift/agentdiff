@@ -32,70 +32,40 @@ AgentDiff aligns candidate execution DAGs against committed golden baselines in 
 ## Highlights
 
 - **Deterministic Graph Diffing:** Topological DAG alignment and Longest Common Subsequence (LCS) step comparison in `<10ms` with zero paid LLM-judge calls.
-- **100% Local & Air-Gapped:** Zero telemetry, no cloud accounts, no network calls during diffs. Raw prompts and tool outputs never leave your machine or CI runner.
-- **Drop-in CI Merge Gate:** Native exit codes (`0` pass / `1` regression fail) and automated GitHub Action PR comments with collapsed divergence trees and culprit attribution.
-- **Universal Telemetry Adapters:** Seamlessly diff traces exported from **LangGraph**, **CrewAI**, **OpenAI Agents SDK**, **Langfuse**, **LangSmith**, **OpenInference / OpenTelemetry**, or generic JSON.
-- **Config-as-Code & Goodhart Guard:** Commit thresholds in `agentdiff.toml` right next to your code. Flag drift when baseline gate definitions change.
-- **First-Class Pytest Plugin:** Native `agentdiff_trace` fixture and `assert_no_regressions` assertion helper.
-
-## Architecture
-
-```mermaid
-flowchart LR
-    subgraph Ingestion["1. Ingestion"]
-        A1[LangGraph / CrewAI] --> T[Normalized AgentTrace]
-        A2[Langfuse / LangSmith] --> T
-        A3[OpenInference / OTel] --> T
-        A4[OpenAI Agents SDK] --> T
-    end
-
-    subgraph DiffEngine["2. Diff Engine (<10ms)"]
-        T --> DAG[Topological DAG Align]
-        DAG --> Metrics[TDI · WEI · LBI · RSR · ΔCost]
-    end
-
-    subgraph Enforcement["3. Merge Gate"]
-        Metrics --> Gate{Thresholds Violated?}
-        Gate -- No --> Pass[Exit 0 · Update Baseline]
-        Gate -- Yes --> Fail[Exit 1 · Block PR & Post Root-Cause Comment]
-    end
-```
-
-## Installation
-
-```bash
-# Using pip
-pip install agent-trajectory-diff
-
-# Using uv
-uv add agent-trajectory-diff
-
-# Global CLI tool (isolated environment)
-uv tool install agent-trajectory-diff
-```
-
-Enable tab completion for bash, zsh, fish, or powershell:
-```bash
-agentdiff --install-completion
-```
+- **Statistical Baselines & Variance Bands:** Capture N-run envelopes (`record --runs 3`) so non-deterministic agents don't flake CI on harmless jitter.
+- **Zero-Config Setup (`agentdiff init`):** Auto-detects LangGraph, CrewAI, OpenAI Agents SDK, or OpenTelemetry and writes `agentdiff.toml` + CI workflow in seconds.
+- **In-PR Interactive Blessings (`/agentdiff approve`):** Reviewers bless intended trajectory improvements from PR comments as `agentdiff-ci[bot]`.
+- **100% Local & Air-Gapped:** Zero telemetry, no cloud accounts, no outbound network calls during diffs. Raw prompts and tool outputs stay local.
+- **Drop-in CI Merge Gate:** Native exit codes (`0` pass / `1` regression fail) and automated GitHub Action PR comments with human-first verdicts.
+- **Universal Telemetry Adapters:** Seamlessly diff traces from **LangGraph**, **CrewAI**, **OpenAI Agents SDK**, **Langfuse**, **LangSmith**, **OpenInference / OpenTelemetry**, or generic JSON.
 
 ## Quickstart
 
-### 1. Record a Golden Baseline
-Record a canonical execution trace from any agent function without writing boilerplate telemetry:
+### 1. Initialize with `agentdiff init`
+Auto-detect your agent framework and generate your configuration + CI workflow:
 
 ```bash
-agentdiff record my_agent:run --input '{"query": "summarize repo"}' --out baselines/golden.json
+agentdiff init --scenario customer_support --runs 3 --with-approve
 ```
 
-### 2. Compare Traces in CLI
-Compare candidate runs against your golden baseline:
+### 2. Record a Statistical Baseline Envelope
+Record an N-run baseline envelope from any agent function without writing boilerplate telemetry:
 
 ```bash
-agentdiff baselines/golden.json traces/candidate.json --fail-on-regression --max-divergence 0.25
+agentdiff record my_agent:run \
+  --input '{"query": "summarize repo"}' \
+  --runs 3 \
+  --out baselines/customer_support.envelope.json
 ```
 
-### 3. Pytest Regression Testing
+### 3. Compare Traces in CLI
+Compare candidate runs against your baseline envelope:
+
+```bash
+agentdiff diff baselines/customer_support.envelope.json traces/candidate.json --fail-on-regression
+```
+
+### 4. Pytest Regression Testing
 Enforce trajectory parity directly in your test suite:
 
 ```python
@@ -122,34 +92,6 @@ def test_agent_refactor_efficiency():
     )
 ```
 
-## Config-as-Code (`agentdiff.toml`)
-
-Commit your gate policy directly to your repository. AgentDiff auto-discovers `agentdiff.toml` in your working directory tree:
-
-```toml
-[compare]
-detect_loops = true
-strict_tool_signatures = false
-
-[adapter]
-name = "auto"            # auto, generic, openinference, langfuse, langsmith, openai_agents
-
-[cli]
-format = "terminal"      # terminal, json, markdown, pr
-baseline = "baselines/golden.json"
-max_loops = 0
-max_divergence = 0.25
-max_cost_delta = 5.0
-max_recovery_ratio = 1.5
-
-[assertions]             # Defaults for assert_no_regressions / pytest plugin
-max_divergence = 0.25
-max_cost_increase_pct = 5.0
-allow_loops = false
-max_wasted_effort = 0.10
-max_recovery_step_ratio = 1.5
-```
-
 ## GitHub Actions CI Gate
 
 Block broken agent PRs before they land in production using the official composite action:
@@ -174,13 +116,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      - uses: kerrshift/agentdiff/.github/actions/agentdiff-check@v0.2.2
+      - uses: kerrshift/agentdiff/.github/actions/agentdiff-check@v0.5.0
         with:
-          baseline: baselines/golden.json
+          baseline: baselines/customer_support.envelope.json
           candidate: traces/pr_candidate.json
-          max-divergence: "0.25"
-          max-cost-delta: "5.0"
-          max-loops: "0"
           pr: ${{ github.event.pull_request.number }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```

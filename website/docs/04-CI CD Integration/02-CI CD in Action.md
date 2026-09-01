@@ -44,13 +44,11 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/run_agent.py --prompt "${{ github.event.inputs.prompt }}" --out run.json
-      - uses: kerrshift/agentdiff/.github/actions/agentdiff-check@v0.2.2
+      - uses: kerrshift/agentdiff/.github/actions/agentdiff-check@v0.5.0
         with:
-          baseline: traces/gemini_baseline.json
-          candidate: run.json
-          max-divergence: "0.3"
-          max-loops: "0"
-          pr: ${{ github.event.pull_request.number || github.event.inputs.pr }}
+          baseline: baselines/customer_support.envelope.json
+          candidate: traces/candidate.json
+          pr: ${{ github.event.pull_request.number }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 

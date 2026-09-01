@@ -12,51 +12,58 @@ uv add agent-trajectory-diff
 
 This installs the `agentdiff` CLI and the `agentdiff` Python package.
 
-## 2. No trace yet? Record one
+## 2. Initialize with `agentdiff init`
 
-Point `record` at any callable (your agent's entry function) and AgentDiff runs
-it once and captures a canonical trace — no telemetry or framework needed:
-
-```bash
-agentdiff record my_agent:run --input '{"question": "What is AgentDiff?"}' --out traces/run.json
-```
-
-- `--input` takes a JSON object (passed to the callable as kwargs) or `@file.json`
-- A failed run is still recorded — diff it to see exactly what broke
-
-## 3. Compare two traces
-
-The CLI takes a baseline trace and a candidate trace. Run the same task twice
-(e.g. on `main` and on your branch), export the traces, then:
+Run the zero-config setup wizard in your project root. It auto-detects your agent framework (LangGraph, CrewAI, OpenAI Agents SDK, OpenTelemetry, etc.) and generates your config plus CI gate workflow:
 
 ```bash
-agentdiff baseline.json candidate.json
+agentdiff init --scenario customer_support --runs 3 --with-approve
 ```
 
-AgentDiff auto-detects the telemetry format (`generic`, `openinference`,
-`langfuse`, `langsmith`, `openai_agents`) and prints a terminal report with
-the divergence metrics:
+## 3. Record a statistical baseline envelope
+
+Capture an N-run baseline envelope so variance bands prevent false-positive CI failures:
+
+```bash
+agentdiff record my_agent:run \
+  --input '{"question": "What is AgentDiff?"}' \
+  --runs 3 \
+  --out baselines/customer_support.envelope.json
+```
+
+- `--input` takes a JSON object or `@file.json`
+- `--runs 3` captures a statistical envelope with empirical mean ± k·sigma bands
+
+## 4. Compare candidate runs
+
+Run candidate executions against your baseline envelope:
+
+```bash
+agentdiff diff baselines/customer_support.envelope.json traces/candidate.json
+```
+
+AgentDiff compares the candidate with min-TDI-of-N matching and variance bands:
 
 ```text
-Trajectory Divergence Index (TDI):  0.33
-Loops Detected:                     1
-Candidate Wasted Effort (WEI):      0.00
-Cost Delta:                         +41.0%
-Status:                             REGRESSION
+Baseline:       customer_support.envelope.json (3 runs)
+Candidate:      traces/candidate.json
+TDI (min-of-3): 0.00 [PASS]
+Step Count:     6 (band: 6.3 ± 0.9) [PASS]
+Cost Delta:     +2.1% [PASS]
+Loops:          0 [PASS]
+Status:         PASSED
 ```
 
-**Why did it diverge?** Add `--explain` for a human-readable breakdown and
-`--tree` for a collapsed, visual comparison of the two paths:
+**Why did it diverge?** Add `--explain` for a breakdown and `--tree` for a visual comparison:
 
 ```bash
-agentdiff baseline.json candidate.json --explain --tree
+agentdiff diff baselines/customer_support.envelope.json traces/candidate.json --explain --tree
 ```
 
-**Gate it in CI.** Add `--fail-on-regression` to exit non-zero when thresholds
-are exceeded:
+**Gate it in CI.** Add `--fail-on-regression` to exit non-zero when hard invariants or thresholds are breached:
 
 ```bash
-agentdiff baseline.json candidate.json --fail-on-regression
+agentdiff diff baselines/customer_support.envelope.json traces/candidate.json --fail-on-regression --pr 12
 ```
 
 The full CLI surface - including baseline rotation and PR comments - is covered
