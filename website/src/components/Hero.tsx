@@ -73,7 +73,7 @@ export default function Hero() {
 
           {/* High-visibility subtitle */}
           <p className="max-w-4xl mx-auto text-base sm:text-lg lg:text-xl text-(--fg)/80 dark:text-(--fg)/85 leading-relaxed mt-5 mb-8 font-normal">
-            Your agent returned the right answer, but took 5 extra steps and burned 3× the tokens. AgentDiff catches silent tool loops, cost surges, and execution drift in CI before your PR lands in production.
+            Statistical baselines and honest CI gates for AI agents. Measure variance bands, block infinite loops, catch silent cost surges, and re-baseline with a single PR comment.
           </p>
 
           {/* CTAs + Copy Command */}

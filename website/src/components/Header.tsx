@@ -19,7 +19,7 @@ const NAV_ITEMS = [
   { href: "/blog", label: "Blog" },
 ];
 
-export default function Header({ version = "0.2.1" }: { version?: string }) {
+export default function Header({ version = "0.5.0" }: { version?: string }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
@@ -102,20 +102,30 @@ export default function Header({ version = "0.2.1" }: { version?: string }) {
             </nav>
 
             {/* Bottom Utilities */}
-            <div className="pt-4 border-t border-(--border) flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <ThemeToggle />
-                <span className="text-xs text-(--muted) font-medium">Theme</span>
-              </div>
+            <div className="pt-4 border-t border-(--border) flex flex-col gap-3">
               <a
-                href="https://github.com/kerrshift/agentdiff"
+                href="https://github.com/apps/agentdiff-ci"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-(--border) bg-(--surface) text-xs font-semibold text-(--fg) hover:bg-(--surface-2) transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-(--fg) text-(--bg) text-xs font-semibold hover:opacity-90 transition-opacity"
               >
-                <Github size={14} />
-                <span>GitHub</span>
+                <span>Install GitHub App</span>
               </a>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ThemeToggle />
+                  <span className="text-xs text-(--muted) font-medium">Theme</span>
+                </div>
+                <a
+                  href="https://github.com/kerrshift/agentdiff"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-(--border) bg-(--surface) text-xs font-semibold text-(--fg) hover:bg-(--surface-2) transition-colors"
+                >
+                  <Github size={14} />
+                  <span>GitHub</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>,
@@ -176,8 +186,16 @@ export default function Header({ version = "0.2.1" }: { version?: string }) {
               })}
             </div>
 
-            {/* Right Action Utilities: Theme + GitHub */}
+            {/* Right Action Utilities: App Install + Theme + GitHub */}
             <div className="hidden lg:flex items-center gap-2">
+              <a
+                href="https://github.com/apps/agentdiff-ci"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-semibold bg-(--fg) text-(--bg) hover:opacity-90 transition-opacity shadow-2xs"
+              >
+                <span>Install App</span>
+              </a>
               <ThemeToggle />
               <a
                 href="https://github.com/kerrshift/agentdiff"

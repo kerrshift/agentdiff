@@ -9,8 +9,8 @@ const TABS = [
     label: "CLI",
     href: "/quickstart",
     cta: "Quickstart",
-    code: "agentdiff record my_agent:run --input '{...}' --out traces/run.json\nagentdiff traces/baseline.json traces/run.json --explain --tree",
-    body: "Record, diff, and gate from the terminal. Exit codes 0/1/2/3 for CI.",
+    code: "# 1. Auto-detect framework and generate gate config\nagentdiff init --scenario refund --runs 3\n\n# 2. Record 3-run statistical envelope\nagentdiff record my_agent:run --runs 3 --out baselines/refund.envelope.json\n\n# 3. Compare with variance bands\nagentdiff diff baselines/refund.envelope.json traces/pr.json --fail-on-regression",
+    body: "Init wizard, statistical baseline envelopes, and sub-5ms comparison. Exit codes 0/1/2/3 for CI.",
   },
   {
     id: "pytest",
@@ -25,8 +25,8 @@ const TABS = [
     label: "GitHub Action",
     href: "/action",
     cta: "Action docs",
-    code: "- uses: kerrshift/agentdiff/.github/actions/agentdiff-check@main\n  with:\n    baseline: baselines/current.json\n    candidate: traces/pr.json\n    pr: ${{ github.event.number }}",
-    body: "Posts the divergence report as a PR comment; blocks on regression.",
+    code: "- uses: kerrshift/agentdiff/.github/actions/agentdiff-check@v0.5.0\n  with:\n    baseline: baselines/refund.envelope.json\n    candidate: traces/pr.json\n    pr: ${{ github.event.number }}\n\n# Reviewers bless on PR: /agentdiff approve",
+    body: "Posts human-first verdict PR comments, blocks on loops, and supports /agentdiff approve bot.",
   },
   {
     id: "sdk",
