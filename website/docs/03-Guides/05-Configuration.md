@@ -5,7 +5,7 @@ traces instead of repeating them as CLI flags. AgentDiff auto-discovers an
 `agentdiff.toml` file from the current directory upward, or you can point at it
 explicitly with `--config`.
 
-## Example
+## Example (`agentdiff.toml` v0.5)
 
 ```toml
 [compare]
@@ -13,22 +13,29 @@ detect_loops = true
 strict_tool_signatures = false
 
 [adapter]
-name = "auto"            # auto, generic, openinference, langfuse, langsmith, openai_agents
+name = "auto"            # auto, generic, langgraph, crewai, openai_agents, openinference, langfuse, langsmith
+
+# Default scenario configuration
+[scenario.default]
+mode = "statistical"     # "statistical" (envelope mode) or "strict" (single run)
+sample_runs = 3          # Rolling window size for envelopes
+max_cost_increase_pct = 5.0
+
+[scenario.default.hard_invariants]
+fail_on_identical_loops = true
+max_tool_repeats = 3
+
+[scenario.default.tolerances]
+step_count_std_dev = 2.0
+divergence_ceiling = 0.35
 
 [cli]
 format = "terminal"      # terminal, json, markdown, pr
-baseline = "baselines/current.json"
+baseline = "baselines/default.envelope.json"
 max_loops = 0
 max_divergence = 0.3
 max_cost_delta = 10.0
-max_recovery_ratio = 1.5 # opt-in Recovery Step Ratio gate (omit to disable)
-
-[assertions]             # defaults used by assert_no_regressions / pytest plugin
-max_divergence = 0.25
-max_cost_increase_pct = 5.0
-allow_loops = false
-max_wasted_effort = 0.1
-max_recovery_step_ratio = 1.5
+max_recovery_ratio = 3.0
 ```
 
 ## Precedence

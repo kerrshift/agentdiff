@@ -28,28 +28,38 @@ AssertionError: AgentDiff Regression Verification Failed:
   - Candidate Wasted Effort Index (WEI) of 0.2500 exceeded threshold of 0.1000.
 ```
 
-## CLI: `--fail-on-regression`
+## Hard Invariants vs. Soft Findings
+
+In AgentDiff 0.5.0, regression gates decouple **fatal architectural bugs** (hard invariants) from **evaluative drift** (soft findings):
+
+| Gate Category | Rule | Severity | Exit Code | Blessable in PR? |
+|---|---|---|---|---|
+| **Hard Invariant** | Identical Cyclical Loops (`fail_on_identical_loops = true`) | `BLOCK` | Exit `1` | ❌ Never |
+| **Hard Invariant** | Tool Repeat Cap (`max_tool_repeats = 3`) | `BLOCK` | Exit `1` | ❌ Never |
+| **Hard Invariant** | Error Recovery Cascade (Recovery ratio $\ge 3\times$) | `BLOCK` | Exit `1` | ❌ Never |
+| **Soft Finding** | Trajectory Divergence Index ($> \text{ceiling}$) | `WARN` / `FAIL` | Exit `1` | ✅ Yes (`/agentdiff approve`) |
+| **Soft Finding** | Token Cost Delta ($> \text{max\_cost\_delta}$) | `WARN` / `FAIL` | Exit `1` | ✅ Yes (`/agentdiff approve`) |
+
+## CLI: `agentdiff diff`
 
 ```bash
-agentdiff baseline.json candidate.json --fail-on-regression
+agentdiff diff baselines/default.envelope.json traces/candidate.json --fail-on-regression
 ```
 
-Exits with code `1` when a regression is detected. The default thresholds are:
+Exits with code `1` when a regression is detected. The CLI default thresholds are:
 
 | Flag | Default | Meaning |
 | --- | --- | --- |
 | `--max-divergence` | `0.3` | Max TDI before regression. |
 | `--max-loops` | `0` | Max loop count before regression. |
 | `--max-cost-delta` | `10.0` | Max cost increase % before regression. |
-| `--max-recovery-ratio` | *(off)* | Max Recovery Step Ratio before regression (opt-in — the gate is disabled unless set). |
+| `--max-recovery-ratio` | `3.0` | Max Recovery Step Ratio before blocking (default hard gate at 3.0×). |
 
 ```bash
-agentdiff baseline.json candidate.json \
+agentdiff diff baselines/default.envelope.json traces/candidate.json \
   --fail-on-regression \
-  --max-divergence 0.2 \
-  --max-loops 1 \
-  --max-cost-delta 5.0 \
-  --max-recovery-ratio 1.5
+  --max-divergence 0.25 \
+  --max-cost-delta 5.0
 ```
 
 These defaults can also be committed in an `agentdiff.toml` (see
