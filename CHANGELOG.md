@@ -5,7 +5,16 @@ All notable changes to **AgentDiff** (`agent-trajectory-diff`) are documented he
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.5.0] - 2026-09-02
+
+AgentDiff v0.5.0 — the **Circuit Breaker** release: statistical baselines, an
+honest gate, and a self-serve approve bot. Highlights: N-run baseline
+envelopes with variance bands (flaky agents stop flipping the gate), decoupled
+failure modes (loops always block; path drift and cost are human judgments),
+`/agentdiff approve` re-baselines from the PR thread as **agentdiff-ci[bot]**
+via the hosted identity service, `agentdiff init` writes a production-ready
+gate in seconds, and every report's provenance now describes the gate that
+actually judged it.
 
 ### Added
 - **Hosted identity service** (`worker/`): a stateless Cloudflare Worker
@@ -331,3 +340,4 @@ regression engine for multi-turn, tool-using AI agents.
 - Licensed under MIT.
 
 [0.2.0]: https://github.com/kerrshift/agentdiff/releases/tag/v0.2.0
+[0.5.0]: https://github.com/kerrshift/agentdiff/releases/tag/v0.5.0
