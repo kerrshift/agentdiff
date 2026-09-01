@@ -90,8 +90,14 @@ class TestWriteConfig:
         assert "github.event.comment.user.type != 'Bot'" in text
         assert "!endsWith(github.event.comment.user.login, '[bot]')" in text
         # pre-checkout gh calls must resolve the repo explicitly
-        assert "gh pr view ${{ github.event.issue.number }} -R ${{ github.repository }}" in text
-        assert 'gh run list --workflow "AgentDiff Check" --branch "${{ steps.pr.outputs.ref }}" -R ${{ github.repository }}' in text
+        assert (
+            "gh pr view ${{ github.event.issue.number }} -R ${{ github.repository }}"
+            in text
+        )
+        assert (
+            'gh run list --workflow "AgentDiff Check" --branch "${{ steps.pr.outputs.ref }}" -R ${{ github.repository }}'
+            in text
+        )
 
     def test_refuses_to_clobber_without_force(self, tmp_path):
         write_config(tmp_path, framework=GENERIC)
