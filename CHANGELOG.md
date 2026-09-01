@@ -106,6 +106,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `[invariants]` knobs; config sections ignore unknown keys, so
   forward-compatible `agentdiff.toml` files load cleanly.
 
+### Changed
+- **Repository moved to the `kerrshift` organization**: canonical URLs now
+  point to `github.com/kerrshift/agentdiff` — package metadata
+  (`pyproject.toml` Homepage/Repository), README badge + clone link, the
+  baseline-envelope schema `$id`, and the docs link in `agentdiff init`
+  generated workflows. Reusable-action references are now
+  `kerrshift/agentdiff/.github/actions/agentdiff-check`; old
+  `lostmartian/agentdiff` URLs continue to work via GitHub redirects.
+
 ## [0.4.0] - 2026-08-28
 
 AgentDiff v0.4.0 — trace capture, Goodhart-resistant gating, and a full docs
@@ -247,9 +256,9 @@ natively (no caller-side reshaping).
 ### Documentation
 - README/cookbook guides updated for the live adapter recipes.
 
-[0.2.1]: https://github.com/lostmartian/agentdiff/releases/tag/v0.2.1
-[0.3.0]: https://github.com/lostmartian/agentdiff/releases/tag/v0.3.0
-[0.2.2]: https://github.com/lostmartian/agentdiff/releases/tag/v0.2.2
+[0.2.1]: https://github.com/kerrshift/agentdiff/releases/tag/v0.2.1
+[0.3.0]: https://github.com/kerrshift/agentdiff/releases/tag/v0.3.0
+[0.2.2]: https://github.com/kerrshift/agentdiff/releases/tag/v0.2.2
 
 ## [0.2.0] - 2026-08-19
 
@@ -293,4 +302,4 @@ regression engine for multi-turn, tool-using AI agents.
 - Requires Python 3.10+.
 - Licensed under MIT.
 
-[0.2.0]: https://github.com/lostmartian/agentdiff/releases/tag/v0.2.0
+[0.2.0]: https://github.com/kerrshift/agentdiff/releases/tag/v0.2.0

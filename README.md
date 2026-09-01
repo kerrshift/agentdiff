@@ -7,7 +7,7 @@
 **Catch silent cost surges and broken agent loops before they ship.**
 
 <p align="center">
-  <a href="https://github.com/lostmartian/agentdiff/actions/workflows/ci.yml"><img src="https://github.com/lostmartian/agentdiff/actions/workflows/ci.yml/badge.svg" alt="CI Build" /></a>
+  <a href="https://github.com/kerrshift/agentdiff/actions/workflows/ci.yml"><img src="https://github.com/kerrshift/agentdiff/actions/workflows/ci.yml/badge.svg" alt="CI Build" /></a>
   <a href="https://pypi.org/project/agent-trajectory-diff/"><img src="https://img.shields.io/pypi/v/agent-trajectory-diff.svg?color=10b981" alt="PyPI version" /></a>
   <a href="https://pypi.org/project/agent-trajectory-diff/"><img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg" alt="Python Versions" /></a>
   <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/badge/code%20style-ruff-000000.svg" alt="Code Style: Ruff" /></a>
@@ -174,7 +174,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - uses: lostmartian/agentdiff/.github/actions/agentdiff-check@v0.2.2
+      - uses: kerrshift/agentdiff/.github/actions/agentdiff-check@v0.2.2
         with:
           baseline: baselines/golden.json
           candidate: traces/pr_candidate.json
@@ -245,7 +245,7 @@ This repository uses [`uv`](https://docs.astral.sh/uv/) for lightning-fast envir
 
 ```bash
 # Clone the repository
-git clone https://github.com/lostmartian/agentdiff.git
+git clone https://github.com/kerrshift/agentdiff.git
 cd agentdiff
 
 # Install dependencies and sync virtualenv
