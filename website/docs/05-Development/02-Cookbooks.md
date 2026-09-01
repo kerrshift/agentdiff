@@ -1,6 +1,6 @@
 # Cookbooks & Live Examples
 
-The [`cookbooks/`](https://github.com/lostmartian/agentdiff/tree/main/cookbooks)
+The [`cookbooks/`](https://github.com/kerrshift/agentdiff/tree/main/cookbooks)
 directory ships standalone recipes in two flavors:
 
 - **Offline (no API keys, deterministic)** - the product story and per-adapter

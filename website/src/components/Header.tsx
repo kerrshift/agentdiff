@@ -108,7 +108,7 @@ export default function Header({ version = "0.2.1" }: { version?: string }) {
                 <span className="text-xs text-(--muted) font-medium">Theme</span>
               </div>
               <a
-                href="https://github.com/lostmartian/agentdiff"
+                href="https://github.com/kerrshift/agentdiff"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-(--border) bg-(--surface) text-xs font-semibold text-(--fg) hover:bg-(--surface-2) transition-colors"
@@ -180,7 +180,7 @@ export default function Header({ version = "0.2.1" }: { version?: string }) {
             <div className="hidden lg:flex items-center gap-2">
               <ThemeToggle />
               <a
-                href="https://github.com/lostmartian/agentdiff"
+                href="https://github.com/kerrshift/agentdiff"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center w-8 h-8 rounded-full text-(--muted) border border-(--border) bg-(--surface) hover:text-(--fg) hover:border-(--border-strong) transition-colors duration-150 shadow-2xs"

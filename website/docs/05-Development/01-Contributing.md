@@ -2,7 +2,7 @@
 
 Thanks for helping build AgentDiff. These rules keep the history clean and
 every PR reviewable in minutes. They are non-negotiable - PRs that ignore them
-get sent back. The same rules live in [`CONTRIBUTING.md`](https://github.com/lostmartian/agentdiff/blob/main/CONTRIBUTING.md)
+get sent back. The same rules live in [`CONTRIBUTING.md`](https://github.com/kerrshift/agentdiff/blob/main/CONTRIBUTING.md)
 and are mirrored for coding agents in `AGENTS.md` at the repo root.
 
 ## Ground rules
