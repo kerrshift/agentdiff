@@ -62,6 +62,54 @@ class TestWriteConfig:
         # record target placeholder is explicitly marked
         assert "EDIT ME" in text
 
+    def test_workflow_invokes_diff_with_valid_cli_form(self, tmp_path):
+        """Regression: generated workflows must call `agentdiff diff BASELINE
+        CANDIDATE`. The bare form (`agentdiff candidate --baseline …`) hits
+        the E1 diff-default patch and fails with a missing positional, since
+        `--baseline` is the baseline-*store* option, not the first positional.
+        """
+        write_config(tmp_path, framework=GENERIC, scenario="refund")
+        text = (tmp_path / ".github/workflows/agentdiff.yml").read_text()
+        assert (
+            "agentdiff diff baselines/refund.envelope.json traces/candidate.json"
+            in text
+        )
+        assert "--baseline " not in text
+
+    def test_approve_workflow_filters_bots_without_template_if(self, tmp_path):
+        """The approve trigger must use native `if` expressions (no `${{ }}`
+        wrapper — GitHub re-evaluates the substituted string, which lets
+        `!= null`-style interpolations misbehave) and must exclude bot
+        identities both by type and by the `[bot]` login suffix, so the
+        bot's own approval comment can never re-trigger itself.
+        """
+        write_config(tmp_path, framework=GENERIC, with_approve=True)
+        text = (tmp_path / ".github/workflows/agentdiff-approve.yml").read_text()
+        assert "github.event.issue.pull_request != null" in text
+        assert "${{ github.event.issue.pull_request" not in text
+        assert "github.event.comment.user.type != 'Bot'" in text
+        assert "!endsWith(github.event.comment.user.login, '[bot]')" in text
+        # pre-checkout gh calls must resolve the repo explicitly
+        assert (
+            "gh pr view ${{ github.event.issue.number }} -R ${{ github.repository }}"
+            in text
+        )
+        assert (
+            'gh run list --workflow "AgentDiff Check" --branch "${{ steps.pr.outputs.ref }}" -R ${{ github.repository }}'
+            in text
+        )
+
+    def test_gate_workflow_brands_pr_report_via_hosted_identity(self, tmp_path):
+        """The generated gate workflow mints an agentdiff[bot] token from the
+        hosted identity service for the PR report, falling back to the
+        workflow's own GITHUB_TOKEN when the App isn't installed.
+        """
+        write_config(tmp_path, framework=GENERIC, scenario="refund")
+        text = (tmp_path / ".github/workflows/agentdiff.yml").read_text()
+        assert "https://token.agentdiff.app" in text
+        assert "${{ steps.bot_token.outputs.token || secrets.GITHUB_TOKEN }}" in text
+        assert "AgentDiff bot token (hosted service, optional)" in text
+
     def test_refuses_to_clobber_without_force(self, tmp_path):
         write_config(tmp_path, framework=GENERIC)
         with pytest.raises(FileExistsError):

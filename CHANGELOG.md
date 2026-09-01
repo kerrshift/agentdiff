@@ -77,6 +77,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`fail_on_identical_loops`, `max_tool_repeats`), and
   `[scenario.x.tolerances]` (`step_count_std_dev`, `divergence_ceiling`).
   A repo with a single scenario needs no `--scenario` flag.
+- **Branded PR reports from generated gate workflows** (`agentdiff init`):
+  the gate's PR-report step mints an `agentdiff[bot]` token from the hosted
+  identity service (`token.agentdiff.app`) when the AgentDiff App is
+  installed on the repo, and silently falls back to the workflow's own
+  `GITHUB_TOKEN` otherwise. Verified live on `agentdiff-demo`.
 - **CLI statistical mode**: envelope baselines gate via variance bands
   (step-count band, envelope-relative cost ceiling = max of the relative cap
   and the k·sigma band, divergence ceiling); strict single-run baselines are
@@ -116,6 +121,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `lostmartian/agentdiff` URLs continue to work via GitHub redirects.
 
 ### Fixed
+- **`agentdiff init` generated workflows used an invalid CLI form**: the gate
+  and PR-report steps invoked `agentdiff <candidate> --baseline <baseline>`,
+  which the E1 diff-default patch parses as `diff` with a missing positional
+  (`Missing argument 'candidate_path'`) — `--baseline` is the baseline-*store*
+  option, not the first positional argument. Generated workflows now invoke
+  `agentdiff diff <baseline> <candidate> --scenario <name>` explicitly, with a
+  regression test pinning the valid form.
+- **`agentdiff init --with-approve` runtime fixes** (found by running the
+  generated bot end-to-end on a live repo): pre-checkout `gh` calls
+  (`pr view`, `run list`, `pr comment`) now pass `-R ${{ github.repository }}`
+  so they resolve outside a git checkout; the trigger filter uses native `if`
+  expressions (no `${{ }}` wrapper, which GitHub re-evaluates and mis-handles)
+  plus a `[bot]`-login-suffix guard so the bot's own approval comment can
+  never re-trigger itself.
 - **Gate provenance misdescribed statistical runs (G7)**: in envelope mode the
   `Gate: …` line showed the legacy single-run knobs (`max_divergence=0.3`,
   `max_cost_delta=10.0%`) while `compare_envelope` actually judged with the
