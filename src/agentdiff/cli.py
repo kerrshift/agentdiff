@@ -425,7 +425,6 @@ def diff(
             typer.echo(f"Baseline config not found: {e}", err=True)
             sys.exit(2)
         threshold_changes = diff_gate_thresholds(baseline_cfg, cfg)
-    gate_provenance = provenance_line(cfg, config_source)
     stale_days = (
         stale_days
         if stale_days is not None
@@ -507,6 +506,12 @@ def diff(
     except Exception as e:
         typer.echo(f"Ingestion error: {e}", err=True)
         sys.exit(2)
+
+    # G7 provenance must describe the gate that actually judged this run —
+    # in envelope mode that is the scenario tolerances, not the legacy knobs.
+    gate_provenance = provenance_line(
+        cfg, config_source, scenario_cfg=scenario_cfg, envelope=baseline_env
+    )
 
     try:
         recovery_kwargs = {}
