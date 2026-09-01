@@ -135,6 +135,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   expressions (no `${{ }}` wrapper, which GitHub re-evaluates and mis-handles)
   plus a `[bot]`-login-suffix guard so the bot's own approval comment can
   never re-trigger itself.
+- **Gate provenance misdescribed statistical runs (G7)**: in envelope mode the
+  `Gate: …` line showed the legacy single-run knobs (`max_divergence=0.3`,
+  `max_cost_delta=10.0%`) while `compare_envelope` actually judged with the
+  scenario tolerances. The line now renders
+  `Gate [statistical envelope: <scenario>, N=<n>]: divergence_ceiling=…,
+  max_cost_increase_pct=…, step_count_std_dev=…` for envelope runs; strict/v1
+  baselines keep the legacy form.
 
 ## [0.4.0] - 2026-08-28
 

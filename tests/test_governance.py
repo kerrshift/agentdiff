@@ -231,6 +231,65 @@ class TestGateProvenance:
         assert "max_recovery_ratio=1.5" in line  # opt-in gate appears when set
         assert f"source: agentdiff.toml ({cfg_file})" in line
 
+    @staticmethod
+    def _statistical_envelope(n_runs: int = 3):
+        from agentdiff.models.envelope import BaselineEnvelope
+
+        runs = [
+            record_run("json:loads", task_input={"s": json.dumps({"a": i})})
+            for i in range(n_runs)
+        ]
+        return BaselineEnvelope.from_runs(runs, scenario="default")
+
+    def test_provenance_line_statistical_envelope_reports_scenario_tolerances(self):
+        """In envelope mode the provenance must describe the gate that actually
+        judged the run — scenario tolerances + envelope identity — not the
+        legacy single-run knobs (which never apply in this path).
+        """
+        from agentdiff.config import ScenarioConfig
+        from agentdiff.governance import provenance_line
+
+        scenario = ScenarioConfig(
+            name="default",
+            max_cost_increase_pct=20.0,
+        )  # tolerances default to 0.35 / 2.0
+        line = provenance_line(
+            AgentDiffConfig(),
+            None,
+            scenario_cfg=scenario,
+            envelope=self._statistical_envelope(3),
+        )
+        assert "Gate [statistical envelope: default, N=3]" in line
+        assert "divergence_ceiling=0.35" in line
+        assert "max_cost_increase_pct=20.0%" in line
+        assert "step_count_std_dev=2.0" in line
+        assert "fail_on_identical_loops=true" in line
+        assert "max_divergence=" not in line  # legacy knob must not leak
+        assert "max_cost_delta=" not in line
+
+    def test_provenance_line_statistical_without_scenario_uses_defaults(self):
+        from agentdiff.governance import provenance_line
+
+        line = provenance_line(
+            AgentDiffConfig(), None, envelope=self._statistical_envelope(2)
+        )
+        assert "Gate [statistical envelope: default, N=2]" in line
+        assert "divergence_ceiling=0.35" in line
+        assert "max_cost_increase_pct=20.0%" in line
+        assert "step_count_std_dev=2.0" in line
+
+    def test_provenance_line_strict_envelope_keeps_legacy_form(self):
+        """A strict single-run baseline (v1) keeps the legacy provenance."""
+        from agentdiff.governance import provenance_line
+        from agentdiff.models.envelope import BaselineEnvelope
+
+        env = BaselineEnvelope.from_runs(
+            [record_run("json:loads", task_input={"s": "{}"})], mode="strict"
+        )
+        line = provenance_line(AgentDiffConfig(), None, envelope=env)
+        assert "max_divergence=0.3" in line
+        assert "statistical envelope" not in line
+
     def test_terminal_format_includes_provenance(self, tmp_path):
         base, cand = TestCLIBaselineConfig()._traces(tmp_path)
         result = runner.invoke(
