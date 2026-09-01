@@ -25,7 +25,7 @@ const TABS = [
     label: "GitHub Action",
     href: "/action",
     cta: "Action docs",
-    code: "- uses: lostmartian/agentdiff/.github/actions/agentdiff-check@main\n  with:\n    baseline: baselines/current.json\n    candidate: traces/pr.json\n    pr: ${{ github.event.number }}",
+    code: "- uses: kerrshift/agentdiff/.github/actions/agentdiff-check@main\n  with:\n    baseline: baselines/current.json\n    candidate: traces/pr.json\n    pr: ${{ github.event.number }}",
     body: "Posts the divergence report as a PR comment; blocks on regression.",
   },
   {

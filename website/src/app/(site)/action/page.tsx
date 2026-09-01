@@ -181,7 +181,7 @@ jobs:
             --output traces/pr_candidate.json
 
       - name: Gate Against Golden Baseline
-        uses: lostmartian/agentdiff/.github/actions/agentdiff-check@main
+        uses: kerrshift/agentdiff/.github/actions/agentdiff-check@main
         with:
           baseline: baselines/golden_run.json
           candidate: traces/pr_candidate.json
@@ -321,7 +321,7 @@ jobs:
         run: git show origin/main:agentdiff.toml > /tmp/baseline-agentdiff.toml
 
       - name: Gate Against Baseline with Governance Guard
-        uses: lostmartian/agentdiff/.github/actions/agentdiff-check@main
+        uses: kerrshift/agentdiff/.github/actions/agentdiff-check@main
         with:
           baseline: baselines/golden_run.json
           candidate: traces/pr_candidate.json

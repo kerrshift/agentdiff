@@ -44,7 +44,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/run_agent.py --prompt "${{ github.event.inputs.prompt }}" --out run.json
-      - uses: lostmartian/agentdiff/.github/actions/agentdiff-check@v0.2.2
+      - uses: kerrshift/agentdiff/.github/actions/agentdiff-check@v0.2.2
         with:
           baseline: traces/gemini_baseline.json
           candidate: run.json

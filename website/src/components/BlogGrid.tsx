@@ -98,7 +98,7 @@ export default function BlogGrid({ posts }: { posts: BlogPostMeta[] }) {
                 <p className="text-sm text-(--muted) max-w-md mx-auto leading-relaxed">
                   v1 is landing soon. Meanwhile,{" "}
                   <a
-                    href="https://github.com/lostmartian/agentdiff/releases"
+                    href="https://github.com/kerrshift/agentdiff/releases"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="underline decoration-(--border) underline-offset-4 hover:decoration-(--fg) text-(--fg) transition-colors font-medium"

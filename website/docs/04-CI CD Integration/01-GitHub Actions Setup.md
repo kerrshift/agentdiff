@@ -107,7 +107,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - uses: lostmartian/agentdiff/.github/actions/agentdiff-check@v0.2.2
+      - uses: kerrshift/agentdiff/.github/actions/agentdiff-check@v0.2.2
         with:
           baseline: traces/baseline.json
           candidate: traces/candidate.json
