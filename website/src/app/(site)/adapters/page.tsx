@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import AdaptersClient from "./AdaptersClient";
 
-const SITE_URL = "https://agentdiff.lostmartian.in";
+const SITE_URL = "https://agentdiff.app";
 
 export const metadata: Metadata = {
   title: "Universal Adapters — Ingest LangGraph, CrewAI, OpenAI, & OTel Traces",

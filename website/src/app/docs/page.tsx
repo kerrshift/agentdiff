@@ -6,7 +6,7 @@ import {
   withResolvedLinks,
 } from "../../lib/docs";
 
-const SITE_URL = "https://agentdiff.lostmartian.in";
+const SITE_URL = "https://agentdiff.app";
 
 /**
  * `/docs` serves the first guide's full content directly (instant, no-JS

@@ -8,7 +8,7 @@ import {
   withResolvedLinks,
 } from "../../../lib/docs";
 
-const SITE_URL = "https://agentdiff.lostmartian.in";
+const SITE_URL = "https://agentdiff.app";
 
 /**
  * One real, statically prerendered route per guide — each with its own

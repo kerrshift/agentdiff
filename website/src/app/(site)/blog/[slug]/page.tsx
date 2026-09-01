@@ -7,7 +7,7 @@ import BlogToc from "../../../../components/BlogToc";
 import ScrollToTop from "../../../../components/ScrollToTop";
 import { getAllPosts, getPost, formatDate, getHeadings } from "../../../../lib/blog";
 
-const SITE_URL = "https://agentdiff.lostmartian.in";
+const SITE_URL = "https://agentdiff.app";
 
 export const dynamicParams = false;
 

@@ -4,7 +4,7 @@ import { ArrowRight, Check, Sparkles, Terminal, Play, GitPullRequest, ShieldChec
 import Reveal from "@/components/Reveal";
 import CodeBlock from "@/components/CodeBlock";
 
-const SITE_URL = "https://agentdiff.lostmartian.in";
+const SITE_URL = "https://agentdiff.app";
 
 export const metadata: Metadata = {
   title: "Quickstart — Zero to Gated Agent in 5 Minutes",

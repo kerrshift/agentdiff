@@ -57,7 +57,7 @@ export default function OgImage() {
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", color: "#a1a1aa", fontSize: 22 }}>
           <span>Trajectory regression testing for AI agents</span>
-          <span>agentdiff.lostmartian.in/features</span>
+          <span>agentdiff.app/features</span>
         </div>
       </div>
     ),

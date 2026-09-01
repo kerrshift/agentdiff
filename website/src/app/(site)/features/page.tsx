@@ -5,7 +5,7 @@ import Reveal from "@/components/Reveal";
 import CodeBlock from "@/components/CodeBlock";
 import FeaturesEngineHeroAsset from "@/components/FeaturesEngineHeroAsset";
 
-const SITE_URL = "https://agentdiff.lostmartian.in";
+const SITE_URL = "https://agentdiff.app";
 
 export const metadata: Metadata = {
   title: "Under the Hood — The AgentDiff Engine Specification",

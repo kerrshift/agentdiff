@@ -134,7 +134,7 @@ export default async function OgImage({
           }}
         >
           <span>Trajectory regression testing for AI agents</span>
-          <span>{`agentdiff.lostmartian.in/blog/${slug}`}</span>
+          <span>{`agentdiff.app/blog/${slug}`}</span>
         </div>
       </div>
     ),
