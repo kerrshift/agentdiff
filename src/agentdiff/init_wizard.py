@@ -200,9 +200,10 @@ concurrency:
 jobs:
   approve:
     if: >-
-      ${{{{ github.event.issue.pull_request != null }}}}
+      github.event.issue.pull_request != null
       && startsWith(github.event.comment.body, '/agentdiff approve')
       && github.event.comment.user.type != 'Bot'
+      && !endsWith(github.event.comment.user.login, '[bot]')
     runs-on: ubuntu-latest
     steps:
       - name: Verify commenter has write access
@@ -212,7 +213,7 @@ jobs:
           PERM=$(gh api repos/${{{{ github.repository }}}}/collaborators/${{{{ github.event.comment.user.login }}}}/permission --jq .permission)
           if [ "$PERM" != "write" ] && [ "$PERM" != "admin" ]; then
             echo "Commenter ${{{{ github.event.comment.user.login }}}} lacks write access ($PERM). Refusing."
-            gh pr comment ${{{{ github.event.issue.number }}}} --body "⛔ /agentdiff approve requires write access."
+            gh pr comment ${{{{ github.event.issue.number }}}} -R ${{{{ github.repository }}}} --body "⛔ /agentdiff approve requires write access."
             exit 1
           fi
 
@@ -265,7 +266,7 @@ jobs:
         env:
           GH_TOKEN: ${{{{ steps.token.outputs.token }}}}
         run: |
-          REF=$(gh pr view ${{{{ github.event.issue.number }}}} --json headRefName --jq .headRefName)
+          REF=$(gh pr view ${{{{ github.event.issue.number }}}} -R ${{{{ github.repository }}}} --json headRefName --jq .headRefName)
           echo "ref=$REF" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@v4
@@ -279,7 +280,7 @@ jobs:
         env:
           GH_TOKEN: ${{{{ steps.token.outputs.token }}}}
         run: |
-          RUN_ID=$(gh run list --workflow "AgentDiff Check" --branch "${{{{ steps.pr.outputs.ref }}}}" --limit 1 --json databaseId --jq '.[0].databaseId')
+          RUN_ID=$(gh run list --workflow "AgentDiff Check" --branch "${{{{ steps.pr.outputs.ref }}}}" -R ${{{{ github.repository }}}} --limit 1 --json databaseId --jq '.[0].databaseId')
           echo "id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
       - name: Download candidate trace

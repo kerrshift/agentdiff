@@ -123,6 +123,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   option, not the first positional argument. Generated workflows now invoke
   `agentdiff diff <baseline> <candidate> --scenario <name>` explicitly, with a
   regression test pinning the valid form.
+- **`agentdiff init --with-approve` runtime fixes** (found by running the
+  generated bot end-to-end on a live repo): pre-checkout `gh` calls
+  (`pr view`, `run list`, `pr comment`) now pass `-R ${{ github.repository }}`
+  so they resolve outside a git checkout; the trigger filter uses native `if`
+  expressions (no `${{ }}` wrapper, which GitHub re-evaluates and mis-handles)
+  plus a `[bot]`-login-suffix guard so the bot's own approval comment can
+  never re-trigger itself.
 
 ## [0.4.0] - 2026-08-28
 

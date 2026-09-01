@@ -76,6 +76,23 @@ class TestWriteConfig:
         )
         assert "--baseline " not in text
 
+    def test_approve_workflow_filters_bots_without_template_if(self, tmp_path):
+        """The approve trigger must use native `if` expressions (no `${{ }}`
+        wrapper — GitHub re-evaluates the substituted string, which lets
+        `!= null`-style interpolations misbehave) and must exclude bot
+        identities both by type and by the `[bot]` login suffix, so the
+        bot's own approval comment can never re-trigger itself.
+        """
+        write_config(tmp_path, framework=GENERIC, with_approve=True)
+        text = (tmp_path / ".github/workflows/agentdiff-approve.yml").read_text()
+        assert "github.event.issue.pull_request != null" in text
+        assert "${{ github.event.issue.pull_request" not in text
+        assert "github.event.comment.user.type != 'Bot'" in text
+        assert "!endsWith(github.event.comment.user.login, '[bot]')" in text
+        # pre-checkout gh calls must resolve the repo explicitly
+        assert "gh pr view ${{ github.event.issue.number }} -R ${{ github.repository }}" in text
+        assert 'gh run list --workflow "AgentDiff Check" --branch "${{ steps.pr.outputs.ref }}" -R ${{ github.repository }}' in text
+
     def test_refuses_to_clobber_without_force(self, tmp_path):
         write_config(tmp_path, framework=GENERIC)
         with pytest.raises(FileExistsError):
