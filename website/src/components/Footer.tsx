@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import LogoMark from "./LogoMark";
 
-export default function Footer({ version = "0.2.1" }: { version?: string }) {
+export default function Footer({ version = "0.5.0" }: { version?: string }) {
   return (
     <footer id="footer-section" className="border-t border-(--border) bg-transparent font-sans">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">

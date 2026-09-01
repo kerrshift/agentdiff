@@ -7,6 +7,14 @@ import Reveal from "./Reveal";
 
 const FAQS = [
   {
+    q: "My agent is non-deterministic — will the gate flake in CI?",
+    a: "No. With AgentDiff 0.5.0, you record an N-run baseline envelope (`agentdiff record ... --runs 3` or `5`). AgentDiff calculates empirical variance bands (step counts, latency, token budgets) and uses min-TDI-of-N comparison. Harmless token jitter or reordered independent steps won't flip the gate, while real regressions (like infinite retry loops) are strictly caught.",
+  },
+  {
+    q: "How does the /agentdiff approve bot work?",
+    a: "When a PR intentionally alters an agent's trajectory (e.g. optimizing a 4-step workflow to 2 steps), reviewers comment `/agentdiff approve` directly on the pull request. The AgentDiff bot validates that no infinite loops exist, updates the committed baseline envelope, and uses the GitHub Checks API to flip the check result to green — with zero local checkout required.",
+  },
+  {
     q: "How does AgentDiff differ from LLM judges (DeepEval, Ragas, LangSmith)?",
     a: "LLM judges score semantic nuance (e.g. 'Is this response polite?') via expensive, non-deterministic model calls that take 15–60 seconds. AgentDiff evaluates the structural execution DAG (tool sequence order, retry loops, wasted token deltas) in sub-5ms using pure graph algorithms. It gives you an instant, deterministic Exit Code 0 or 1 for your CI/CD pipeline.",
   },
@@ -15,20 +23,12 @@ const FAQS = [
     a: "No. AgentDiff is a zero-telemetry Python package (`pip install agent-trajectory-diff`). It executes 100% locally in your shell or CI runner with zero outbound network calls, zero API keys, and zero cloud dependencies.",
   },
   {
-    q: "How do I create and manage golden baselines?",
-    a: "Run `agentdiff record my_agent:run --output tests/golden_baseline.json` once on your known-good production agent. Commit the JSON baseline directly to your Git repository alongside your tests. When a developer creates a PR, your CI runs `agentdiff tests/golden_baseline.json pr_run.json` to verify no regressions occurred.",
+    q: "How do I get started in an existing codebase?",
+    a: "Run `agentdiff init`. The CLI wizard auto-detects your agent framework (LangGraph, CrewAI, OpenAI Agents SDK, OpenTelemetry, etc.), generates a tailored `agentdiff.toml` config, and writes a production-ready GitHub Actions gate workflow in seconds.",
   },
   {
     q: "What frameworks and telemetry formats are supported out of the box?",
     a: "AgentDiff includes native zero-instrumentation ingestion for LangGraph StateGraphs, CrewAI task delegation hierarchies, raw OpenAI tool_calls, OpenTelemetry / OpenInference GenAI semantic spans, Langfuse trace exports, and LangSmith run trees.",
-  },
-  {
-    q: "What happens when an agent legitimately improves its execution path?",
-    a: "If an agent finds a more optimal path (e.g. 2 steps instead of 4, saving tokens), AgentDiff detects a negative token delta and zero error loops. You simply run `agentdiff record` or update your committed baseline file to bless the new optimized trajectory.",
-  },
-  {
-    q: "How does the GitHub Actions PR gate work?",
-    a: "Our official GitHub Action runs your test suite, checks candidate trajectories against baseline tolerances in <5ms, and posts a structured diagnostic comment directly to the Pull Request. If regression tolerances are breached, it exits with Code 1 and blocks merging.",
   },
 ];
 

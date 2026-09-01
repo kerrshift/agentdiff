@@ -40,9 +40,9 @@ const STEPS = [
   {
     num: "01",
     tag: "INSTALLATION",
-    title: "Install the Engine",
+    title: "Install the CLI & Library",
     description:
-      "Install AgentDiff into your project via pip or uv. Air-gapped, zero cloud accounts, and zero background services.",
+      "Install AgentDiff into your virtual environment via pip or uv. Pure Python, zero telemetry, and zero background daemons.",
     badge: "< 3 seconds",
     codeLanguage: "bash",
     filename: "terminal",
@@ -54,45 +54,50 @@ uv add agent-trajectory-diff`,
   },
   {
     num: "02",
-    tag: "BASELINE CAPTURE",
-    title: "Record Golden Baseline Trace",
+    tag: "INIT WIZARD",
+    title: "Initialize Your Project with agentdiff init",
     description:
-      "Execute your known good agent once to capture its canonical execution DAG. Commit the resulting JSON file directly into git.",
-    badge: "1-Click Snapshot",
+      "Run the zero-config wizard. It auto-detects your agent framework (LangGraph, CrewAI, OpenAI Agents, OpenTelemetry), writes agentdiff.toml, and generates your GitHub Actions CI gate workflow.",
+    badge: "Auto-Detection",
     codeLanguage: "bash",
     filename: "terminal",
-    code: `agentdiff record my_agent_module:run \\
-  --input '{"query": "Generate Q3 sales analysis"}' \\
-  --output baselines/golden_run.json`,
+    code: `# Auto-detect framework and generate config + gate workflow
+agentdiff init --scenario customer_support --runs 3
+
+# Or include the /agentdiff approve bot workflow
+agentdiff init --with-approve`,
   },
   {
     num: "03",
-    tag: "TOPOLOGICAL EVALUATION",
-    title: "Diff Candidate Trajectories",
+    tag: "STATISTICAL BASELINE",
+    title: "Record an N-Run Baseline Envelope",
     description:
-      "When upgrading prompts, tools, or model weights, run the comparator to verify graph invariance and catch loops in < 5ms.",
-    badge: "< 5ms Diff",
+      "Capture variance bands across multiple runs so non-deterministic agents don't flake the CI gate on harmless timing or token jitter.",
+    badge: "Variance Bands",
     codeLanguage: "bash",
     filename: "terminal",
-    code: `agentdiff baselines/golden_run.json candidate_run.json \\
-  --explain \\
-  --tree`,
+    code: `# Record a 3-run baseline envelope
+agentdiff record my_agent_module:run \\
+  --input '{"query": "Generate Q3 sales analysis"}' \\
+  --runs 3 \\
+  --out baselines/customer_support.envelope.json`,
   },
   {
     num: "04",
-    tag: "CI/CD REGRESSION GATE",
-    title: "Gate Pull Requests in CI",
+    tag: "HONEST MERGE GATE",
+    title: "Gate CI & Bless with /agentdiff approve",
     description:
-      "Enforce strict trajectory thresholds in your CI pipeline. Automatically exits with code 1 if thresholds fail and posts a rich PR comment.",
-    badge: "Exit Code 0 / 1",
+      "Run the comparator in CI. Hard invariants (loops, error cascades) strictly block merging, while reviewers can bless intended improvements directly from PR comments.",
+    badge: "Exit 0 / 1 + Bot",
     codeLanguage: "bash",
     filename: "ci_pipeline.sh",
-    code: `agentdiff baselines/golden_run.json candidate_run.json \\
+    code: `# Diff candidate run against statistical baseline envelope
+agentdiff diff baselines/customer_support.envelope.json traces/pr_candidate.json \\
   --fail-on-regression \\
-  --max-divergence 0.25 \\
-  --max-cost-delta 10.0 \\
-  --format markdown \\
-  --output-file pr_verdict.md`,
+  --pr \${{ github.event.number }}
+
+# Reviewers bless accepted improvements right on GitHub:
+# Comment: /agentdiff approve`,
   },
 ];
 
@@ -280,12 +285,18 @@ export default function QuickstartPage() {
                   <CodeBlock
                     language="toml"
                     filename="agentdiff.toml"
-                    code={`[assertions]
-max_divergence = 0.25
+                    code={`[scenario.default]
+mode = "statistical"
+sample_runs = 3
 max_cost_increase_pct = 5.0
-allow_loops = false
-max_wasted_effort = 0.10
-max_recovery_step_ratio = 1.5`}
+
+[scenario.default.hard_invariants]
+fail_on_identical_loops = true
+max_tool_repeats = 3
+
+[scenario.default.tolerances]
+step_count_std_dev = 2.0
+divergence_ceiling = 0.35`}
                   />
                 </div>
               </div>
@@ -311,16 +322,24 @@ max_recovery_step_ratio = 1.5`}
                 Ready to automate on GitHub?
               </h2>
               <p className="text-base sm:text-lg text-(--muted) leading-relaxed font-normal">
-                Add the official AgentDiff GitHub Action to your repository and receive instant diagnostic PR comments on every commit.
+                Install the official GitHub App or drop the Action into your repository for instant diagnostic comments and in-PR approval.
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-4 pt-6">
-                <Link
-                  href="/action"
+                <a
+                  href="https://github.com/apps/agentdiff-ci"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="px-8 py-3.5 rounded-full bg-(--fg) text-(--bg) text-sm font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-sm"
                 >
-                  <span>Explore GitHub Action</span>
+                  <span>Install GitHub App</span>
                   <ArrowRight className="w-4 h-4" />
+                </a>
+                <Link
+                  href="/action"
+                  className="px-7 py-3.5 rounded-full border border-(--border) bg-(--surface) text-(--fg) text-sm font-semibold hover:bg-(--surface-2) transition-colors"
+                >
+                  <span>Explore GitHub Action</span>
                 </Link>
                 <Link
                   href="/docs"

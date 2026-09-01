@@ -102,18 +102,30 @@ export default function ActionPage() {
               <div className="mt-8 flex flex-wrap items-center gap-6 text-xs text-(--muted)">
                 <span className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  <span className="text-(--fg) font-semibold">30-Second Setup</span>
+                  <span className="text-(--fg) font-semibold">30-Second Setup with agentdiff init</span>
                 </span>
                 <span className="text-(--border) select-none">•</span>
                 <span className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  <span>Automated PR Comment Diagnostic</span>
+                  <span>Interactive /agentdiff approve Bot</span>
                 </span>
                 <span className="text-(--border) select-none">•</span>
                 <span className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  <span>Goodhart Threshold Protection</span>
+                  <span>Hosted Identity (agentdiff[bot])</span>
                 </span>
+              </div>
+
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <a
+                  href="https://github.com/apps/agentdiff-ci"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-3 rounded-full bg-(--fg) text-(--bg) text-xs font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-sm"
+                >
+                  <span>Install GitHub App</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </a>
               </div>
             </div>
           </Reveal>
@@ -134,17 +146,17 @@ export default function ActionPage() {
                 Drop into any repo in 30 seconds.
               </h2>
               <p className="text-base text-(--muted) leading-relaxed font-normal">
-                Execute your agent test script in CI, record the candidate trace, and invoke <code className="text-xs font-mono text-(--fg) bg-(--surface-2) px-1.5 py-0.5 rounded border border-(--border)">agentdiff-check</code>. If divergence, cost, or retry loop thresholds breach tolerance, the action fails with exit code 1.
+                Generate your gate in one command with <code className="text-xs font-mono text-(--fg) bg-(--surface-2) px-1.5 py-0.5 rounded border border-(--border)">agentdiff init --with-approve</code>. If divergence, cost, or retry loops breach tolerance, the action fails with exit code 1 and posts a human-first PR verdict.
               </p>
 
               <div className="pt-2">
                 <a
-                  href="https://github.com/lostmartian/agentdiff-demo/pull/3"
+                  href="https://github.com/lostmartian/agentdiff-demo/pull/4"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-emerald-500 hover:underline"
                 >
-                  <span>Inspect live PR comment demo on GitHub #3</span>
+                  <span>Inspect live PR comment demo on GitHub #4</span>
                   <ExternalLink className="w-4 h-4" />
                 </a>
               </div>
@@ -180,10 +192,10 @@ jobs:
             --input '{"scenario": "customer_support"}' \\
             --output traces/pr_candidate.json
 
-      - name: Gate Against Golden Baseline
-        uses: kerrshift/agentdiff/.github/actions/agentdiff-check@main
+      - name: Gate Against Statistical Baseline Envelope
+        uses: kerrshift/agentdiff/.github/actions/agentdiff-check@v0.5.0
         with:
-          baseline: baselines/golden_run.json
+          baseline: baselines/customer_support.envelope.json
           candidate: traces/pr_candidate.json
           pr: \${{ github.event.number }}
           github-token: \${{ secrets.GITHUB_TOKEN }}`}
@@ -257,26 +269,72 @@ jobs:
                   </div>
                 </div>
 
-                {/* Pillar 3: Automated Rotation */}
+                {/* Pillar 3: Interactive Approve Bot & Baseline Rotation */}
                 <div className="py-10 lg:py-12 lg:pl-10 space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs uppercase tracking-wider text-blue-500 font-semibold">
+                    <span className="text-xs uppercase tracking-wider text-emerald-500 font-semibold">
                       Deliverable 03
                     </span>
-                    <RotateCcw className="w-4 h-4 text-blue-400" />
+                    <RotateCcw className="w-4 h-4 text-emerald-400" />
                   </div>
                   <h3 className="text-xl font-bold text-(--fg) tracking-tight">
-                    Automated Baseline Rotation
+                    Interactive /agentdiff approve Bot
                   </h3>
                   <p className="text-sm sm:text-base text-(--muted) leading-relaxed">
-                    Set <code className="text-xs font-mono text-(--fg) bg-(--surface-2) px-1 py-0.5 rounded border border-(--border)">update-baseline = true</code> to safely advance your golden baseline trace only when the candidate execution passes all assertion criteria.
+                    Reviewers bless intentional improvements directly by commenting <code className="text-xs font-mono text-(--fg) bg-(--surface-2) px-1.5 py-0.5 rounded border border-(--border)">/agentdiff approve</code>. Candidate runs join the baseline envelope without local checkouts or manual JSON edits.
                   </p>
                   <div className="pt-2 flex items-center gap-2 text-xs text-(--muted)">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                    <span>Zero manual JSON copy-pasting</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    <span>Hosted identity as agentdiff[bot] via token.agentdiff.app</span>
                   </div>
                 </div>
 
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Approve Bot Spotlight Box */}
+          <Reveal delay={120}>
+            <div className="mt-16 p-8 sm:p-10 rounded-3xl border border-(--border) bg-(--surface) shadow-2xs space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <span className="text-xs uppercase tracking-wider text-emerald-500 font-semibold">
+                    In-PR Workflow
+                  </span>
+                  <h3 className="text-2xl font-bold text-(--fg) tracking-tight">
+                    Bless improvements without leaving GitHub
+                  </h3>
+                </div>
+                <a
+                  href="https://github.com/apps/agentdiff-ci"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-2 rounded-full bg-(--fg) text-(--bg) text-xs font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2"
+                >
+                  <span>Install AgentDiff CI App</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </a>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-(--muted) divide-y md:divide-y-0 md:divide-x divide-(--border)">
+                <div className="space-y-2 md:pr-6">
+                  <div className="font-semibold text-(--fg) text-sm">1. Reviewer Comment</div>
+                  <p className="leading-relaxed">
+                    A team member with write access comments <code className="text-xs font-mono text-(--fg) bg-(--surface-2) px-1 rounded">/agentdiff approve</code> on a PR flagged for path drift.
+                  </p>
+                </div>
+                <div className="space-y-2 md:px-6 pt-4 md:pt-0">
+                  <div className="font-semibold text-(--fg) text-sm">2. D3 Invariant Check</div>
+                  <p className="leading-relaxed">
+                    Path drift and cost deltas are blessable; infinite loops are <strong>never blessable</strong>. The bot refuses to bless cyclical bugs.
+                  </p>
+                </div>
+                <div className="space-y-2 md:pl-6 pt-4 md:pt-0">
+                  <div className="font-semibold text-(--fg) text-sm">3. Green Checks-API Flip</div>
+                  <p className="leading-relaxed">
+                    The bot updates the committed baseline envelope, pushes the commit, and flips the GitHub Check result to green.
+                  </p>
+                </div>
               </div>
             </div>
           </Reveal>
@@ -321,7 +379,7 @@ jobs:
         run: git show origin/main:agentdiff.toml > /tmp/baseline-agentdiff.toml
 
       - name: Gate Against Baseline with Governance Guard
-        uses: kerrshift/agentdiff/.github/actions/agentdiff-check@main
+        uses: kerrshift/agentdiff/.github/actions/agentdiff-check@v0.5.0
         with:
           baseline: baselines/golden_run.json
           candidate: traces/pr_candidate.json
@@ -415,11 +473,19 @@ jobs:
                 Add one GitHub Action step to automate trajectory regression testing across your engineering team in under 5 minutes.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-4 pt-4 text-sm font-semibold">
-                <Link
-                  href="/quickstart"
+                <a
+                  href="https://github.com/apps/agentdiff-ci"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="px-8 py-3.5 rounded-full bg-(--fg) text-(--bg) hover:opacity-90 transition-opacity shadow-sm"
                 >
-                  Get Started with Quickstart →
+                  Install GitHub App →
+                </a>
+                <Link
+                  href="/quickstart"
+                  className="px-8 py-3.5 rounded-full border border-(--border) text-(--fg) hover:bg-(--surface-2) transition-colors"
+                >
+                  Quickstart Guide
                 </Link>
                 <Link
                   href="/docs"

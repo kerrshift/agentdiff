@@ -49,6 +49,13 @@ interface RowItem {
 const COMPARISON_ROWS: RowItem[] = [
   {
     category: "CI/CD & Determinism",
+    capability: "Statistical baseline envelopes (N-run variance bands)",
+    agentdiff: true,
+    judge: false,
+    observability: "partial",
+  },
+  {
+    category: "CI/CD & Determinism",
     capability: "Deterministic CI gate (100% reproducible verdict)",
     agentdiff: true,
     judge: false,
@@ -59,6 +66,13 @@ const COMPARISON_ROWS: RowItem[] = [
     capability: "Catches silent trajectory drift (wrong path, right answer)",
     agentdiff: true,
     judge: "partial",
+    observability: false,
+  },
+  {
+    category: "CI/CD & Determinism",
+    capability: "In-PR re-baselining bot (/agentdiff approve)",
+    agentdiff: true,
+    judge: false,
     observability: false,
   },
   {

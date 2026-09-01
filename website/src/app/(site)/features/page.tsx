@@ -1102,26 +1102,28 @@ export default function FeaturesPage() {
                 <CodeBlock
                   language="toml"
                   filename="agentdiff.toml"
-                  code={`# agentdiff.toml — Committed repository configuration
+                  code={`# agentdiff.toml — Committed v0.5.0 repository configuration
 
-[compare]
-detect_loops = true
-strict_tool_signatures = false
+[scenario.customer_support]
+mode = "statistical"                # "statistical" (N-run envelope) or "strict" (N=1)
+sample_runs = 3                     # Rolling window of recorded runs
+max_cost_increase_pct = 5.0         # Max cost increase delta
 
-[assertions]
-max_divergence = 0.25              # Fails CI if TDI > 0.25
-max_wasted_effort = 0.10           # Fails CI if > 10% compute is wasted
-allow_loops = false                # Fails CI on any tool repetition
-max_cost_increase_pct = 5.0        # Fails CI if cost delta > +5%
-max_recovery_step_ratio = 1.5      # Fails CI if error recovery degrades > 1.5x
+[scenario.customer_support.hard_invariants]
+fail_on_identical_loops = true      # Hard block: infinite retry loops never pass
+max_tool_repeats = 3                # Hard block: repeat limit per tool node
+
+[scenario.customer_support.tolerances]
+step_count_std_dev = 2.0            # Variance band: mean ± 2σ step count
+divergence_ceiling = 0.35           # Max acceptable sequence drift
 
 [masking]
 ignore_keys = ["timestamp", "session_id", "trace_id", "auth_token"]
 regex_patterns = ["^uuid_[0-9a-f-]+$", "^Bearer\\\\s+.*$"]
 
 [governance]
-warn_stale_baseline_days = 30      # Warns when golden baseline exceeds 30 days
-flag_threshold_changes = true      # Flags PRs that lower gate rigor`}
+warn_stale_baseline_days = 30       # Warns when envelope exceeds 30 days
+flag_threshold_changes = true       # Flags PRs that lower gate rigor`}
                 />
               </div>
             </div>

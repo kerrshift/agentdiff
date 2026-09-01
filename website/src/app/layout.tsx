@@ -142,7 +142,7 @@ const jsonLd = {
         price: "0",
         priceCurrency: "USD",
       },
-      softwareVersion: "0.3.0",
+      softwareVersion: "0.5.0",
     },
   ],
 };
