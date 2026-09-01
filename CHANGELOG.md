@@ -115,6 +115,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `kerrshift/agentdiff/.github/actions/agentdiff-check`; old
   `lostmartian/agentdiff` URLs continue to work via GitHub redirects.
 
+### Fixed
+- **`agentdiff init` generated workflows used an invalid CLI form**: the gate
+  and PR-report steps invoked `agentdiff <candidate> --baseline <baseline>`,
+  which the E1 diff-default patch parses as `diff` with a missing positional
+  (`Missing argument 'candidate_path'`) — `--baseline` is the baseline-*store*
+  option, not the first positional argument. Generated workflows now invoke
+  `agentdiff diff <baseline> <candidate> --scenario <name>` explicitly, with a
+  regression test pinning the valid form.
+
 ## [0.4.0] - 2026-08-28
 
 AgentDiff v0.4.0 — trace capture, Goodhart-resistant gating, and a full docs

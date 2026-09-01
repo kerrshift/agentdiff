@@ -62,6 +62,20 @@ class TestWriteConfig:
         # record target placeholder is explicitly marked
         assert "EDIT ME" in text
 
+    def test_workflow_invokes_diff_with_valid_cli_form(self, tmp_path):
+        """Regression: generated workflows must call `agentdiff diff BASELINE
+        CANDIDATE`. The bare form (`agentdiff candidate --baseline …`) hits
+        the E1 diff-default patch and fails with a missing positional, since
+        `--baseline` is the baseline-*store* option, not the first positional.
+        """
+        write_config(tmp_path, framework=GENERIC, scenario="refund")
+        text = (tmp_path / ".github/workflows/agentdiff.yml").read_text()
+        assert (
+            "agentdiff diff baselines/refund.envelope.json traces/candidate.json"
+            in text
+        )
+        assert "--baseline " not in text
+
     def test_refuses_to_clobber_without_force(self, tmp_path):
         write_config(tmp_path, framework=GENERIC)
         with pytest.raises(FileExistsError):

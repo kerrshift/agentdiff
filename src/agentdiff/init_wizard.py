@@ -144,8 +144,7 @@ jobs:
 
       - name: Gate against baseline envelope
         run: |
-          agentdiff {candidate} \\
-            --baseline {baseline} \\
+          agentdiff diff {baseline} {candidate} \\
             --fail-on-regression \\
             --scenario {scenario}
 
@@ -160,8 +159,7 @@ jobs:
       - name: Post PR report
         if: always()
         run: |
-          agentdiff {candidate} \\
-            --baseline {baseline} \\
+          agentdiff diff {baseline} {candidate} \\
             --format pr --pr ${{{{ github.event.number }}}} \\
             --scenario {scenario}
 """
