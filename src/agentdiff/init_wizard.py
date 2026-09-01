@@ -144,8 +144,7 @@ jobs:
 
       - name: Gate against baseline envelope
         run: |
-          agentdiff {candidate} \\
-            --baseline {baseline} \\
+          agentdiff diff {baseline} {candidate} \\
             --fail-on-regression \\
             --scenario {scenario}
 
@@ -157,11 +156,33 @@ jobs:
           path: {candidate}
           retention-days: 7
 
+      - name: AgentDiff bot token (hosted service, optional)
+        id: bot_token
+        if: always()
+        env:
+          SERVICE_URL: {token_service}
+          GH_TOKEN: ${{{{ github.token }}}}
+          REPO: ${{{{ github.repository }}}}
+        run: |
+          # Branded agentdiff[bot] identity when the AgentDiff App is
+          # installed on this repo; silently falls back to GITHUB_TOKEN
+          # otherwise. Stateless mint, 1h expiry, nothing stored.
+          RESP=$(curl -sS -X POST "$SERVICE_URL/token" \\
+            -H "Content-Type: application/json" \\
+            -d "{{\\"repository\\": \\"$REPO\\", \\"token\\": \\"$GH_TOKEN\\"}}" || true)
+          BOT_TOKEN=$(echo "$RESP" | python3 -c 'import json,sys
+          try: print(json.load(sys.stdin).get("token",""))
+          except Exception: print("")' 2>/dev/null || true)
+          if [ -n "$BOT_TOKEN" ]; then
+            echo "token=$BOT_TOKEN" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Post PR report
         if: always()
+        env:
+          GITHUB_TOKEN: ${{{{ steps.bot_token.outputs.token || secrets.GITHUB_TOKEN }}}}
         run: |
-          agentdiff {candidate} \\
-            --baseline {baseline} \\
+          agentdiff diff {baseline} {candidate} \\
             --format pr --pr ${{{{ github.event.number }}}} \\
             --scenario {scenario}
 """
@@ -202,9 +223,10 @@ concurrency:
 jobs:
   approve:
     if: >-
-      ${{{{ github.event.issue.pull_request != null }}}}
+      github.event.issue.pull_request != null
       && startsWith(github.event.comment.body, '/agentdiff approve')
       && github.event.comment.user.type != 'Bot'
+      && !endsWith(github.event.comment.user.login, '[bot]')
     runs-on: ubuntu-latest
     steps:
       - name: Verify commenter has write access
@@ -214,7 +236,7 @@ jobs:
           PERM=$(gh api repos/${{{{ github.repository }}}}/collaborators/${{{{ github.event.comment.user.login }}}}/permission --jq .permission)
           if [ "$PERM" != "write" ] && [ "$PERM" != "admin" ]; then
             echo "Commenter ${{{{ github.event.comment.user.login }}}} lacks write access ($PERM). Refusing."
-            gh pr comment ${{{{ github.event.issue.number }}}} --body "⛔ /agentdiff approve requires write access."
+            gh pr comment ${{{{ github.event.issue.number }}}} -R ${{{{ github.repository }}}} --body "⛔ /agentdiff approve requires write access."
             exit 1
           fi
 
@@ -267,7 +289,7 @@ jobs:
         env:
           GH_TOKEN: ${{{{ steps.token.outputs.token }}}}
         run: |
-          REF=$(gh pr view ${{{{ github.event.issue.number }}}} --json headRefName --jq .headRefName)
+          REF=$(gh pr view ${{{{ github.event.issue.number }}}} -R ${{{{ github.repository }}}} --json headRefName --jq .headRefName)
           echo "ref=$REF" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@v4
@@ -281,7 +303,7 @@ jobs:
         env:
           GH_TOKEN: ${{{{ steps.token.outputs.token }}}}
         run: |
-          RUN_ID=$(gh run list --workflow "AgentDiff Check" --branch "${{{{ steps.pr.outputs.ref }}}}" --limit 1 --json databaseId --jq '.[0].databaseId')
+          RUN_ID=$(gh run list --workflow "AgentDiff Check" --branch "${{{{ steps.pr.outputs.ref }}}}" -R ${{{{ github.repository }}}} --limit 1 --json databaseId --jq '.[0].databaseId')
           echo "id=$RUN_ID" >> "$GITHUB_OUTPUT"
 
       - name: Download candidate trace
@@ -331,7 +353,11 @@ jobs:
 
 def _render_workflow(runs: int, scenario: str, baseline: str, candidate: str) -> str:
     return WORKFLOW_TEMPLATE.format(
-        runs=runs, scenario=scenario, baseline=baseline, candidate=candidate
+        runs=runs,
+        scenario=scenario,
+        baseline=baseline,
+        candidate=candidate,
+        token_service=TOKEN_SERVICE_URL,
     )
 
 
