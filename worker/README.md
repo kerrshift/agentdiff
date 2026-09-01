@@ -18,7 +18,7 @@ wrangler login
 wrangler secret put AGENTDIFF_APP_ID          # paste the App's numeric ID
 wrangler secret put AGENTDIFF_APP_PRIVATE_KEY # paste the full PEM (incl. BEGIN/END lines)
 
-npx wrangler deploy           # → https://agentdiff-token.sahilgangurde08.workers.dev
+npx wrangler deploy           # → https://token.agentdiff.app
 ```
 
 The URL is baked into the generated workflows (`init_wizard.TOKEN_SERVICE_URL`)
@@ -28,10 +28,10 @@ The URL is baked into the generated workflows (`init_wizard.TOKEN_SERVICE_URL`)
 ## Smoke test
 
 ```bash
-curl https://agentdiff-token.sahilgangurde08.workers.dev/
+curl https://token.agentdiff.app/
 # {"service":"agentdiff-token","status":"ok",...}
 
-curl -X POST .../token -H 'Content-Type: application/json' \
+curl -X POST https://token.agentdiff.app/token -H 'Content-Type: application/json' \
   -d '{"repository":"owner/repo","token":"<a workflow token>"}'
 # 200 {token, expires_at}            (App installed)
 # 403 not installed / token rejected (falls back to github-actions[bot])

@@ -2,6 +2,12 @@ name = "agentdiff-token"
 main = "src/worker.js"
 compatibility_date = "2026-08-01"
 
+# Branded endpoint — attaches automatically on deploy (creates DNS + cert).
+# NOTE: must stay ABOVE [vars] — TOML keys after a table header belong to it.
+routes = [
+  { pattern = "token.agentdiff.app", custom_domain = true }
+]
+
 # Secrets (set via `wrangler secret put`, never in this file):
 #   AGENTDIFF_APP_ID          - the AgentDiff GitHub App's numeric ID
 #   AGENTDIFF_APP_PRIVATE_KEY - the App's PEM private key
