@@ -28,7 +28,7 @@ const themeScript = `
 `;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://agentdiff.lostmartian.in"),
+  metadataBase: new URL("https://agentdiff.app"),
   title: {
     default: "AgentDiff - Trajectory Regression Testing for AI Agents",
     template: "%s | AgentDiff",
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     "langfuse",
     "langsmith",
   ],
-  authors: [{ name: "AgentDiff", url: "https://agentdiff.lostmartian.in" }],
+  authors: [{ name: "AgentDiff", url: "https://agentdiff.app" }],
   creator: "AgentDiff",
   publisher: "AgentDiff",
   category: "Developer Tools",
@@ -74,7 +74,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "AgentDiff - Trajectory Regression Testing for AI Agents",
     description: "Compare agent execution traces as DAGs. Detect drift, loops, and cost regressions in CI/CD.",
-    url: "https://agentdiff.lostmartian.in",
+    url: "https://agentdiff.app",
     siteName: "AgentDiff",
     type: "website",
     locale: "en_US",
@@ -114,27 +114,27 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "WebSite",
-      "@id": "https://agentdiff.lostmartian.in/#website",
-      url: "https://agentdiff.lostmartian.in/",
+      "@id": "https://agentdiff.app/#website",
+      url: "https://agentdiff.app/",
       name: "AgentDiff",
       description:
         "Trajectory regression testing for AI agents. Diff agent execution traces as DAGs and block drift, tool loops, and cost spikes in CI/CD.",
-      publisher: { "@id": "https://agentdiff.lostmartian.in/#organization" },
+      publisher: { "@id": "https://agentdiff.app/#organization" },
     },
     {
       "@type": "Organization",
-      "@id": "https://agentdiff.lostmartian.in/#organization",
+      "@id": "https://agentdiff.app/#organization",
       name: "AgentDiff",
-      url: "https://agentdiff.lostmartian.in/",
-      logo: "https://agentdiff.lostmartian.in/favicon.svg",
+      url: "https://agentdiff.app/",
+      logo: "https://agentdiff.app/favicon.svg",
     },
     {
       "@type": "SoftwareApplication",
-      "@id": "https://agentdiff.lostmartian.in/#software",
+      "@id": "https://agentdiff.app/#software",
       name: "AgentDiff",
       applicationCategory: "DeveloperApplication",
       operatingSystem: "Any",
-      url: "https://agentdiff.lostmartian.in/",
+      url: "https://agentdiff.app/",
       description:
         "AgentDiff compares AI agent execution traces as DAGs in CI/CD, detecting trajectory drift, tool loops, and cost regressions.",
       offers: {

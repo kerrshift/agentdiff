@@ -122,7 +122,7 @@ export default function OgImage() {
           }}
         >
           <span>Trajectory regression testing for AI agents</span>
-          <span>agentdiff.lostmartian.in/blog</span>
+          <span>agentdiff.app/blog</span>
         </div>
       </div>
     ),

@@ -103,7 +103,7 @@ export function getDocDescription(content: string): string {
   return paragraph || "AgentDiff documentation.";
 }
 
-const SITE_URL = "https://agentdiff.lostmartian.in";
+const SITE_URL = "https://agentdiff.app";
 
 /**
  * Rewrites relative markdown links (`../03-Guides/05-Configuration.md`,

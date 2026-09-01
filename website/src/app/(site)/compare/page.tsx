@@ -4,7 +4,7 @@ import { Check, Minus, X, GitPullRequest, Radio, Sparkles, Scale, Gauge, ShieldA
 import Reveal from "@/components/Reveal";
 import CompareHeroAsset from "@/components/CompareHeroAsset";
 
-const SITE_URL = "https://agentdiff.lostmartian.in";
+const SITE_URL = "https://agentdiff.app";
 
 export const metadata: Metadata = {
   title: "AgentDiff vs Alternatives — Objective Architectural Comparison",

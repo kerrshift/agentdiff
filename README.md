@@ -12,14 +12,14 @@
   <a href="https://pypi.org/project/agent-trajectory-diff/"><img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg" alt="Python Versions" /></a>
   <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/badge/code%20style-ruff-000000.svg" alt="Code Style: Ruff" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
-  <a href="https://agentdiff.lostmartian.in"><img src="https://img.shields.io/badge/docs-agentdiff.lostmartian.in-emerald.svg" alt="Website" /></a>
+  <a href="https://agentdiff.app"><img src="https://img.shields.io/badge/docs-agentdiff.app-emerald.svg" alt="Website" /></a>
 </p>
 
 ```bash
 pip install agent-trajectory-diff
 ```
 
-[Website & Interactive Docs](https://agentdiff.lostmartian.in) · [Cookbooks](cookbooks/) · [Live Demo Repo](https://github.com/lostmartian/agentdiff-demo) · [Changelog](CHANGELOG.md)
+[Website & Interactive Docs](https://agentdiff.app) · [Cookbooks](cookbooks/) · [Live Demo Repo](https://github.com/lostmartian/agentdiff-demo) · [Changelog](CHANGELOG.md)
 
 </div>
 
@@ -233,11 +233,11 @@ Agent trajectories often contain proprietary prompts, sensitive tool payloads, a
 
 ## Documentation & Cookbooks
 
-- **Official Documentation:** [https://agentdiff.lostmartian.in](https://agentdiff.lostmartian.in)
+- **Official Documentation:** [https://agentdiff.app](https://agentdiff.app)
 - **Live Demo Repository:** [github.com/lostmartian/agentdiff-demo](https://github.com/lostmartian/agentdiff-demo)
-- **Engine Specification:** [Under the Hood](https://agentdiff.lostmartian.in/features)
-- **Interactive Visualizer:** [Diff Playground](https://agentdiff.lostmartian.in/compare)
-- **Adapters Guide:** [Framework Integration](https://agentdiff.lostmartian.in/adapters)
+- **Engine Specification:** [Under the Hood](https://agentdiff.app/features)
+- **Interactive Visualizer:** [Diff Playground](https://agentdiff.app/compare)
+- **Adapters Guide:** [Framework Integration](https://agentdiff.app/adapters)
 
 ## Development
 

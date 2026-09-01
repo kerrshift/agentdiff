@@ -12,7 +12,7 @@ const MARKETING_PAGES = [
   { path: "/compare", priority: 0.8 },
 ];
 
-const SITE_URL = "https://agentdiff.lostmartian.in";
+const SITE_URL = "https://agentdiff.app";
 
 /**
  * Static-export sitemap: the landing page, every docs guide, the blog index,
