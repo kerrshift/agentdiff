@@ -65,8 +65,7 @@ class TestTemplateWiring:
     def test_token_service_url_constant(self):
         from agentdiff.init_wizard import TOKEN_SERVICE_URL
 
-        assert TOKEN_SERVICE_URL.startswith("https://")
-        assert "workers.dev" in TOKEN_SERVICE_URL
+        assert TOKEN_SERVICE_URL == "https://token.agentdiff.app"
         # parseable as a URL
         from urllib.parse import urlparse
 

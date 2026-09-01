@@ -105,7 +105,7 @@ class TestWorkflowTemplates:
         assert "check-runs" in text  # green flip via the Checks API
         assert "Re-baselined via /agentdiff approve" in text
         # hosted identity service (no secrets needed) + self-managed App escape hatch
-        assert "https://agentdiff-token.sahilgangurde08.workers.dev" in text
+        assert "https://token.agentdiff.app" in text
         assert "create-github-app-token" in text
         assert "agentdiff[bot]" in text
         # valid YAML
