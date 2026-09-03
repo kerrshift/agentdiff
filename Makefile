@@ -1,4 +1,4 @@
-.PHONY: lint format test bench build website-dev website-build website-install ci all
+.PHONY: lint format test bench build ci all
 
 # ── Python ──────────────────────────────────────────────────────────────────
 
@@ -17,22 +17,12 @@ bench:
 build:
 	uv build
 
-# ── Website ──────────────────────────────────────────────────────────────────
-
-website-install:
-	cd website && pnpm install
-
-website-dev:
-	cd website && pnpm dev
-
-website-build:
-	cd website && pnpm build
-
 # ── CI / Full pipeline ────────────────────────────────────────────────────────
-# Runs everything: lint → tests → Python build → website build.
+# Runs everything: lint → tests → Python build.
 # This mirrors what GitHub Actions does on every push to main.
+# (The website lives in kerrshift/agentdiff-website with its own pipeline.)
 
-ci: lint test build website-install website-build
+ci: lint test build
 
 # Alias so `make all` does the same as `make ci`
 all: ci
