@@ -11,7 +11,11 @@ Instructions for AI coding agents and humans working in this repository.
   git checkout -b <type>/<short-desc>
   ```
 - **One logical change per branch, one branch per PR.** Unrelated fixes get their own branch/PR.
-- **Product and website are never mixed.** `website/` changes get their own branch/PR, separate from product code (`src/`, `tests/`, `cookbooks/`, `schema/`).
+- **This repo is product-only (Python).** The website lives in
+  [`kerrshift/agentdiff-website`](https://github.com/kerrshift/agentdiff-website) with
+  its own CI/CD (deploys agentdiff.app on merge to `main`); site changes
+  never land here. The `worker/` (token service) is product infrastructure
+  and stays here.
 - Branch naming: `feat|fix|docs|chore|test|refactor/<kebab-case-summary>` (e.g. `feat/recovery-step-ratio`, `docs/readme-faq`).
 
 ## Commits & PRs

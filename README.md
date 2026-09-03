@@ -199,8 +199,8 @@ make test
 # Build package distributions
 make build
 
-# Launch the website & docs locally
-make website-dev
+# Website & docs (separate repo, deploys agentdiff.app)
+# → github.com/kerrshift/agentdiff-website
 ```
 
 ## License

@@ -5,6 +5,16 @@ All notable changes to **AgentDiff** (`agent-trajectory-diff`) are documented he
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **Website extracted to [`kerrshift/agentdiff-website`](https://github.com/kerrshift/agentdiff-website)**
+  (full git history preserved): this repository is now product-only Python.
+  The site owns its own CI/CD — GitHub Actions builds and deploys agentdiff.app
+  to Cloudflare Pages on every merge there. `Makefile` `website-*` targets and
+  the product/website PR-split rules are retired; the token-service `worker/`
+  remains here as product infrastructure.
+
 ## [0.5.0] - 2026-09-02
 
 AgentDiff v0.5.0 — the **Circuit Breaker** release: statistical baselines, an

@@ -11,9 +11,9 @@ sent back.
 1. **Never commit directly to `main`.** Every change lands through a branch + PR.
 2. **One change per branch, one branch per PR.** If you spot an unrelated issue,
    open a separate branch/PR — never ride it along.
-3. **Product and website don't mix.** Changes to `website/` (marketing/docs site)
-   get their own branch/PR, separate from product (`src/`, `tests/`, `cookbooks/`)
-   changes.
+3. **This repo is product-only (Python).** The website lives in
+   [`kerrshift/agentdiff-website`](https://github.com/kerrshift/agentdiff-website)
+   with its own CI/CD — site changes never land here.
 4. **Branch off the latest `main`:**
    ```bash
    git checkout main && git pull origin main
