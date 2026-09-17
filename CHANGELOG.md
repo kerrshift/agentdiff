@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-09-17
+
+AgentDiff v0.5.1 — a patch for a false positive found by the project's own
+live gate: consecutive repetition of a step pattern is now a loop only when the
+repeated steps are stagnant. Iterating one tool across items no longer blocks
+the build.
+
 ### Fixed
 - **Sequence-loop detector no longer blocks legitimate iteration**: repetition
   of a step-name pattern was treated as a loop even when the repeated steps had
@@ -366,3 +373,4 @@ regression engine for multi-turn, tool-using AI agents.
 
 [0.2.0]: https://github.com/kerrshift/agentdiff/releases/tag/v0.2.0
 [0.5.0]: https://github.com/kerrshift/agentdiff/releases/tag/v0.5.0
+[0.5.1]: https://github.com/kerrshift/agentdiff/releases/tag/v0.5.1
