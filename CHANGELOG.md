@@ -15,6 +15,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the product/website PR-split rules are retired; the token-service `worker/`
   remains here as product infrastructure.
 
+## [Unreleased]
+
+### Fixed
+- **Sequence-loop detector no longer blocks legitimate iteration**: repetition
+  of a step-name pattern was treated as a loop even when the repeated steps had
+  different inputs and outputs, so a tool-calling agent that iterates one tool
+  across items (`decide -> call -> decide -> call -> decide -> call`, e.g. one
+  call per state) was hard-blocked with `Blocked by: loops` while its
+  trajectory divergence was `0.0`. Repetition now counts as a loop only when
+  the repeated steps are **stagnant** (identical input payloads and outputs),
+  matching the identical-call invariant's standard. Runaway behaviour with
+  drifting arguments remains covered by `max_tool_repeats` and the resource
+  bands. Found by this project's own live gate running against the public demo
+  repository.
+
 ## [0.5.0] - 2026-09-02
 
 AgentDiff v0.5.0 — the **Circuit Breaker** release: statistical baselines, an

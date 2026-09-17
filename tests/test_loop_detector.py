@@ -28,7 +28,8 @@ def test_single_step_stagnant_loop():
     assert loops[0]["stagnant"] is True
 
 
-def test_non_stagnant_loop():
+def test_non_stagnant_repetition_is_iteration_not_a_loop():
+    """Different inputs across repeats = walking a list, not a runaway loop."""
     trace = make_trace(
         "t",
         [
@@ -36,9 +37,34 @@ def test_non_stagnant_loop():
             make_step("query_db", input_payload={"q": 2}),
         ],
     )
-    loops = detect_sequence_loops(trace)
-    assert len(loops) == 1
-    assert loops[0]["stagnant"] is False
+    assert detect_sequence_loops(trace) == []
+
+
+def test_iterating_one_tool_over_items_is_not_a_loop():
+    """The shape of most tool-calling agents: decide -> call -> decide -> call."""
+    trace = make_trace(
+        "t",
+        [
+            make_step("decide", input_payload={"item": "NY"}),
+            make_step("query_db", input_payload={"q": "NY"}),
+            make_step("decide", input_payload={"item": "CA"}),
+            make_step("query_db", input_payload={"q": "CA"}),
+            make_step("decide", input_payload={"item": "TX"}),
+            make_step("query_db", input_payload={"q": "TX"}),
+        ],
+    )
+    assert detect_sequence_loops(trace) == []
+
+
+def test_repeats_with_changed_outputs_are_not_a_loop():
+    trace = make_trace(
+        "t",
+        [
+            make_step("fetch", output_payload={"page": 1, "next": True}),
+            make_step("fetch", output_payload={"page": 2, "next": True}),
+        ],
+    )
+    assert detect_sequence_loops(trace) == []
 
 
 def test_multi_step_repeating_pattern():

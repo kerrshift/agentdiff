@@ -24,8 +24,14 @@ def detect_graph_cycles(trace: AgentTrace) -> list[list[str]]:
 def detect_sequence_loops(trace: AgentTrace) -> list[dict[str, Any]]:
     """Detects consecutive repeating sub-sequences of steps (e.g., A -> B -> A -> B).
 
-    A loop is defined as a sequence of step names of length k repeating consecutively
-    2 or more times.
+    A loop is a sequence of step names of length k repeating consecutively 2 or
+    more times **with stagnant state**: the repeated steps must have identical
+    input payloads and outputs.
+
+    Repetition with *different* inputs is legitimate iteration (an agent
+    querying three states, paginating, or walking a list), so it is not a loop.
+    Runaway behaviour with drifting arguments is covered by the tool-repeat cap
+    (``max_tool_repeats``) and by the resource bands, not by this detector.
     """
     steps = sorted(trace.steps, key=lambda s: s.step_index)
     names = [s.name for s in steps]
@@ -68,16 +74,17 @@ def detect_sequence_loops(trace: AgentTrace) -> list[dict[str, Any]]:
                     if not stagnant:
                         break
 
-                loops.append(
-                    {
-                        "steps": pattern,
-                        "step_ids": loop_step_ids,
-                        "iterations": count,
-                        "start_index": i,
-                        "length": k,
-                        "stagnant": stagnant,
-                    }
-                )
+                if stagnant:
+                    loops.append(
+                        {
+                            "steps": pattern,
+                            "step_ids": loop_step_ids,
+                            "iterations": count,
+                            "start_index": i,
+                            "length": k,
+                            "stagnant": stagnant,
+                        }
+                    )
 
                 # Advance pointer past the repeated patterns
                 i += count * k
