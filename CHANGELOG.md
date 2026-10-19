@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-19
+
+AgentDiff v0.7.0 reads **OpenAI Codex CLI** sessions alongside Claude Code.
+Run `agentdiff` and one report covers both agents, with the same findings for
+each. Codex figures are API-equivalent estimates, because Codex logs carry no
+cost.
+
 ### Added
 - **OpenAI Codex CLI support.** `agentdiff` now reads Codex rollouts from
   `~/.codex/sessions` and `archived_sessions` (or `$CODEX_HOME`), alongside
@@ -465,3 +472,4 @@ regression engine for multi-turn, tool-using AI agents.
 [0.6.0]: https://github.com/kerrshift/agentdiff/releases/tag/v0.6.0
 [0.6.1]: https://github.com/kerrshift/agentdiff/releases/tag/v0.6.1
 [0.6.2]: https://github.com/kerrshift/agentdiff/releases/tag/v0.6.2
+[0.7.0]: https://github.com/kerrshift/agentdiff/releases/tag/v0.7.0
