@@ -153,6 +153,10 @@ def render(
             f"{len(reported)} sessions cross-checked against Claude Code's own counter. "
             f"Nothing left your machine.[/dim]"
         )
+    console.print(
+        "[dim]Share it:[/dim] [bold]agentdiff --card[/bold] "
+        "[dim]makes an image for LinkedIn or X (totals only, no project names).[/dim]"
+    )
     console.print()
 
 

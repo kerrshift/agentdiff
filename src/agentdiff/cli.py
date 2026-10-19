@@ -322,6 +322,17 @@ def sessions(
     ),
     top: int = typer.Option(5, "--top", help="How many findings and sessions to list."),
     as_json: bool = typer.Option(False, "--json", help="Print machine-readable JSON."),
+    card: bool = typer.Option(
+        False,
+        "--card",
+        help="Write a shareable card (HTML page that exports a PNG for LinkedIn/X).",
+    ),
+    card_out: str = typer.Option(
+        "agentdiff-card.html", "--card-out", help="Where to write the card page."
+    ),
+    open_card: bool = typer.Option(
+        True, "--open/--no-open", help="Open the card in your browser."
+    ),
     path: str | None = typer.Option(
         None,
         "--path",
@@ -348,6 +359,17 @@ def sessions(
     analysis = analyze(found)
     if as_json:
         typer.echo(json.dumps(to_json(analysis, period=period), indent=2))
+        return
+    if card:
+        from agentdiff.sessions.card import write_card
+
+        written = write_card(analysis, period=period, out=Path(card_out))
+        typer.echo(f"Card written to {written}")
+        typer.echo("It shows only totals and categories, no project names or files.")
+        if open_card:
+            import webbrowser
+
+            webbrowser.open(written.resolve().as_uri())
         return
     render(analysis, period=period, top=top)
 

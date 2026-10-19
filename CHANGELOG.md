@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`agentdiff --card`: a shareable image of your spend.** Writes a
+  self-contained page (`agentdiff-card.html`, change with `--card-out`) and
+  opens it (`--no-open` to skip). The page draws the card on a canvas in the
+  brand fonts and exports a PNG sized for X and LinkedIn: landscape
+  1200×675 or portrait 1080×1350, at 2x. It has light and dark themes, a
+  "Hide $" option, and Download / Copy buttons. Only totals and finding
+  categories go on the card, never session titles, project names, files or
+  commands. No new Python dependencies.
+- The terminal report ends with a one-line pointer to `agentdiff --card`.
+
 ## [0.6.2] - 2026-10-19
 
 AgentDiff v0.6.2 ships the npm launcher under its working name:

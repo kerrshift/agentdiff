@@ -82,8 +82,17 @@ agentdiff --since 30d              # 24h, 7d, 30d, 12w … or all
 agentdiff --project api            # only projects whose name contains "api"
 agentdiff --top 10                 # list more findings and sessions
 agentdiff --json > spend.json      # machine-readable
+agentdiff --card                   # shareable image for LinkedIn / X
 agentdiff --path /other/.claude    # a different Claude Code config dir
 ```
+
+### Share your numbers
+
+`agentdiff --card` opens a page in your browser that draws your spend as an
+image, sized for X and LinkedIn (landscape or portrait), with light and dark
+themes and an option to hide dollar amounts. Click **Download PNG** or
+**Copy image** and paste it into your post. The card shows totals and
+categories only: no project names, files or commands.
 
 ## Install
 
