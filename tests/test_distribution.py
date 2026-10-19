@@ -49,7 +49,8 @@ def test_npm_launcher_version_tracks_package_version():
     from agentdiff import __version__
 
     package = json.loads((ROOT / "npm" / "package.json").read_text())
-    assert package["name"] == "agentdiff"
+    # Unscoped "agentdiff" is rejected by npm as too similar to "agent-diff".
+    assert package["name"] == "@kerrshift/agentdiff"
     assert package["version"] == __version__
     assert package["bin"] == {"agentdiff": "bin/agentdiff.js"}
     assert os.access(ROOT / "npm" / "bin" / "agentdiff.js", os.X_OK)

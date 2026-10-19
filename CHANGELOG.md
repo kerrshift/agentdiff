@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **npm package renamed to `@kerrshift/agentdiff`.** npm refuses the unscoped
+  name `agentdiff` as too similar to the existing `agent-diff` package, so the
+  0.6.1 npm publish was rejected and never reached the registry. Run it with
+  `npx @kerrshift/agentdiff` or install it with
+  `npm i -g @kerrshift/agentdiff`; the command is still `agentdiff`. The
+  0.6.1 notes below that say `npx agentdiff` refer to this package.
+
 ## [0.6.1] - 2026-10-19
 
 AgentDiff v0.6.1: **run it however you like.** `npx agentdiff` joins `uvx` and
