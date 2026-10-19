@@ -31,9 +31,16 @@ function logArgs(log, name) {
   return `echo "${name} $*" >> "${log}"`;
 }
 
-function launch(sb, args) {
+// Stubs are POSIX sh scripts that need coreutils (mkdir, chmod) from /bin.
+// Pass systemBin=false to hide everything but the stubs, since /bin may hold
+// a real python3 (it does on Ubuntu, where /bin is /usr/bin).
+function launch(sb, args, { systemBin = true } = {}) {
   return spawnSync(process.execPath, [BIN, ...args], {
-    env: { PATH: `${sb.bin}:/bin`, HOME: sb.dir, AGENTDIFF_CACHE_DIR: path.join(sb.dir, "cache") },
+    env: {
+      PATH: systemBin ? `${sb.bin}:/bin` : sb.bin,
+      HOME: sb.dir,
+      AGENTDIFF_CACHE_DIR: path.join(sb.dir, "cache"),
+    },
     encoding: "utf8",
   });
 }
@@ -97,7 +104,7 @@ exit 0`,
 
 test("explains what to install when nothing is available", skipOnWindows, () => {
   const sb = sandbox();
-  const result = launch(sb, []);
+  const result = launch(sb, [], { systemBin: false });
   assert.equal(result.status, 1);
   assert.match(result.stderr, /needs Python 3\.10\+ \(or uv\)/);
 });
