@@ -1,0 +1,34 @@
+{
+  "name": "agentdiff",
+  "version": "0.6.0",
+  "description": "See what your AI coding agent actually did, and what it cost. Local spend report for Claude Code sessions.",
+  "keywords": [
+    "claude-code",
+    "cost",
+    "usage",
+    "tokens",
+    "prompt-caching",
+    "ai-agents",
+    "cli"
+  ],
+  "homepage": "https://agentdiff.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kerrshift/agentdiff.git",
+    "directory": "npm"
+  },
+  "bugs": "https://github.com/kerrshift/agentdiff/issues",
+  "license": "MIT",
+  "bin": {
+    "agentdiff": "bin/agentdiff.js"
+  },
+  "files": [
+    "bin"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  }
+}

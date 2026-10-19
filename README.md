@@ -14,8 +14,10 @@
 </p>
 
 ```bash
-uvx --from agent-trajectory-diff agentdiff
+npx agentdiff
 ```
+
+or `uvx --from agent-trajectory-diff agentdiff` · or `/agentdiff:report` in [Claude Code](#inside-claude-code)
 
 </div>
 
@@ -83,8 +85,21 @@ agentdiff --json > spend.json      # machine-readable
 agentdiff --path /other/.claude    # a different Claude Code config dir
 ```
 
-Install it permanently with `pip install agent-trajectory-diff` (the command is
-`agentdiff`), or run it once with `uvx` as shown above.
+## Install
+
+Pick whatever your machine already has. Every option runs the same CLI.
+
+| You have | Run once | Install |
+| :--- | :--- | :--- |
+| Node 18+ | `npx agentdiff` | `npm i -g agentdiff` |
+| [uv](https://docs.astral.sh/uv/) | `uvx --from agent-trajectory-diff agentdiff` | `uv tool install agent-trajectory-diff` |
+| pipx | `pipx run --spec agent-trajectory-diff agentdiff` | `pipx install agent-trajectory-diff` |
+| Python 3.10+ | | `pip install agent-trajectory-diff` |
+| Claude Code | `/agentdiff:report` | see below |
+
+The installed command is always `agentdiff`. The npm package is a small
+launcher for the same Python CLI at the same version. It uses uv if present,
+else pipx, else builds a private virtualenv once with your Python 3.10+.
 
 ### Inside Claude Code
 
@@ -99,7 +114,8 @@ On Claude Code versions before 2.1.275, add the marketplace first:
 `/plugin install agentdiff@agentdiff`.
 
 Then run the report in any session. Claude shows it and explains the biggest
-avoidable items:
+avoidable items. The plugin finds AgentDiff the same way as the npm launcher:
+an installed `agentdiff`, else uv, pipx, or Python 3.10+.
 
 ```text
 /agentdiff:report
@@ -107,8 +123,8 @@ avoidable items:
 ```
 
 Claude can also pick it up on its own when you ask things like "why is my
-Claude Code usage so high?". The plugin needs either `uv` or an installed
-`agentdiff` (0.6.0+). Without one, it tells you what to install.
+Claude Code usage so high?". With no Python or uv at all, it tells you what to
+install.
 Without the plugin, prefix the command with `!` to run it in a session:
 `!uvx --from agent-trajectory-diff agentdiff`.
 

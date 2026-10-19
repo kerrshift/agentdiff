@@ -16,6 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`--since`, `--project`, `--top`) and prints install help instead of failing
   when neither `agentdiff` nor `uv` is available. The plugin version tracks the
   package version.
+- **`npx agentdiff`**: an npm package (`npm/`) that launches the Python CLI at
+  the same version using uv, else pipx, else a private virtualenv built once
+  with any Python 3.10+. Zero dependencies, about 2 kB. The tag workflow
+  publishes it to npm right after PyPI (needs the `NPM_TOKEN` secret), and CI
+  runs its tests.
+
+### Changed
+- The `/agentdiff:report` plugin skill now also falls back to pipx and to plain
+  Python 3.10+ (a private virtualenv under `~/.cache/agentdiff`), so it works
+  without uv.
+- README: install table for npx, uv, pipx, pip and Claude Code.
 
 ## [0.6.0] - 2026-10-19
 
