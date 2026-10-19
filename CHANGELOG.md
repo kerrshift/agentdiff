@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Claude Code plugin** with a `/agentdiff:report` skill, published from this
+  repository's own marketplace (`.claude-plugin/marketplace.json`). Install with
+  `/plugin install agentdiff --marketplace kerrshift/agentdiff`. The skill runs
+  the session report (installed `agentdiff`, else `uvx`), shows it, and has
+  Claude explain the biggest avoidable items. It accepts the same options
+  (`--since`, `--project`, `--top`) and prints install help instead of failing
+  when neither `agentdiff` nor `uv` is available. The plugin version tracks the
+  package version.
+
 ## [0.6.0] - 2026-10-19
 
 AgentDiff v0.6.0: **see what your AI coding agent actually did, and what it
