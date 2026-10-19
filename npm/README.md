@@ -1,9 +1,9 @@
-# agentdiff
+# @kerrshift/agentdiff
 
 **See what your AI coding agent actually did, and what it cost.**
 
 ```bash
-npx agentdiff
+npx @kerrshift/agentdiff
 ```
 
 Reads the Claude Code session logs already on your machine and shows where the
@@ -12,10 +12,12 @@ caches rebuilt after breaks, stuck retries. No config, no API key, nothing
 uploaded.
 
 ```bash
-npx agentdiff --since 30d        # 24h, 7d, 30d, 12w … or all
-npx agentdiff --project api      # only projects whose name contains "api"
-npx agentdiff --json             # machine-readable
+npx @kerrshift/agentdiff --since 30d        # 24h, 7d, 30d, 12w … or all
+npx @kerrshift/agentdiff --project api      # only projects whose name contains "api"
+npx @kerrshift/agentdiff --json             # machine-readable
 ```
+
+Install it with `npm i -g @kerrshift/agentdiff`; the command is `agentdiff`.
 
 This npm package is a thin launcher for the Python CLI
 ([`agent-trajectory-diff`](https://pypi.org/project/agent-trajectory-diff/))

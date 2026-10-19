@@ -14,7 +14,7 @@
 </p>
 
 ```bash
-npx agentdiff
+npx @kerrshift/agentdiff
 ```
 
 or `uvx --from agent-trajectory-diff agentdiff` · or `/agentdiff:report` in [Claude Code](#inside-claude-code)
@@ -91,7 +91,7 @@ Pick whatever your machine already has. Every option runs the same CLI.
 
 | You have | Run once | Install |
 | :--- | :--- | :--- |
-| Node 18+ | `npx agentdiff` | `npm i -g agentdiff` |
+| Node 18+ | `npx @kerrshift/agentdiff` | `npm i -g @kerrshift/agentdiff` |
 | [uv](https://docs.astral.sh/uv/) | `uvx --from agent-trajectory-diff agentdiff` | `uv tool install agent-trajectory-diff` |
 | pipx | `pipx run --spec agent-trajectory-diff agentdiff` | `pipx install agent-trajectory-diff` |
 | Python 3.10+ | | `pip install agent-trajectory-diff` |

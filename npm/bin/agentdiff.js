@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// `npx agentdiff` — runs the AgentDiff Python CLI (PyPI: agent-trajectory-diff)
+// `npx @kerrshift/agentdiff` — runs the AgentDiff Python CLI (PyPI: agent-trajectory-diff)
 // at the same version as this npm package, using whichever Python runner the
 // machine already has: uvx, then pipx, then a private virtualenv built once
 // with any Python 3.10+. No runtime dependencies.

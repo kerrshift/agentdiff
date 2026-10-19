@@ -2,8 +2,8 @@ name: Publish to PyPI
 
 # Build and publish a release to PyPI whenever a version tag (`v*`) is pushed.
 # Uses OpenID Connect trusted publishing — no PyPI API token is stored.
-# After PyPI, publishes the `agentdiff` npm launcher (npm/) at the same
-# version, so `npx agentdiff` resolves to the release just uploaded.
+# After PyPI, publishes the `@kerrshift/agentdiff` npm launcher (npm/) at the
+# same version, so `npx @kerrshift/agentdiff` resolves to the release just uploaded.
 on:
   push:
     tags:
