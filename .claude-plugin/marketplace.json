@@ -1,0 +1,14 @@
+{
+  "name": "agentdiff",
+  "description": "AgentDiff plugins for Claude Code",
+  "owner": {
+    "name": "AgentDiff"
+  },
+  "plugins": [
+    {
+      "name": "agentdiff",
+      "source": "./plugins/agentdiff",
+      "description": "See where your Claude Code spend went and what was avoidable, from the session logs on your machine."
+    }
+  ]
+}

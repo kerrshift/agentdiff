@@ -86,6 +86,32 @@ agentdiff --path /other/.claude    # a different Claude Code config dir
 Install it permanently with `pip install agent-trajectory-diff` (the command is
 `agentdiff`), or run it once with `uvx` as shown above.
 
+### Inside Claude Code
+
+Install the AgentDiff plugin from this repository's marketplace:
+
+```text
+/plugin install agentdiff --marketplace kerrshift/agentdiff
+```
+
+On Claude Code versions before 2.1.275, add the marketplace first:
+`/plugin marketplace add kerrshift/agentdiff`, then
+`/plugin install agentdiff@agentdiff`.
+
+Then run the report in any session. Claude shows it and explains the biggest
+avoidable items:
+
+```text
+/agentdiff:report
+/agentdiff:report --since 30d
+```
+
+Claude can also pick it up on its own when you ask things like "why is my
+Claude Code usage so high?". The plugin needs either `uv` or an installed
+`agentdiff` (0.6.0+). Without one, it tells you what to install.
+Without the plugin, prefix the command with `!` to run it in a session:
+`!uvx --from agent-trajectory-diff agentdiff`.
+
 ## How the numbers are computed
 
 - **Source:** `~/.claude/projects/**/*.jsonl` (or `$CLAUDE_CONFIG_DIR`),

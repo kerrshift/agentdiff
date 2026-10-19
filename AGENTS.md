@@ -38,6 +38,8 @@ Any behavior change ships with tests; coverage must not drop.
 - Every user-facing change adds a `CHANGELOG.md` entry under `[Unreleased]`.
 - Version bumps + release notes happen in their own `chore/release-*` branch.
 - PyPI package: `agent-trajectory-diff`. SemVer + Keep a Changelog.
+- Release bumps also update `plugins/agentdiff/.claude-plugin/plugin.json` `version`
+  (Claude Code pins users to it; `tests/test_claude_plugin.py` enforces the match).
 
 ## Project conventions
 
