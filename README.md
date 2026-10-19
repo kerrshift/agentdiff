@@ -4,205 +4,156 @@
 
 # AgentDiff
 
-**Catch silent cost surges and broken agent loops before they ship.**
+**See what your AI coding agent actually did, and what it cost.**
 
 <p align="center">
   <a href="https://github.com/kerrshift/agentdiff/actions/workflows/ci.yml"><img src="https://github.com/kerrshift/agentdiff/actions/workflows/ci.yml/badge.svg" alt="CI Build" /></a>
   <a href="https://pypi.org/project/agent-trajectory-diff/"><img src="https://img.shields.io/pypi/v/agent-trajectory-diff.svg?color=10b981" alt="PyPI version" /></a>
   <a href="https://pypi.org/project/agent-trajectory-diff/"><img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg" alt="Python Versions" /></a>
-  <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/badge/code%20style-ruff-000000.svg" alt="Code Style: Ruff" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
-  <a href="https://agentdiff.app"><img src="https://img.shields.io/badge/docs-agentdiff.app-emerald.svg" alt="Website" /></a>
 </p>
 
 ```bash
-pip install agent-trajectory-diff
+uvx --from agent-trajectory-diff agentdiff
 ```
-
-[Website & Interactive Docs](https://agentdiff.app) · [Cookbooks](cookbooks/) · [Live Demo Repo](https://github.com/lostmartian/agentdiff-demo) · [Changelog](CHANGELOG.md)
 
 </div>
 
-**AgentDiff** is a developer-first Python library, pytest plugin, and CLI for **regression testing multi-turn, tool-using AI agents by comparing execution paths (trajectories) head-to-head.**
+AgentDiff reads the session logs Claude Code already keeps on your machine and
+tells you **where the money went and what was avoidable**. No config, no API
+key, no account. Nothing leaves your machine.
 
-When you change a prompt, tweak a system instruction, or upgrade an LLM, traditional assertions only verify that the final string matches. They miss the silent failures: **the agent took 5 extra tool calls, burned 3× the tokens, entered an infinite retry loop, or drifted from the verified execution path.**
+```text
+AgentDiff  ·  Claude Code  ·  last 7d
+12 sessions · 7 projects · $314.61
 
-AgentDiff aligns candidate execution DAGs against committed golden baselines in `<10ms` without calling any paid LLM judges.
+Where the money went
+  Re-reading context (cache reads)           $162.64   52%  ████████████████
+  Writing context to cache                    $93.33   30%  █████████
+  Model output (incl. thinking)               $51.34   16%  █████
+  Background calls not in the transcript       $7.28    2%  █
 
-## Highlights
+Avoidable ≈ $132.08 (42% of spend, conservative estimate)
+  ▸ Long context re-sent every turn  $86.64
+    Start a fresh session per task; /compact before the context gets huge.
+  ▸ Cache rebuilt after breaks  $45.44
+    After a break of an hour or more, start a new session instead of resuming a giant one.
 
-- **Deterministic Graph Diffing:** Topological DAG alignment and Longest Common Subsequence (LCS) step comparison in `<10ms` with zero paid LLM-judge calls.
-- **Statistical Baselines & Variance Bands:** Capture N-run envelopes (`record --runs 3`) so non-deterministic agents don't flake CI on harmless jitter.
-- **Zero-Config Setup (`agentdiff init`):** Auto-detects LangGraph, CrewAI, OpenAI Agents SDK, or OpenTelemetry and writes `agentdiff.toml` + CI workflow in seconds.
-- **In-PR Interactive Blessings (`/agentdiff approve`):** Reviewers bless intended trajectory improvements from PR comments as `agentdiff-ci[bot]`.
-- **100% Local & Air-Gapped:** Zero telemetry, no cloud accounts, no outbound network calls during diffs. Raw prompts and tool outputs stay local.
-- **Drop-in CI Merge Gate:** Native exit codes (`0` pass / `1` regression fail) and automated GitHub Action PR comments with human-first verdicts.
-- **Universal Telemetry Adapters:** Seamlessly diff traces from **LangGraph**, **CrewAI**, **OpenAI Agents SDK**, **Langfuse**, **LangSmith**, **OpenInference / OpenTelemetry**, or generic JSON.
-
-## Quickstart
-
-### 1. Initialize with `agentdiff init`
-Auto-detect your agent framework and generate your configuration + CI workflow:
-
-```bash
-agentdiff init --scenario customer_support --runs 3 --with-approve
+Biggest items
+     $37.59  Long context: 434 turns re-sent >200k tokens (peak 969k)
+             Refactor billing service · api
+     $23.89  Cache rebuilt 7x after breaks (worst: 818k tokens after 93 min)
+             Refactor billing service · api
 ```
 
-### 2. Record a Statistical Baseline Envelope
-Record an N-run baseline envelope from any agent function without writing boilerplate telemetry:
+*A real week from the author's own logs (session names changed).*
+
+## Why
+
+Your agent bill shows a total, not a reason. On real Claude Code usage, most of
+the spend isn't the model writing code. It's the model **re-reading a growing
+conversation on every turn**, and **rebuilding the prompt cache** when you come
+back to a long session after a break. Those habits are fixable once you can see
+them.
+
+## What it finds
+
+| Finding | What it means | What to do |
+| :--- | :--- | :--- |
+| **Long context** | Turns that re-sent more than 200k tokens of conversation | One session per task; `/compact` early |
+| **Cache rebuilt after breaks** | The prompt cache expired and the whole context was written again at cache-write prices | After a long break, start fresh instead of resuming |
+| **Stuck retries** | The same command failing the same way, again and again | Fix the setup once |
+| **Repeated failures** | One kind of command failing many times in a session | Usually a missing step, wrong cwd or flaky test |
+| **Unchanged files re-read** | The same file read repeatedly with identical content | Point the agent at the right section |
+| **Identical repeated calls** | Same tool, same input, same output | Pure cost, no new information |
+| **Expensive subagents** | Subagents that cost more than a few dollars (informational) | Narrower brief or cheaper model |
+
+Every finding names the session and the file or command involved, with a dollar
+estimate. Estimates are conservative: they count the requests that made the
+redundant calls, not the extra context those calls added later.
+
+## Usage
 
 ```bash
-agentdiff record my_agent:run \
-  --input '{"query": "summarize repo"}' \
-  --runs 3 \
-  --out baselines/customer_support.envelope.json
+agentdiff                          # last 7 days (same as: agentdiff sessions)
+agentdiff --since 30d              # 24h, 7d, 30d, 12w … or all
+agentdiff --project api            # only projects whose name contains "api"
+agentdiff --top 10                 # list more findings and sessions
+agentdiff --json > spend.json      # machine-readable
+agentdiff --path /other/.claude    # a different Claude Code config dir
 ```
 
-### 3. Compare Traces in CLI
-Compare candidate runs against your baseline envelope:
+Install it permanently with `pip install agent-trajectory-diff` (the command is
+`agentdiff`), or run it once with `uvx` as shown above.
+
+## How the numbers are computed
+
+- **Source:** `~/.claude/projects/**/*.jsonl` (or `$CLAUDE_CONFIG_DIR`),
+  including subagent transcripts.
+- **Counted once:** Claude Code repeats usage on every content block of a
+  request, and resumed or forked sessions copy their parent's history. AgentDiff
+  counts each billed request exactly once.
+- **Priced per model** at Anthropic list prices: input, output, cache reads, and
+  cache writes for both the 5-minute and 1-hour TTLs. Fast mode is included.
+- **Cross-checked:** when a session carries Claude Code's own cost counter, that
+  counter is used as the total. The gap is shown as *background calls not in the
+  transcript*, for example web-fetch summaries.
+- **Subscriptions:** on a Pro/Max plan these are API-equivalent costs. They
+  still show which sessions and habits use the most.
+
+## Privacy
+
+Session logs contain your source code. AgentDiff reads them locally, makes no
+network calls and has no telemetry.
+
+## Supported agents
+
+| Agent | Status |
+| :--- | :--- |
+| Claude Code | ✅ |
+| OpenAI Codex CLI | Next |
+| Gemini CLI, Cursor | Planned |
+
+---
+
+<details>
+<summary><b>Also included: trajectory regression gate for agents you build</b></summary>
+
+AgentDiff started as a CI gate that compares an agent's execution path against
+a committed baseline and fails the build on runaway loops or cost spikes. It is
+still included and maintained:
 
 ```bash
-agentdiff diff baselines/customer_support.envelope.json traces/candidate.json --fail-on-regression
+agentdiff diff baselines/support.envelope.json traces/candidate.json --fail-on-regression
 ```
-
-### 4. Pytest Regression Testing
-Enforce trajectory parity directly in your test suite:
 
 ```python
-import pytest
-from agentdiff import load_trace, compare
+from agentdiff import compare, load_trace
 from agentdiff.testing import assert_no_regressions
 
-def test_agent_refactor_efficiency():
-    # Load traces (auto-detects telemetry source format)
-    baseline = load_trace("tests/baselines/golden.json")
-    candidate = load_trace("tests/traces/candidate.json")
-
-    # Run sub-10ms deterministic comparison
-    report = compare(baseline, candidate)
-
-    # Assert no structural drift, cost surges, or tool loops
-    assert_no_regressions(
-        report,
-        max_divergence=0.25,        # Max Trajectory Divergence Index [0.0 - 1.0]
-        max_cost_increase_pct=5.0,  # Max 5% token cost increase
-        allow_loops=False,          # Reject repetitive tool call cycles
-        max_wasted_effort=0.10,     # Max 10% error/retry/abandoned steps
-        max_recovery_step_ratio=1.5 # Max recovery steps relative to baseline
-    )
+report = compare(load_trace("baseline.json"), load_trace("candidate.json"))
+assert_no_regressions(report, max_cost_increase_pct=5.0, allow_loops=False)
 ```
 
-## GitHub Actions CI Gate
+It ingests LangGraph, CrewAI, OpenAI Agents SDK, Langfuse, LangSmith,
+OpenInference/OpenTelemetry and a generic JSON schema, and ships a GitHub Action
+(`kerrshift/agentdiff/.github/actions/agentdiff-check`). See the
+[cookbooks](cookbooks/) and [agentdiff.app](https://agentdiff.app) for details.
 
-Block broken agent PRs before they land in production using the official composite action:
-
-```yaml
-name: AgentDiff Regression Gate
-
-on:
-  pull_request:
-
-permissions:
-  contents: read
-  pull-requests: write   # Allows posting automated root-cause PR comments
-
-jobs:
-  agent-regression-gate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - uses: kerrshift/agentdiff/.github/actions/agentdiff-check@v0.5.0
-        with:
-          baseline: baselines/customer_support.envelope.json
-          candidate: traces/pr_candidate.json
-          pr: ${{ github.event.pull_request.number }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-```
-
-When a regression occurs, the gate fails with exit code `1` and comments on the PR with culprit identification and a collapsed divergence tree:
-
-```markdown
-### AgentDiff Gate: REGRESSION DETECTED
-
-| Metric | Baseline | Candidate | Threshold | Status |
-| :--- | :--- | :--- | :--- | :--- |
-| **Divergence (TDI)** | 0.00 | 0.42 | ≤ 0.25 | FAIL |
-| **Cost Surge** | $0.0042 | $0.0138 (+228%) | ≤ +5.0% | FAIL |
-| **Loops (LBI)** | 0 | 3 loops | 0 | FAIL |
-| **Wasted Effort (WEI)**| 0.00 | 0.38 | ≤ 0.10 | FAIL |
-
-**Culprit Step:** Step 4 `execute_sql` entered a 3× retry loop after schema refactor.
-```
-
-## Core Metric Mathematics
-
-| Metric | Target / Range | Algorithmic Definition | Description |
-| :--- | :--- | :--- | :--- |
-| **Trajectory Divergence Index (TDI)** | `0.0` (Identical) to `1.0` (Divergent) | $$1.0 - \frac{2 \times \vert{}\text{LCS}(\text{Steps}_A, \text{Steps}_B)\vert{}}{\vert{}\text{Steps}_A\vert{} + \vert{}\text{Steps}_B\vert{}}$$ | Structural distance between baseline and candidate execution DAGs using Longest Common Subsequence. |
-| **Wasted Effort Index (WEI)** | `0.0` (Optimal) to `1.0` (Total Waste) | $$\frac{\text{Count}(\text{Steps} \in \{\text{ERROR, RETRY, ABANDONED}\})}{\text{Total Steps}}$$ | Fraction of execution steps spent in failed, retried, or aborted tool operations. |
-| **Loop Buster Index (LBI)** | Integer ($\ge 0$) | Stagnant State Cycle Detection | Counts repeating consecutive tool call patterns where inputs/outputs show no state progression. |
-| **Recovery Step Ratio (RSR)** | `1.0` = Parity; $> 1.0$ = Slower Recovery | $$\text{RSR} = \frac{\text{Recovery Steps}_{\text{candidate}}}{\text{Recovery Steps}_{\text{baseline}}}$$ | Measures the number of steps required to return to the verified golden trajectory path after encountering an error. |
-| **Resource Deltas ($\Delta\text{Res}$)** | Percentage ($\pm\%$) | $\frac{\text{Val}_{\text{candidate}} - \text{Val}_{\text{baseline}}}{\text{Val}_{\text{baseline}}} \times 100$ | Exact percentage deltas for $\Delta\text{Tokens}$, $\Delta\text{Cost}$, and $\Delta\text{Latency}$. |
-
-## Supported Telemetry Formats
-
-| Telemetry Framework / Format | Adapter Spec | Ingestion Guide |
-| :--- | :--- | :--- |
-| **LangGraph / LangChain** | `--adapter langgraph` | [`cookbooks/langgraph`](cookbooks/) |
-| **CrewAI** | `--adapter crewai` | [`cookbooks/crewai`](cookbooks/) |
-| **OpenAI Agents SDK** | `--adapter openai_agents` | [`cookbooks/openai_agents`](cookbooks/) |
-| **Langfuse** | `--adapter langfuse` | [`cookbooks/langfuse`](cookbooks/) |
-| **LangSmith** | `--adapter langsmith` | [`cookbooks/langsmith`](cookbooks/) |
-| **OpenInference / OpenTelemetry** | `--adapter openinference` | [`cookbooks/openinference`](cookbooks/) |
-| **Generic JSON Schema** | `--adapter generic` | [`schema/v0.1.0/trace.json`](schema/v0.1.0/trace.json) |
-
-## Local-First Privacy Guarantee
-
-Agent trajectories often contain proprietary prompts, sensitive tool payloads, and customer data. AgentDiff is engineered with strict local-first principles:
-
-- **Zero Outbound Network Traffic:** Parsing, DAG diffing, metric calculations, and reporting run 100% locally.
-- **Air-Gapped & Firewall Friendly:** Run tests on laptops, in air-gapped VPCs, or under strict enterprise egress policies.
-- **Repo-Committed Baselines:** Your golden trajectories live in Git next to the code they protect.
-- **No Third-Party APM Lock-In:** Switch tracing providers at any time; AgentDiff normalizes all schemas to a unified specification.
-
-## Documentation & Cookbooks
-
-- **Official Documentation:** [https://agentdiff.app](https://agentdiff.app)
-- **Live Demo Repository:** [github.com/lostmartian/agentdiff-demo](https://github.com/lostmartian/agentdiff-demo)
-- **Engine Specification:** [Under the Hood](https://agentdiff.app/features)
-- **Interactive Visualizer:** [Diff Playground](https://agentdiff.app/compare)
-- **Adapters Guide:** [Framework Integration](https://agentdiff.app/adapters)
+</details>
 
 ## Development
 
-This repository uses [`uv`](https://docs.astral.sh/uv/) for lightning-fast environment and dependency management.
-
 ```bash
-# Clone the repository
 git clone https://github.com/kerrshift/agentdiff.git
 cd agentdiff
-
-# Install dependencies and sync virtualenv
 uv sync
-
-# Run linting and code formatting checks
 make lint
-
-# Run the test suite
 make test
-
-# Build package distributions
-make build
-
-# Website & docs (separate repo, deploys agentdiff.app)
-# → github.com/kerrshift/agentdiff-website
 ```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) and the [changelog](CHANGELOG.md).
 
 ## License
 
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
+MIT. See [`LICENSE`](LICENSE).
