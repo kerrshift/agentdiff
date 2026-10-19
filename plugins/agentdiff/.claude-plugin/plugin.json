@@ -1,7 +1,7 @@
 {
   "name": "agentdiff",
   "displayName": "AgentDiff",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "See where your Claude Code spend went and what was avoidable: long context re-sent every turn, caches rebuilt after breaks, stuck retries. Reads local session logs; nothing is uploaded.",
   "author": {
     "name": "AgentDiff",
