@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-19
+
+AgentDiff v0.6.0: **see what your AI coding agent actually did, and what it
+cost.** Run `agentdiff` with no arguments to get a local report of where your
+Claude Code spend went and what was avoidable, built from the session logs
+already on your machine. The trajectory regression gate is unchanged.
+
 ### Added
 - **`agentdiff sessions` — see where your Claude Code spend went** (the v2
   direction). Reads the session logs Claude Code already keeps in
@@ -29,8 +36,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to Cloudflare Pages on every merge there. `Makefile` `website-*` targets and
   the product/website PR-split rules are retired; the token-service `worker/`
   remains here as product infrastructure.
-
-## [Unreleased]
+- **README rewritten around the session report**: real example output, what
+  each finding means, how costs are computed and cross-checked, privacy. The
+  trajectory regression gate moves to a collapsed section; metric formulas
+  leave the README.
 
 ## [0.5.1] - 2026-09-17
 
@@ -389,3 +398,4 @@ regression engine for multi-turn, tool-using AI agents.
 [0.2.0]: https://github.com/kerrshift/agentdiff/releases/tag/v0.2.0
 [0.5.0]: https://github.com/kerrshift/agentdiff/releases/tag/v0.5.0
 [0.5.1]: https://github.com/kerrshift/agentdiff/releases/tag/v0.5.1
+[0.6.0]: https://github.com/kerrshift/agentdiff/releases/tag/v0.6.0
