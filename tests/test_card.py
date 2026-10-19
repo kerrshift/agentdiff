@@ -9,7 +9,7 @@ from agentdiff.cli import app
 from agentdiff.sessions.analyzer import analyze
 from agentdiff.sessions.card import _period_label, build_card_html, card_data
 from agentdiff.sessions.claude_code import load_sessions
-from tests.test_sessions import Log
+from test_sessions import Log
 
 
 def _root(tmp_path):
