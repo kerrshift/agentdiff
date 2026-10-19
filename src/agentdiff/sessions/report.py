@@ -8,6 +8,7 @@ from rich.table import Table
 from rich.text import Text
 
 from agentdiff.sessions.analyzer import Analysis, Finding
+from agentdiff.sessions.loader import LABELS, label_for
 
 ADVICE = {
     "context_bloat": "Start a fresh session per task; /compact before the context gets huge.",
@@ -48,17 +49,19 @@ def render(
     sessions = analysis.sessions
     if not sessions:
         console.print(
-            "[yellow]No Claude Code sessions found[/yellow] in this period. "
-            "Logs are read from ~/.claude/projects (or $CLAUDE_CONFIG_DIR)."
+            "[yellow]No Claude Code or Codex sessions found[/yellow] in this period. "
+            "Logs are read from ~/.claude/projects ($CLAUDE_CONFIG_DIR) and "
+            "~/.codex/sessions ($CODEX_HOME)."
         )
         return
 
     projects = {s.session.project for s in sessions}
+    sources = {s.session.source for s in sessions}
     console.print()
     console.print(
         Text.assemble(
             ("AgentDiff", "bold"),
-            ("  ·  Claude Code  ·  ", "dim"),
+            (f"  ·  {label_for(sources)}  ·  ", "dim"),
             (period, "bold"),
         )
     )
@@ -126,6 +129,8 @@ def render(
     table.add_column(
         "Project", style="dim", no_wrap=True, overflow="ellipsis", max_width=16
     )
+    if len(sources) > 1:
+        table.add_column("Agent", style="dim", no_wrap=True)
     table.add_column("When", style="dim")
     table.add_column("Cost", justify="right")
     table.add_column("Avoidable", justify="right")
@@ -135,9 +140,11 @@ def render(
         session = summary.session
         when = session.started_at.strftime("%b %d") if session.started_at else "?"
         label = session.title or session.session_id[:8]
+        agent = [LABELS.get(session.source, session.source)] if len(sources) > 1 else []
         table.add_row(
             label,
             session.project,
+            *agent,
             when,
             _usd(summary.cost),
             _usd(summary.waste) if summary.waste >= 0.01 else "-",
@@ -146,13 +153,23 @@ def render(
         )
     console.print(table)
 
+    notes = ["Costs rebuilt from logged token usage at list prices."]
     reported = [s for s in sessions if s.session.reported_cost is not None]
     if reported:
-        console.print(
-            f"\n[dim]Costs rebuilt from logged token usage at list prices; "
-            f"{len(reported)} sessions cross-checked against Claude Code's own counter. "
-            f"Nothing left your machine.[/dim]"
+        notes.append(
+            f"{len(reported)} Claude Code sessions cross-checked against its own counter."
         )
+    if "codex" in sources:
+        notes.append(
+            "Codex logs carry no cost, so Codex figures are API-equivalent estimates."
+        )
+    if spend.unpriced_requests:
+        notes.append(
+            f"{spend.unpriced_requests} requests used models without a known price "
+            "and are not counted."
+        )
+    notes.append("Nothing left your machine.")
+    console.print("\n[dim]" + " ".join(notes) + "[/dim]")
     console.print()
 
 
@@ -184,6 +201,7 @@ def to_json(analysis: Analysis, *, period: str) -> dict[str, Any]:
         "sessions": [
             {
                 "session_id": s.session.session_id,
+                "agent": s.session.source,
                 "title": s.session.title,
                 "project": s.session.project,
                 "started_at": iso(s.session.started_at),

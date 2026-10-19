@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **OpenAI Codex CLI support.** `agentdiff` now reads Codex rollouts from
+  `~/.codex/sessions` and `archived_sessions` (or `$CODEX_HOME`), alongside
+  Claude Code, and runs the same findings on them. Usage comes from
+  `token_usage_record` (one per API response, de-duplicated by response id),
+  falling back to `token_count` events in older logs. Each turn is priced with
+  the model from its `turn_context`, including OpenAI's long-context tier
+  above 272K tokens and the Fast tier. Tool calls pair with their outputs, and
+  exit codes are read from the output text or from paginated
+  `item_completed` events. Legacy forks that copy the parent's usage lines are
+  counted once, and subagent threads nest under their parent. Compressed
+  `.jsonl.zst` rollouts are read when a zstd module is available.
+- New `--agent all|claude|codex` and `--codex-home` options. The report header
+  names the agents it read, adds an Agent column when there is more than one,
+  and notes that Codex figures are API-equivalent estimates.
+- OpenAI model prices (gpt-6.x, gpt-5.x, codex, o3/o4-mini) at list rates as
+  of 2026-10-19.
+
+### Changed
+- Fork de-duplication moved to a shared module and applies to every agent.
+- Requests on models with no known price are now called out in the report
+  footer instead of silently counting as $0.
+
 ## [0.6.2] - 2026-10-19
 
 AgentDiff v0.6.2 ships the npm launcher under its working name:

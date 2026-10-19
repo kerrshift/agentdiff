@@ -322,23 +322,39 @@ def sessions(
     ),
     top: int = typer.Option(5, "--top", help="How many findings and sessions to list."),
     as_json: bool = typer.Option(False, "--json", help="Print machine-readable JSON."),
+    agent: str = typer.Option(
+        "all", "--agent", help="Which agent's logs to read: all, claude or codex."
+    ),
     path: str | None = typer.Option(
         None,
         "--path",
         help="Claude Code config dir (default: $CLAUDE_CONFIG_DIR or ~/.claude).",
     ),
+    codex_home: str | None = typer.Option(
+        None,
+        "--codex-home",
+        help="Codex CLI home dir (default: $CODEX_HOME or ~/.codex).",
+    ),
 ):
-    """Explain where your Claude Code spend went and what was wasted.
+    """Explain where your coding-agent spend went and what was wasted.
 
-    Reads the session logs Claude Code already keeps on this machine. Nothing
-    is uploaded. Sessions are included when they were active in the period.
+    Reads the session logs Claude Code and the OpenAI Codex CLI already keep
+    on this machine. Nothing is uploaded. Sessions are included when they were
+    active in the period.
     """
     from agentdiff.sessions.analyzer import analyze
-    from agentdiff.sessions.claude_code import load_sessions
+    from agentdiff.sessions.loader import load_sessions
     from agentdiff.sessions.report import render, to_json
 
+    agent = agent.strip().lower()
+    if agent not in ("all", "claude", "codex"):
+        raise typer.BadParameter("use all, claude or codex", param_hint="--agent")
     cutoff = _parse_since(since)
-    found = load_sessions(Path(path).expanduser() if path else None)
+    found = load_sessions(
+        agent,
+        claude_root=Path(path).expanduser() if path else None,
+        codex_home=Path(codex_home).expanduser() if codex_home else None,
+    )
     if cutoff is not None:
         found = [s for s in found if s.ended_at and s.ended_at >= cutoff]
     if project:

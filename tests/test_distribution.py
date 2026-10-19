@@ -82,7 +82,7 @@ def test_report_script_runs_and_never_fails(tmp_path):
         [str(SCRIPT), "--since", "all"], env=env, capture_output=True, text=True
     )
     assert ok.returncode == 0
-    assert "No Claude Code sessions found" in ok.stdout
+    assert "No Claude Code or Codex sessions found" in ok.stdout
 
     bad = subprocess.run(
         [str(SCRIPT), "--since", "lots"], env=env, capture_output=True, text=True

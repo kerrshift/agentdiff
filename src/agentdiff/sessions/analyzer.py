@@ -17,6 +17,8 @@ from agentdiff.sessions.models import Session, ToolCall
 from agentdiff.sessions.pricing import price_for
 
 READ_TOOLS = {"Read", "Grep", "Glob", "LS", "NotebookRead"}
+# Claude Code uses Bash; Codex CLI uses exec_command / shell / local_shell.
+SHELL_TOOLS = {"Bash", "shell", "exec_command", "local_shell"}
 
 # Context above this size is re-sent every turn; long tails here are what
 # /clear or /compact between tasks would avoid.
@@ -89,11 +91,14 @@ def describe_call(call: ToolCall, width: int = 70) -> str:
         "notebook_path",
         "path",
         "command",
+        "cmd",
         "pattern",
         "url",
         "query",
     ):
         value = data.get(key)
+        if isinstance(value, list) and value and all(isinstance(v, str) for v in value):
+            value = " ".join(value)
         if isinstance(value, str) and value.strip():
             text = " ".join(value.split())
             return text if len(text) <= width else text[: width - 1] + "…"
@@ -107,9 +112,11 @@ def describe_call(call: ToolCall, width: int = 70) -> str:
 
 
 def _command_family(call: ToolCall) -> str:
-    """Groups Bash commands by their leading words (e.g. ``npm test``)."""
-    command = call.input.get("command")
-    if call.name != "Bash" or not isinstance(command, str):
+    """Groups shell commands by their leading words (e.g. ``npm test``)."""
+    command = call.input.get("command") or call.input.get("cmd")
+    if isinstance(command, list) and all(isinstance(c, str) for c in command):
+        command = " ".join(command)
+    if call.name not in SHELL_TOOLS or not isinstance(command, str):
         return f"{call.name}:{describe_call(call, 200)}"
     words = command.strip().split()
     # Skip env assignments and `cd x &&` prefixes.
@@ -117,7 +124,14 @@ def _command_family(call: ToolCall) -> str:
         words = words[1:]
     if len(words) >= 3 and words[0] == "cd" and words[2] in ("&&", ";"):
         words = words[3:]
-    return "Bash:" + " ".join(words[:2])
+    # Codex wraps commands as `bash -lc '<cmd>'`; look inside.
+    if (
+        len(words) >= 3
+        and words[0] in ("bash", "sh", "zsh")
+        and words[1] in ("-lc", "-c")
+    ):
+        words = " ".join(words[2:]).strip("'\"").split()
+    return "shell:" + " ".join(words[:2])
 
 
 def analyze_session(session: Session, t: Thresholds | None = None) -> list[Finding]:
