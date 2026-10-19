@@ -2,6 +2,8 @@ name: Publish to PyPI
 
 # Build and publish a release to PyPI whenever a version tag (`v*`) is pushed.
 # Uses OpenID Connect trusted publishing — no PyPI API token is stored.
+# After PyPI, publishes the `agentdiff` npm launcher (npm/) at the same
+# version, so `npx agentdiff` resolves to the release just uploaded.
 on:
   push:
     tags:
@@ -50,6 +52,45 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dist/
+
+  publish-npm:
+    name: Publish npm launcher
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # npm provenance
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Check versions match the tag
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          NPM_VERSION=$(node -p "require('./npm/package.json').version")
+          if [ "$TAG" != "$NPM_VERSION" ]; then
+            echo "::error::npm/package.json is $NPM_VERSION but the tag is $TAG"
+            exit 1
+          fi
+
+      - name: Test launcher
+        working-directory: npm
+        run: npm test
+
+      - name: Publish to npm
+        working-directory: npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::warning::NPM_TOKEN secret is not set; skipping npm publish."
+            exit 0
+          fi
+          npm publish --provenance --access public
 
   release:
     name: Create GitHub Release

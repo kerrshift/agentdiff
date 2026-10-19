@@ -50,3 +50,14 @@ jobs:
         with:
           name: dist
           path: dist/
+
+  npm-launcher:
+    name: npm launcher
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm test
+        working-directory: npm

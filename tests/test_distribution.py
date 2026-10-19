@@ -1,4 +1,4 @@
-"""Claude Code plugin: marketplace/manifest consistency and the report script."""
+"""Distribution: Claude Code plugin, its report script, and the npm launcher."""
 
 import json
 import os
@@ -45,6 +45,16 @@ def test_plugin_version_tracks_package_version():
     assert manifest["version"] == __version__
 
 
+def test_npm_launcher_version_tracks_package_version():
+    from agentdiff import __version__
+
+    package = json.loads((ROOT / "npm" / "package.json").read_text())
+    assert package["name"] == "agentdiff"
+    assert package["version"] == __version__
+    assert package["bin"] == {"agentdiff": "bin/agentdiff.js"}
+    assert os.access(ROOT / "npm" / "bin" / "agentdiff.js", os.X_OK)
+
+
 def test_skill_preapproves_the_command_it_injects():
     text = SKILL.read_text()
     fields = _frontmatter(text)
@@ -82,8 +92,14 @@ def test_report_script_runs_and_never_fails(tmp_path):
 
 @pytest.mark.skipif(shutil.which("bash") is None, reason="needs bash")
 def test_report_script_explains_install_when_nothing_is_available(tmp_path):
-    env = {"PATH": "/usr/bin:/bin", "HOME": str(tmp_path)}
-    result = subprocess.run([str(SCRIPT)], env=env, capture_output=True, text=True)
+    # PATH holds only `cat`: no agentdiff, uvx, pipx or Python to fall back on.
+    empty = tmp_path / "bin"
+    empty.mkdir()
+    (empty / "cat").symlink_to(shutil.which("cat"))
+    env = {"PATH": str(empty), "HOME": str(tmp_path)}
+    result = subprocess.run(
+        [shutil.which("bash"), str(SCRIPT)], env=env, capture_output=True, text=True
+    )
     assert result.returncode == 0
     assert "AgentDiff could not run" in result.stdout
-    assert "pip install" in result.stdout
+    assert "Python 3.10+" in result.stdout
