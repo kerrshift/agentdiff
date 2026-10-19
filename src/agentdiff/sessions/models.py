@@ -39,16 +39,23 @@ class ModelRequest:
         if price is None:
             return {"input": 0.0, "output": 0.0, "cache_read": 0.0, "cache_write": 0.0}
         mult = FAST_MODE_MULTIPLIER if self.fast else 1.0
+        in_mult = out_mult = mult
+        if (
+            price.long_context_tokens
+            and self.context_tokens > price.long_context_tokens
+        ):
+            in_mult *= price.long_input_mult
+            out_mult *= price.long_output_mult
         per = 1_000_000
         return {
-            "input": self.input_tokens * price.input * mult / per,
-            "output": self.output_tokens * price.output * mult / per,
-            "cache_read": self.cache_read_tokens * price.cache_read * mult / per,
+            "input": self.input_tokens * price.input * in_mult / per,
+            "output": self.output_tokens * price.output * out_mult / per,
+            "cache_read": self.cache_read_tokens * price.cache_read * in_mult / per,
             "cache_write": (
                 self.cache_write_5m_tokens * price.cache_write_5m
                 + self.cache_write_1h_tokens * price.cache_write_1h
             )
-            * mult
+            * in_mult
             / per,
         }
 
@@ -91,6 +98,7 @@ class Session:
     subagents: list["Session"] = field(default_factory=list)
     reported_cost: float | None = None
     agent_id: str | None = None
+    parent_id: str | None = None
 
     @property
     def started_at(self) -> datetime | None:

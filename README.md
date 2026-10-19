@@ -21,8 +21,8 @@ or `uvx --from agent-trajectory-diff agentdiff` · or `/agentdiff:report` in [Cl
 
 </div>
 
-AgentDiff reads the session logs Claude Code already keeps on your machine and
-tells you **where the money went and what was avoidable**. No config, no API
+AgentDiff reads the session logs Claude Code and the OpenAI Codex CLI already
+keep on your machine and tells you **where the money went and what was avoidable**. No config, no API
 key, no account. Nothing leaves your machine.
 
 ```text
@@ -82,7 +82,9 @@ agentdiff --since 30d              # 24h, 7d, 30d, 12w … or all
 agentdiff --project api            # only projects whose name contains "api"
 agentdiff --top 10                 # list more findings and sessions
 agentdiff --json > spend.json      # machine-readable
+agentdiff --agent codex            # only Codex (or: claude, all)
 agentdiff --path /other/.claude    # a different Claude Code config dir
+agentdiff --codex-home /other/.codex  # a different Codex home
 ```
 
 ## Install
@@ -131,7 +133,14 @@ Without the plugin, prefix the command with `!` to run it in a session:
 ## How the numbers are computed
 
 - **Source:** `~/.claude/projects/**/*.jsonl` (or `$CLAUDE_CONFIG_DIR`),
-  including subagent transcripts.
+  including subagent transcripts, and Codex's
+  `~/.codex/sessions/**/rollout-*.jsonl` plus `archived_sessions/` (or
+  `$CODEX_HOME`), including subagent threads.
+- **Codex:** usage is read per API response (`token_usage_record`, or
+  `token_count` in older logs) and priced at OpenAI list prices for the model
+  active in each turn, including the long-context tier above 272K tokens and
+  the Fast tier. Codex logs carry no cost of their own, so these are
+  API-equivalent estimates (on a ChatGPT plan you aren't billed per token).
 - **Counted once:** Claude Code repeats usage on every content block of a
   request, and resumed or forked sessions copy their parent's history. AgentDiff
   counts each billed request exactly once.
@@ -153,7 +162,7 @@ network calls and has no telemetry.
 | Agent | Status |
 | :--- | :--- |
 | Claude Code | ✅ |
-| OpenAI Codex CLI | Next |
+| OpenAI Codex CLI | ✅ (new in 0.7) |
 | Gemini CLI, Cursor | Planned |
 
 ---

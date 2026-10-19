@@ -20,10 +20,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from agentdiff.sessions.dedupe import dedupe_forks
 from agentdiff.sessions.models import ModelRequest, Session, ToolCall
 
 SOURCE = "claude_code"
 _EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+__all__ = ["dedupe_forks", "discover", "load_sessions", "read_session"]
 
 
 def default_root() -> Path:
@@ -47,54 +50,6 @@ def load_sessions(root: Path | None = None) -> list[Session]:
         if session is not None:
             sessions.append(session)
     return dedupe_forks(sessions)
-
-
-def dedupe_forks(sessions: list[Session]) -> list[Session]:
-    """Counts each billed request once across sessions.
-
-    Resumed and forked sessions copy the parent's history (same request ids)
-    into a new file. The earliest session keeps a request; later copies drop
-    it. A fork's own ``cost-state`` includes inherited spend, so it is not
-    trusted once anything was removed.
-    """
-    seen: set[str] = set()
-    kept = []
-    for session in sorted(sessions, key=_age_key):
-        if _drop_seen(session, seen):
-            session.reported_cost = None
-        if session.all_requests():
-            kept.append(session)
-    return kept
-
-
-def _age_key(session: Session) -> tuple[datetime, float]:
-    # Copied history carries the parent's timestamps, so break ties by which
-    # file was created first.
-    try:
-        stat = os.stat(session.path)
-        created = getattr(stat, "st_birthtime", stat.st_mtime)
-    except OSError:
-        created = 0.0
-    return (session.started_at or _EPOCH, created)
-
-
-def _drop_seen(session: Session, seen: set[str]) -> bool:
-    removed = False
-    fresh = []
-    for request in session.requests:
-        if request.request_id in seen:
-            removed = True
-            continue
-        seen.add(request.request_id)
-        fresh.append(request)
-    if removed:
-        live = {cid for r in fresh for cid in r.tool_call_ids}
-        session.requests = fresh
-        session.tool_calls = [c for c in session.tool_calls if c.call_id in live]
-    for sub in session.subagents:
-        removed = _drop_seen(sub, seen) or removed
-    session.subagents = [s for s in session.subagents if s.requests]
-    return removed
 
 
 def read_session(path: Path) -> Session | None:

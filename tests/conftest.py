@@ -1,3 +1,5 @@
+import pytest
+
 from agentdiff.models.step import StepStatus, StepType, TokenUsage, TraceStep
 from agentdiff.models.trace import AgentTrace
 
@@ -68,3 +70,11 @@ def make_trace(
         total_tokens=total_tokens,
         metadata=kwargs.get("metadata", {}),
     )
+
+
+@pytest.fixture(autouse=True)
+def _isolate_agent_homes(tmp_path_factory, monkeypatch):
+    """Keeps tests from reading the developer's real Codex / Claude logs."""
+    empty = tmp_path_factory.mktemp("empty-agent-home")
+    monkeypatch.setenv("CODEX_HOME", str(empty))
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(empty))

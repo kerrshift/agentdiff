@@ -126,7 +126,11 @@ def test_price_lookup_prefers_most_specific_prefix():
     assert price_for("claude-opus-5").input == 5.0
     assert price_for("claude-opus-4-1-20250805").input == 15.0
     assert price_for("anthropic.claude-sonnet-5-5").output == 10.0
-    assert price_for("gpt-5") is None
+    assert price_for("gpt-5").input == 1.25
+    assert price_for("gpt-5-mini").input == 0.25
+    assert price_for("gpt-5.1-codex-mini").output == 2.0
+    assert price_for("gpt-6.1-sol").long_context_tokens == 272_000
+    assert price_for("llama-9") is None
     assert price_for(None) is None
 
 
@@ -330,7 +334,7 @@ def test_cli_since_filters_old_sessions(tmp_path):
     root = _demo_root(tmp_path)
     result = CliRunner().invoke(app, ["sessions", "--path", str(root), "--since", "1d"])
     assert result.exit_code == 0
-    assert "No Claude Code sessions found" in result.output
+    assert "No Claude Code or Codex sessions found" in result.output
 
 
 def test_cli_rejects_bad_since(tmp_path):
