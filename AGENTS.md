@@ -21,7 +21,7 @@ Instructions for AI coding agents and humans working in this repository.
 ## Commits & PRs
 
 - Conventional Commits for commits **and** PR titles: `type(scope): summary` — imperative mood, ≤72 chars.
-- PR body must follow `.github/PULL_REQUEST_TEMPLATE.md`: What / Why / How / Testing / Checklist — and link the relevant `context/ROADMAP.md` item.
+- PR body must follow `.github/PULL_REQUEST_TEMPLATE.md`: What / Why / How / Testing / Checklist — and link the relevant `../context/ROADMAP.md` (private, outside the repo) item.
 - Open PRs with `gh pr create`; squash-merge; delete the branch after merge; pull fresh `main` before the next task.
 
 ## Verification before every commit
@@ -41,11 +41,11 @@ Any behavior change ships with tests; coverage must not drop.
 
 ## Project conventions
 
-- `context/ROADMAP.md` is the source of truth for status/phases — update item statuses when work completes; archive stale agenda files into `context/product/` or delete them.
+- `../context/ROADMAP.md` (private, outside the repo) is the source of truth for status/phases — update item statuses when work completes; archive stale agenda files into `../context/product/` or delete them.
 - Python 3.10+; managed with `uv`; lint/format with ruff (`make lint`, `make format`).
 - Public API surface lives in `src/agentdiff/__init__.py` — document changes there and in `/docs`.
-- Trace schema is a versioned contract (`schema/`, `context/schema_migration.md`) — breaking changes need a schema-version bump and migration note.
+- Trace schema is a versioned contract (`schema/`, `../context/schema_migration.md`) — breaking changes need a schema-version bump and migration note.
 
 ## Scope guardrails
 
-- Do not add LLM-judge/semantic scoring, hosted backends, or orchestration features — see non-goals in `context/ROADMAP.md`.
+- Do not add LLM-judge/semantic scoring, hosted backends, or orchestration features — see non-goals in `../context/ROADMAP.md` (private, outside the repo).
