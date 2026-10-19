@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-10-19
+
+AgentDiff v0.6.1: **run it however you like.** `npx agentdiff` joins `uvx` and
+`pip`, and the Claude Code plugin (`/agentdiff:report`) ships from this
+repository's marketplace. Both find AgentDiff through uv, pipx, or any
+Python 3.10+.
+
 ### Added
 - **Claude Code plugin** with a `/agentdiff:report` skill, published from this
   repository's own marketplace (`.claude-plugin/marketplace.json`). Install with
@@ -420,3 +427,4 @@ regression engine for multi-turn, tool-using AI agents.
 [0.5.0]: https://github.com/kerrshift/agentdiff/releases/tag/v0.5.0
 [0.5.1]: https://github.com/kerrshift/agentdiff/releases/tag/v0.5.1
 [0.6.0]: https://github.com/kerrshift/agentdiff/releases/tag/v0.6.0
+[0.6.1]: https://github.com/kerrshift/agentdiff/releases/tag/v0.6.1

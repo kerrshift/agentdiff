@@ -1,6 +1,6 @@
 {
   "name": "agentdiff",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "See what your AI coding agent actually did, and what it cost. Local spend report for Claude Code sessions.",
   "keywords": [
     "claude-code",
