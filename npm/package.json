@@ -1,6 +1,6 @@
 {
   "name": "@kerrshift/agentdiff",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "See what your AI coding agent actually did, and what it cost. Local spend report for Claude Code sessions.",
   "keywords": [
     "claude-code",

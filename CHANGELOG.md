@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-10-19
+
+AgentDiff v0.6.2 ships the npm launcher under its working name:
+`npx @kerrshift/agentdiff`. No changes to the CLI itself.
+
 ### Fixed
 - **npm package renamed to `@kerrshift/agentdiff`.** npm refuses the unscoped
   name `agentdiff` as too similar to the existing `agent-diff` package, so the
@@ -436,3 +441,4 @@ regression engine for multi-turn, tool-using AI agents.
 [0.5.1]: https://github.com/kerrshift/agentdiff/releases/tag/v0.5.1
 [0.6.0]: https://github.com/kerrshift/agentdiff/releases/tag/v0.6.0
 [0.6.1]: https://github.com/kerrshift/agentdiff/releases/tag/v0.6.1
+[0.6.2]: https://github.com/kerrshift/agentdiff/releases/tag/v0.6.2
