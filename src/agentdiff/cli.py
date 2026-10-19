@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import typer
@@ -297,6 +298,58 @@ def approve(
             typer.echo(f"Warning: could not post PR comment: {e}", err=True)
 
     sys.exit(0)
+
+
+def _parse_since(value: str) -> datetime | None:
+    """Parses `7d`, `24h`, `30m` or `all` into a UTC cutoff (None = no cutoff)."""
+    value = value.strip().lower()
+    if value in ("all", "0", ""):
+        return None
+    units = {"m": "minutes", "h": "hours", "d": "days", "w": "weeks"}
+    if value[-1] not in units or not value[:-1].isdigit():
+        raise typer.BadParameter("use a number plus m/h/d/w, e.g. 7d, or 'all'")
+    delta = timedelta(**{units[value[-1]]: int(value[:-1])})
+    return datetime.now(timezone.utc) - delta
+
+
+@app.command(name="sessions")
+def sessions(
+    since: str = typer.Option(
+        "7d", "--since", help="Period to analyse: 24h, 7d, 30d, … or 'all'."
+    ),
+    project: str | None = typer.Option(
+        None, "--project", help="Only sessions whose project name contains this."
+    ),
+    top: int = typer.Option(5, "--top", help="How many findings and sessions to list."),
+    as_json: bool = typer.Option(False, "--json", help="Print machine-readable JSON."),
+    path: str | None = typer.Option(
+        None,
+        "--path",
+        help="Claude Code config dir (default: $CLAUDE_CONFIG_DIR or ~/.claude).",
+    ),
+):
+    """Explain where your Claude Code spend went and what was wasted.
+
+    Reads the session logs Claude Code already keeps on this machine. Nothing
+    is uploaded. Sessions are included when they were active in the period.
+    """
+    from agentdiff.sessions.analyzer import analyze
+    from agentdiff.sessions.claude_code import load_sessions
+    from agentdiff.sessions.report import render, to_json
+
+    cutoff = _parse_since(since)
+    found = load_sessions(Path(path).expanduser() if path else None)
+    if cutoff is not None:
+        found = [s for s in found if s.ended_at and s.ended_at >= cutoff]
+    if project:
+        found = [s for s in found if project.lower() in s.project.lower()]
+
+    period = "all time" if cutoff is None else f"last {since}"
+    analysis = analyze(found)
+    if as_json:
+        typer.echo(json.dumps(to_json(analysis, period=period), indent=2))
+        return
+    render(analysis, period=period, top=top)
 
 
 def _resolve_cli(cfg: AgentDiffConfig, **values):
@@ -677,6 +730,9 @@ def main():
         sys.exit(3)
 
 
+_GROUP_OPTIONS = {"--help", "-h", "--install-completion", "--show-completion"}
+
+
 def _install_diff_default() -> None:
     """E1 compat: `agentdiff base.json cand.json` (no subcommand) means `diff`.
 
@@ -694,7 +750,13 @@ def _install_diff_default() -> None:
             original_parse_args = group.parse_args
 
             def parse_args(ctx, args):
-                if (
+                if not args or (
+                    args[0].startswith("-") and args[0] not in _GROUP_OPTIONS
+                ):
+                    # Bare `agentdiff [--since 30d …]` runs the zero-setup
+                    # session report.
+                    args = ["sessions", *args]
+                elif (
                     args
                     and args[0] not in group.commands
                     and not args[0].startswith("-")

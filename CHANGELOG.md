@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`agentdiff sessions` — see where your Claude Code spend went** (the v2
+  direction). Reads the session logs Claude Code already keeps in
+  `~/.claude/projects` (or `$CLAUDE_CONFIG_DIR`) and prints a local report:
+  spend broken down by cache reads, cache writes, output and background calls;
+  avoidable spend with a conservative dollar estimate (long context re-sent
+  every turn, prompt cache rebuilt after breaks, stuck retries, repeated
+  failures, unchanged files re-read, identical repeated calls); and the most
+  expensive sessions. Usage is counted once per request, subagent transcripts
+  are included, forked/resumed sessions are not double-counted, and totals are
+  cross-checked against Claude Code's own cost counter. `--since`, `--project`,
+  `--top`, `--json`, `--path`. Nothing is uploaded.
+- Bare `agentdiff` (no arguments, or only options such as `--since 30d`) now
+  runs the session report. `agentdiff BASELINE CANDIDATE` still means `diff`.
+
 ### Changed
 - **Website extracted to [`kerrshift/agentdiff-website`](https://github.com/kerrshift/agentdiff-website)**
   (full git history preserved): this repository is now product-only Python.
